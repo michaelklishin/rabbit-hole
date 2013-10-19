@@ -46,6 +46,6 @@ TBD
 
 ## License & Copyright
 
-3-clause BSD license.
+2-clause BSD license.
 
 (c) Michael S. Klishin, 2013.
