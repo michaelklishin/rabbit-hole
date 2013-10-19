@@ -7,3 +7,6 @@ install:
   - go get -v ./...
   - go get github.com/onsi/gomega
   - go get github.com/onsi/ginkgo
+
+services:
+  - rabbitmq
