@@ -24,21 +24,32 @@ func BuildPath(uri string, path string) string {
 
 type Version string
 type Rate    float64
-type IntRate uint64
+type IntRate int32
+
+// TODO: this probably should be fixed in RabbitMQ management plugin
+type OsPid   string
 
 type NodeName     string
 type ProtocolName string
 
 // TODO: custom deserializer
 type IpAddress    string
-type Port         uint64
+type Port         int
 
 
-type ExchangeType struct {
+type NameDescriptionEnabled struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Enabled     bool   `json:"enabled"`
 }
+
+type NameDescriptionVersion struct {
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Version     Version `json:"version"`
+}
+
+type ExchangeType NameDescriptionEnabled
 
 type RateDetails struct {
 	Rate        Rate   `json:"rate"`
@@ -89,7 +100,7 @@ type BrokerContext struct {
 // GET /api/overview
 //
 
-type OverviewResponse struct {
+type Overview struct {
 	ManagementVersion Version         `json:"management_version"`
 	StatisticsLevel   string          `json:"statistics_level"`
 	RabbitMQVersion   Version         `json:"rabbitmq_version"`
@@ -105,7 +116,7 @@ type OverviewResponse struct {
 	Contexts          []BrokerContext `json:"contexts"`
 }
 
-func (c *Client) Overview () (OverviewResponse, error) {
+func (c *Client) Overview () (Overview, error) {
 	url := BuildPath(c.Endpoint, "overview")
 
 	req, _ := http.NewRequest("GET", url, nil)
@@ -116,10 +127,61 @@ func (c *Client) Overview () (OverviewResponse, error) {
 	httpc := &http.Client{}
 	res, err := httpc.Do(req)
 	if err != nil {
-		return OverviewResponse{}, err
+		return Overview{}, err
 	}
 
-	var rec OverviewResponse
+	var rec Overview
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
+
+//
+// GET /api/nodes
+//
+
+type AuthMechanism NameDescriptionEnabled
+type ErlangApp     NameDescriptionVersion
+
+type NodeInfo struct {
+	Name      NodeName `json:"name"`
+	NodeType  string   `json:"type"`
+	IsRunning bool     `json:"running"`
+	OsPid     OsPid    `json:"os_pid"`
+
+	FdUsed       uint32  `json:"fd_used"`
+	FdTotal      uint32  `json:"fd_total"`
+	SocketsUsed  uint32  `json:"sockets_used"`
+	SocketsTotal uint32  `json:"sockets_total"`
+	MemUsed      uint64  `json:"mem_used"`
+	MemLimit     uint64  `json:"mem_limit"`
+
+	MemAlarm      bool   `json:"mem_alarm"`
+	DiskFreeAlarm bool   `json:"disk_free_alarm"`
+
+	ExchangeTypes  []ExchangeType  `json:"exchange_types"`
+	AuthMechanisms []AuthMechanism `json:"auth_mechanisms"`
+	ErlangApps     []ErlangApp     `json:"applications"`
+}
+
+
+func (c *Client) ListNodes() ([]NodeInfo, error) {
+	url := BuildPath(c.Endpoint, "nodes")
+
+	req, _ := http.NewRequest("GET", url, nil)
+	req.SetBasicAuth(c.Username, c.Password)
+
+	var err error
+
+	httpc := &http.Client{}
+	res, err := httpc.Do(req)
+	if err != nil {
+		return []NodeInfo{}, err
+	}
+
+	var rec []NodeInfo
 	decoder := json.NewDecoder(res.Body)
 	decoder.Decode(&rec)
 

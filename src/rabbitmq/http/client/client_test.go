@@ -29,4 +29,29 @@ var _ = Describe("Client", func() {
 
 		})
 	})
+
+	Context("GET /nodes", func() {
+		It("returns decoded response", func() {
+			xs, err := rmqc.ListNodes()
+			res := xs[0]
+
+			Ω(err).Should(BeNil())
+
+			Ω(res.Name).ShouldNot(BeNil())
+			Ω(res.NodeType).Should(Equal("disc"))
+
+			Ω(res.FdUsed).Should(BeNumerically(">=", 0))
+			Ω(res.FdTotal).Should(BeNumerically(">", 64))
+
+			Ω(res.MemUsed).Should(BeNumerically(">", 10 * 1024 * 1024))
+			Ω(res.MemLimit).Should(BeNumerically(">", 64 * 1024 * 1024))
+			Ω(res.MemAlarm).Should(Equal(false))
+
+			Ω(res.IsRunning).Should(Equal(true))
+
+			Ω(res.SocketsUsed).Should(BeNumerically(">=", 0))
+			Ω(res.SocketsTotal).Should(BeNumerically(">=", 1))
+
+		})
+	})
 })
