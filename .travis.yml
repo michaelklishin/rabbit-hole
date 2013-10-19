@@ -10,3 +10,5 @@ install:
 
 services:
   - rabbitmq
+
+script: go test -v ./...
