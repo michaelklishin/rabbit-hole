@@ -1,0 +1,6 @@
+.DS_Store
+*.[568ao]
+*.ao
+*.so
+*.out
+core
