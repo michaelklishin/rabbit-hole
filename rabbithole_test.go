@@ -1,9 +1,9 @@
-package client_test
+package rabbithole_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "rabbitmq/http/client"
+	. "rabbithole"
 )
 
 var _ = Describe("Client", func() {

@@ -1,4 +1,4 @@
-package client
+package rabbithole
 
 import (
 	"net/http"
