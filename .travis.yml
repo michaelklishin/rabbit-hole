@@ -1,0 +1,11 @@
+language: go
+go:
+  - 1.1
+  - tip
+
+install:
+  - go get -v ./...
+  - go get github.com/onsi/gomega
+  - go get github.com/onsi/ginkgo
+
+script: make test
