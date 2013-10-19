@@ -9,19 +9,6 @@ type Client struct {
 	Endpoint, Username, Password string
 }
 
-func NewClient(uri string, username string, password string) (*Client) {
-	me := &Client{
-		Endpoint: uri,
-		Username: username,
-	        Password: password}
-
-	return me
-}
-
-func BuildPath(uri string, path string) string {
-	return uri + "/api/" + path
-}
-
 type Version string
 type Rate    float64
 type IntRate int32
@@ -117,15 +104,14 @@ type Overview struct {
 }
 
 func (c *Client) Overview () (Overview, error) {
-	url := BuildPath(c.Endpoint, "overview")
-
-	req, _ := http.NewRequest("GET", url, nil)
-	req.SetBasicAuth(c.Username, c.Password)
-
 	var err error
+	req, err := NewHTTPRequest(c, "GET", "overview")
 
-	httpc := &http.Client{}
-	res, err := httpc.Do(req)
+	if err != nil {
+		return Overview{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
 	if err != nil {
 		return Overview{}, err
 	}
@@ -169,15 +155,13 @@ type NodeInfo struct {
 
 
 func (c *Client) ListNodes() ([]NodeInfo, error) {
-	url := BuildPath(c.Endpoint, "nodes")
-
-	req, _ := http.NewRequest("GET", url, nil)
-	req.SetBasicAuth(c.Username, c.Password)
-
 	var err error
+	req, err := NewHTTPRequest(c, "GET", "nodes")
+	if err != nil {
+		return []NodeInfo{}, err
+	}
 
-	httpc := &http.Client{}
-	res, err := httpc.Do(req)
+	res, err := ExecuteHTTPRequest(c, req)
 	if err != nil {
 		return []NodeInfo{}, err
 	}
@@ -187,4 +171,37 @@ func (c *Client) ListNodes() ([]NodeInfo, error) {
 	decoder.Decode(&rec)
 
 	return rec, nil
+}
+
+
+//
+// Implementation
+//
+
+func NewClient(uri string, username string, password string) (*Client) {
+	me := &Client{
+		Endpoint: uri,
+		Username: username,
+	        Password: password}
+
+	return me
+}
+
+func BuildPath(uri string, path string) string {
+	return uri + "/api/" + path
+}
+
+func NewHTTPRequest(client *Client, method string, path string) (*http.Request, error) {
+	url := BuildPath(client.Endpoint, path)
+
+	req, err := http.NewRequest(method, url, nil)
+	req.SetBasicAuth(client.Username, client.Password)
+
+	return req, err
+}
+
+func ExecuteHTTPRequest(client *Client, req *http.Request) (*http.Response, error) {
+	httpc := &http.Client{}
+
+	return httpc.Do(req)
 }
