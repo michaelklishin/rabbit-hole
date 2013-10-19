@@ -37,7 +37,7 @@ type Port         uint64
 type ExchangeType struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	Enalbed     bool   `json:"name"`
+	Enabled     bool   `json:"enabled"`
 }
 
 type RateDetails struct {
@@ -75,7 +75,7 @@ type Listener struct {
 	Port              Port           `json:"port"`
 }
 
-type Context struct {
+type BrokerContext struct {
 	Node              NodeName       `json:"node"`
 	Description       string         `json:"description"`
 	Path              string         `json:"path"`
@@ -90,19 +90,19 @@ type Context struct {
 //
 
 type OverviewResponse struct {
-	ManagementVersion Version        `json:"management_version"`
-	StatisticsLevel   string         `json:"statistics_level"`
-	RabbitMQVersion   Version        `json:"rabbitmq_version"`
-	ErlangVersion     Version        `json:"erlang_version"`
-	FullErlangVersion Version        `json:"erlang_full_version"`
-	ExchangeTypes     []ExchangeType `json:"exchange_types"`
-	MessageStats      MessageStats   `json:"message_stats"`
-	QueueTotals       QueueTotals    `json:"queue_totals"`
-	ObjectTotals      ObjectTotals   `json:"object_totals"`
-	Node              NodeName       `json:"node"`
-	StatisticsDBNode  NodeName       `json:"statistics_db_node"`
-	Listeners         []Listener     `json:"listeners"`
-	Contexts          []Context      `json:"contexts"`
+	ManagementVersion Version         `json:"management_version"`
+	StatisticsLevel   string          `json:"statistics_level"`
+	RabbitMQVersion   Version         `json:"rabbitmq_version"`
+	ErlangVersion     Version         `json:"erlang_version"`
+	FullErlangVersion Version         `json:"erlang_full_version"`
+	ExchangeTypes     []ExchangeType  `json:"exchange_types"`
+	MessageStats      MessageStats    `json:"message_stats"`
+	QueueTotals       QueueTotals     `json:"queue_totals"`
+	ObjectTotals      ObjectTotals    `json:"object_totals"`
+	Node              NodeName        `json:"node"`
+	StatisticsDBNode  NodeName        `json:"statistics_db_node"`
+	Listeners         []Listener      `json:"listeners"`
+	Contexts          []BrokerContext `json:"contexts"`
 }
 
 func (c *Client) Overview () (OverviewResponse, error) {

@@ -1,32 +1,32 @@
-package client
+package client_test
 
 import (
-	"testing"
-	"regexp"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	. "rabbitmq/http/client"
 )
 
-func AssertRegexpMatch(t *testing.T, pattern string, payload []byte) {
-	matched, err := regexp.Match(pattern, payload)
-	if err != nil || !matched {
-		t.Log(err)
-		t.Error("%s does not match %s", string(payload), pattern)
-		t.Fail()
-	}
-}
+var _ = Describe("Client", func() {
+	var (
+		rmqc *Client
+	)
 
-func AssertSuccessfulResponse(t *testing.T, response interface{}, err error) {
-	if err != nil {
-		t.Log(err)
-		t.Fail()
-	}
-}
+	BeforeEach(func() {
+		rmqc = NewClient("http://127.0.0.1:15672", "guest", "guest")
+	})
 
-func TestOverviewWithValidCredentials(t *testing.T) {
-	c := NewClient("http://127.0.0.1:15672", "guest", "guest")
+	Context("GET /overview", func() {
+		It("returns decoded response", func() {
+			res, err := rmqc.Overview()
 
-	t.Log("GET /api/overview")
-	res, err := c.Overview()
+			Ω(err).Should(BeNil())
 
-	AssertSuccessfulResponse(t, res, err)
-	AssertRegexpMatch(t, `^3\.\d+\.\d+`, []byte(res.ManagementVersion))
-}
+			Ω(res.Node).ShouldNot(BeNil())
+			Ω(res.StatisticsDBNode).ShouldNot(BeNil())
+
+			fanoutExchange := ExchangeType{Name: "fanout", Description: "AMQP fanout exchange, as per the AMQP specification", Enabled: true}
+			Ω(res.ExchangeTypes).Should(ContainElement(fanoutExchange))
+
+		})
+	})
+})
