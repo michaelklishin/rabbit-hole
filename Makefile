@@ -1,10 +1,10 @@
 default: test
 
 build:
-	go build src/rabbitmq/http/client/*
+	go build
 
 test-install:
-	go test -i src/rabbitmq/http/client/*
+	go test -i
 
 test: build test-install
-	go test -test.v src/rabbitmq/http/client/*
+	go test -test.v
