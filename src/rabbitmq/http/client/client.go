@@ -164,6 +164,7 @@ type NodeInfo struct {
 	ExchangeTypes  []ExchangeType  `json:"exchange_types"`
 	AuthMechanisms []AuthMechanism `json:"auth_mechanisms"`
 	ErlangApps     []ErlangApp     `json:"applications"`
+	Contexts       []BrokerContext `json:"contexts"`
 }
 
 
