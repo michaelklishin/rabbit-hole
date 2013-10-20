@@ -4,6 +4,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "rabbithole"
+	"github.com/streadway/amqp"
+	"time"
 )
 
 var _ = Describe("Client", func() {
@@ -52,6 +54,31 @@ var _ = Describe("Client", func() {
 			Ω(res.SocketsUsed).Should(BeNumerically(">=", 0))
 			Ω(res.SocketsTotal).Should(BeNumerically(">=", 1))
 
+		})
+	})
+
+
+
+	Context("GET /connections when there are active connections", func() {
+		It("returns decoded response", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			time.Sleep(1000)
+
+			xs, err := rmqc.ListConnections()
+			Ω(err).Should(BeNil())
+
+			info := xs[0]
+			Ω(info.Name).ShouldNot(BeNil())
+			Ω(info.Host).Should(Equal("127.0.0.1"))
+			Ω(info.UsesTLS).Should(Equal(false))
+			Ω(info.ChannelCount).Should(BeNumerically(">=", 1))
 		})
 	})
 })

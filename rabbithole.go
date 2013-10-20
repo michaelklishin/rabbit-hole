@@ -16,8 +16,9 @@ type IntRate int32
 // TODO: this probably should be fixed in RabbitMQ management plugin
 type OsPid   string
 
-type NodeName     string
-type ProtocolName string
+type NodeName       string
+type ProtocolName   string
+type ConnectionName string
 
 // TODO: custom deserializer
 type IpAddress    string
@@ -167,6 +168,42 @@ func (c *Client) ListNodes() ([]NodeInfo, error) {
 	}
 
 	var rec []NodeInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
+//
+// GET /api/connections
+//
+
+type ConnectionInfo struct {
+        Name         ConnectionName      `json:"name"`
+	Node         NodeName            `json:"node"`
+	ChannelCount int32               `json:"channels"`
+	State        string              `json:"state"`
+	Host         string              `json:"host"`
+	UsesTLS      bool                `json:"ssl"`
+
+	RecvOctDetails RateDetails   `json:"recv_oct_details"`
+	SendOctDetails RateDetails   `json:"send_oct_details"`
+}
+
+
+func (c *Client) ListConnections() ([]ConnectionInfo, error) {
+var err error
+	req, err := NewHTTPRequest(c, "GET", "connections")
+	if err != nil {
+		return []ConnectionInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return []ConnectionInfo{}, err
+	}
+
+	var rec []ConnectionInfo
 	decoder := json.NewDecoder(res.Body)
 	decoder.Decode(&rec)
 
