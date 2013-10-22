@@ -61,15 +61,35 @@ var _ = Describe("Client", func() {
 
 	Context("GET /connections when there are active connections", func() {
 		It("returns decoded response", func() {
+			// this really should be tested with > 1 connection and channel. MK.
 			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 			Ω(err).Should(BeNil())
 			defer conn.Close()
+
+			conn2, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			Ω(err).Should(BeNil())
+			defer conn2.Close()
 
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
 			defer ch.Close()
 
-			time.Sleep(1000)
+			ch2, err := conn2.Channel()
+			Ω(err).Should(BeNil())
+			defer ch2.Close()
+
+			ch3, err := conn2.Channel()
+			Ω(err).Should(BeNil())
+			defer ch3.Close()
+
+			err = ch.Publish("",
+				"",
+				false,
+				false,
+				amqp.Publishing{Body: []byte("")})
+			Ω(err).Should(BeNil())
+
+			time.Sleep(1000000000)
 
 			xs, err := rmqc.ListConnections()
 			Ω(err).Should(BeNil())
@@ -78,7 +98,6 @@ var _ = Describe("Client", func() {
 			Ω(info.Name).ShouldNot(BeNil())
 			Ω(info.Host).Should(Equal("127.0.0.1"))
 			Ω(info.UsesTLS).Should(Equal(false))
-			Ω(info.ChannelCount).Should(BeNumerically(">=", 1))
 		})
 	})
 })

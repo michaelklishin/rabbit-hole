@@ -20,6 +20,11 @@ type NodeName       string
 type ProtocolName   string
 type ConnectionName string
 
+type Username       string
+type VhostName      string
+
+type Properties map[string]interface{}
+
 // TODO: custom deserializer
 type IpAddress    string
 type Port         int
@@ -64,7 +69,7 @@ type ObjectTotals struct {
 	Queues      uint64   `json:"queues"`
 	Exchanges   uint64   `json:"exchanges"`
 	Connections uint64   `json:"connections"`
-	Channels    uint64   `json:"channels"`
+	Channels    uint32   `json:"channels"`
 }
 
 type Listener struct {
@@ -179,13 +184,46 @@ func (c *Client) ListNodes() ([]NodeInfo, error) {
 //
 
 type ConnectionInfo struct {
-        Name         ConnectionName      `json:"name"`
-	Node         NodeName            `json:"node"`
-	ChannelCount int32               `json:"channels"`
-	State        string              `json:"state"`
-	Host         string              `json:"host"`
-	UsesTLS      bool                `json:"ssl"`
+        Name           ConnectionName      `json:"name"`
+	Node           NodeName            `json:"node"`
+	Channels       uint32              `json:"channels"`
+	State          string              `json:"state"`
+	Type           string              `json:"type"`
 
+	Port           Port                `json:"port"`
+	PeerPort       Port                `json:"peer_port"`
+
+	Host           string              `json:"host"`
+	PeerHost       string              `json:"peer_host"`
+
+	LastBlockedBy  string              `json:"last_blocked_by"`
+	LastBlockedAge string              `json:"last_blocked_age"`
+
+	UsesTLS          bool              `json:"ssl"`
+	PeerCertSubject  string            `json:"peer_cert_subject"`
+	PeerCertValidity string            `json:"peer_cert_validity"`
+	PeerCertIssuer   string            `json:"peer_cert_issuer"`
+
+	SSLProtocol      string            `json:"ssl_protocol"`
+	SSLKeyExchange   string            `json:"ssl_key_exchange"`
+	SSLCipher        string            `json:"ssl_cipher"`
+	SSLHash          string            `json:"ssl_hash"`
+
+	Protocol         ProtocolName      `json:"protocol"`
+	User             Username          `json:"user"`
+	Vhost            VhostName         `json:"vhost"`
+
+	Timeout           uint32           `json:"timeout"`
+	FrameMax          uint32           `json:"frame_max"`
+
+	ClientProperties  Properties       `json:"client_properties"`
+
+
+	RecvOct      uint64          `json:"recv_oct"`
+	SendOct      uint64          `json:"send_oct"`
+	RecvCount    uint64          `json:"recv_cnt"`
+	SendCount    uint64          `json:"send_cnt"`
+	SendPendi    uint64          `json:"send_pend"`
 	RecvOctDetails RateDetails   `json:"recv_oct_details"`
 	SendOctDetails RateDetails   `json:"send_oct_details"`
 }
