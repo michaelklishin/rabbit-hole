@@ -142,8 +142,8 @@ var _ = Describe("Client", func() {
 
 			info := xs[0]
 			Ω(info.Node).ShouldNot(BeNil())
-			Ω(string(info.User)).Should(Equal("guest"))
-			Ω(string(info.Vhost)).Should(Equal("/"))
+			Ω(info.User).Should(Equal("guest"))
+			Ω(info.Vhost).Should(Equal("/"))
 
 			Ω(info.Transactional).Should(Equal(false))
 
@@ -179,8 +179,8 @@ var _ = Describe("Client", func() {
 			c1 := xs[0]
 			info, err := rmqc.GetConnection(c1.Name)
 			Ω(err).Should(BeNil())
-			Ω(string(info.Protocol)).Should(Equal("AMQP 0-9-1"))
-			Ω(string(info.User)).Should(Equal("guest"))
+			Ω(info.Protocol).Should(Equal("AMQP 0-9-1"))
+			Ω(info.User).Should(Equal("guest"))
 		})
 	})
 })

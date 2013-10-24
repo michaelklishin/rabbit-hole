@@ -9,26 +9,14 @@ type Client struct {
 	Endpoint, Username, Password string
 }
 
-type Version string
 type Rate    float64
 type IntRate int32
 
 // TODO: this probably should be fixed in RabbitMQ management plugin
 type OsPid   string
 
-type NodeName       string
-type ProtocolName   string
-type ConnectionName string
-type ChannelName    string
-
-type Username       string
-type VhostName      string
-
 type Properties map[string]interface{}
-
-// TODO: custom deserializer
-type IpAddress    string
-type Port         int
+type Port       int
 
 
 type NameDescriptionEnabled struct {
@@ -40,7 +28,7 @@ type NameDescriptionEnabled struct {
 type NameDescriptionVersion struct {
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
-	Version     Version `json:"version"`
+	Version     string `json:"version"`
 }
 
 type ExchangeType NameDescriptionEnabled
@@ -74,14 +62,14 @@ type ObjectTotals struct {
 }
 
 type Listener struct {
-	Node              NodeName       `json:"node"`
-	Protocol          ProtocolName   `json:"protocol"`
-	IpAddress         IpAddress      `json:"ip_address"`
-	Port              Port           `json:"port"`
+	Node              string       `json:"node"`
+	Protocol          string       `json:"protocol"`
+	IpAddress         string       `json:"ip_address"`
+	Port              Port         `json:"port"`
 }
 
 type BrokerContext struct {
-	Node              NodeName       `json:"node"`
+	Node              string       `json:"node"`
 	Description       string         `json:"description"`
 	Path              string         `json:"path"`
 	Port              Port           `json:"port"`
@@ -95,17 +83,17 @@ type BrokerContext struct {
 //
 
 type Overview struct {
-	ManagementVersion Version         `json:"management_version"`
+	ManagementVersion string         `json:"management_version"`
 	StatisticsLevel   string          `json:"statistics_level"`
-	RabbitMQVersion   Version         `json:"rabbitmq_version"`
-	ErlangVersion     Version         `json:"erlang_version"`
-	FullErlangVersion Version         `json:"erlang_full_version"`
+	RabbitMQVersion   string         `json:"rabbitmq_version"`
+	ErlangVersion     string         `json:"erlang_version"`
+	FullErlangVersion string         `json:"erlang_full_version"`
 	ExchangeTypes     []ExchangeType  `json:"exchange_types"`
 	MessageStats      MessageStats    `json:"message_stats"`
 	QueueTotals       QueueTotals     `json:"queue_totals"`
 	ObjectTotals      ObjectTotals    `json:"object_totals"`
-	Node              NodeName        `json:"node"`
-	StatisticsDBNode  NodeName        `json:"statistics_db_node"`
+	Node              string          `json:"node"`
+	StatisticsDBNode  string          `json:"statistics_db_node"`
 	Listeners         []Listener      `json:"listeners"`
 	Contexts          []BrokerContext `json:"contexts"`
 }
@@ -139,7 +127,7 @@ type AuthMechanism NameDescriptionEnabled
 type ErlangApp     NameDescriptionVersion
 
 type NodeInfo struct {
-	Name      NodeName `json:"name"`
+	Name      string   `json:"name"`
 	NodeType  string   `json:"type"`
 	IsRunning bool     `json:"running"`
 	OsPid     OsPid    `json:"os_pid"`
@@ -185,8 +173,8 @@ func (c *Client) ListNodes() ([]NodeInfo, error) {
 //
 
 type ConnectionInfo struct {
-        Name           ConnectionName      `json:"name"`
-	Node           NodeName            `json:"node"`
+        Name           string              `json:"name"`
+	Node           string              `json:"node"`
 	Channels       uint32              `json:"channels"`
 	State          string              `json:"state"`
 	Type           string              `json:"type"`
@@ -210,9 +198,9 @@ type ConnectionInfo struct {
 	SSLCipher        string            `json:"ssl_cipher"`
 	SSLHash          string            `json:"ssl_hash"`
 
-	Protocol         ProtocolName      `json:"protocol"`
-	User             Username          `json:"user"`
-	Vhost            VhostName         `json:"vhost"`
+	Protocol         string            `json:"protocol"`
+	User             string            `json:"user"`
+	Vhost            string            `json:"vhost"`
 
 	Timeout           uint32           `json:"timeout"`
 	FrameMax          uint32           `json:"frame_max"`
@@ -255,7 +243,7 @@ func (c *Client) ListConnections() ([]ConnectionInfo, error) {
 //
 
 type BriefConnectionDetails struct {
-        Name           ConnectionName      `json:"name"`
+        Name           string               `json:"name"`
 	PeerPort       Port                `json:"peer_port"`
 	PeerHost       string              `json:"peer_host"`
 
@@ -263,7 +251,7 @@ type BriefConnectionDetails struct {
 
 type ChannelInfo struct {
 	Number         uint32               `json:"number"`
-	Name           ChannelName          `json:"name"`
+	Name           string               `json:"name"`
 
         PrefetchCount  uint32               `json:"prefetch_count"`
         ConsumerCount  uint32               `json:"consumer_count"`
@@ -280,9 +268,9 @@ type ChannelInfo struct {
 	Transactional         bool          `json:"transactional"`
 	ClientFlowBlocked     bool          `json:"client_flow_blocked"`
 
-        User           Username             `json:"user"`
-	Vhost          VhostName            `json:"vhost"`
-	Node           NodeName             `json:"node"`
+        User           string               `json:"user"`
+	Vhost          string               `json:"vhost"`
+	Node           string               `json:"node"`
 
 	ConnectionDetails BriefConnectionDetails `json:"connection_details"`
 }
@@ -312,7 +300,7 @@ func (c *Client) ListChannels() ([]ChannelInfo, error) {
 // GET /api/connections/{name}
 //
 
-func (c *Client) GetConnection(name ConnectionName) (ConnectionInfo, error) {
+func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
 	var err error
 	req, err := NewHTTPRequest(c, "GET", "connections/" + string(name))
 	if err != nil {
