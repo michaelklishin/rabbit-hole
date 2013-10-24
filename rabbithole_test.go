@@ -5,7 +5,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "rabbithole"
 	"github.com/streadway/amqp"
-	"time"
 )
 
 var _ = Describe("Client", func() {
@@ -89,8 +88,6 @@ var _ = Describe("Client", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
-			time.Sleep(1000000000)
-
 			xs, err := rmqc.ListConnections()
 			Ω(err).Should(BeNil())
 
@@ -98,6 +95,62 @@ var _ = Describe("Client", func() {
 			Ω(info.Name).ShouldNot(BeNil())
 			Ω(info.Host).Should(Equal("127.0.0.1"))
 			Ω(info.UsesTLS).Should(Equal(false))
+		})
+	})
+
+
+
+	Context("GET /channels when there are active connections with open channels", func() {
+		It("returns decoded response", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			ch2, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch2.Close()
+
+			ch3, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch3.Close()
+
+			ch4, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch4.Close()
+
+			err = ch.Publish("",
+				"",
+				false,
+				false,
+				amqp.Publishing{Body: []byte("")})
+			Ω(err).Should(BeNil())
+
+			err = ch2.Publish("",
+				"",
+				false,
+				false,
+				amqp.Publishing{Body: []byte("")})
+			Ω(err).Should(BeNil())
+
+
+			xs, err := rmqc.ListChannels()
+			Ω(err).Should(BeNil())
+
+			info := xs[0]
+			Ω(info.Node).ShouldNot(BeNil())
+			Ω(string(info.User)).Should(Equal("guest"))
+			Ω(string(info.Vhost)).Should(Equal("/"))
+
+			Ω(info.Transactional).Should(Equal(false))
+
+			Ω(info.UnacknowledgedMessageCount).Should(Equal(uint32(0)))
+			Ω(info.UnconfirmedMessageCount).Should(Equal(uint32(0)))
+			Ω(info.UncommittedMessageCount).Should(Equal(uint32(0)))
+			Ω(info.UncommittedAckCount).Should(Equal(uint32(0)))
 		})
 	})
 })

@@ -19,6 +19,7 @@ type OsPid   string
 type NodeName       string
 type ProtocolName   string
 type ConnectionName string
+type ChannelName    string
 
 type Username       string
 type VhostName      string
@@ -230,7 +231,7 @@ type ConnectionInfo struct {
 
 
 func (c *Client) ListConnections() ([]ConnectionInfo, error) {
-var err error
+	var err error
 	req, err := NewHTTPRequest(c, "GET", "connections")
 	if err != nil {
 		return []ConnectionInfo{}, err
@@ -242,6 +243,64 @@ var err error
 	}
 
 	var rec []ConnectionInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
+
+//
+// GET /api/channels
+//
+
+type BriefConnectionDetails struct {
+        Name           ConnectionName      `json:"name"`
+	PeerPort       Port                `json:"peer_port"`
+	PeerHost       string              `json:"peer_host"`
+
+}
+
+type ChannelInfo struct {
+	Number         uint32               `json:"number"`
+	Name           string               `json:"name"`
+
+        PrefetchCount  uint32               `json:"prefetch_count"`
+        ConsumerCount  uint32               `json:"consumer_count"`
+
+        UnacknowledgedMessageCount  uint32  `json:"messages_unacknowledged"`
+        UnconfirmedMessageCount     uint32  `json:"messages_unconfirmed"`
+        UncommittedMessageCount     uint32  `json:"messages_uncommitted"`
+        UncommittedAckCount         uint32  `json:"acks_uncommitted"`
+
+	// TODO: custom deserializer to date/time?
+	IdleSince      string               `json:"idle_since"`
+
+	UsesPublisherConfirms bool          `json:"confirm"`
+	Transactional         bool          `json:"transactional"`
+	ClientFlowBlocked     bool          `json:"client_flow_blocked"`
+
+        User           Username             `json:"user"`
+	Vhost          VhostName            `json:"vhost"`
+	Node           NodeName             `json:"node"`
+
+	ConnectionDetails BriefConnectionDetails `json:"connection_details"`
+}
+
+
+func (c *Client) ListChannels() ([]ChannelInfo, error) {
+var err error
+	req, err := NewHTTPRequest(c, "GET", "channels")
+	if err != nil {
+		return []ChannelInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return []ChannelInfo{}, err
+	}
+
+	var rec []ChannelInfo
 	decoder := json.NewDecoder(res.Body)
 	decoder.Decode(&rec)
 
