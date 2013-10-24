@@ -263,7 +263,7 @@ type BriefConnectionDetails struct {
 
 type ChannelInfo struct {
 	Number         uint32               `json:"number"`
-	Name           string               `json:"name"`
+	Name           ChannelName          `json:"name"`
 
         PrefetchCount  uint32               `json:"prefetch_count"`
         ConsumerCount  uint32               `json:"consumer_count"`
@@ -289,7 +289,7 @@ type ChannelInfo struct {
 
 
 func (c *Client) ListChannels() ([]ChannelInfo, error) {
-var err error
+	var err error
 	req, err := NewHTTPRequest(c, "GET", "channels")
 	if err != nil {
 		return []ChannelInfo{}, err
@@ -301,6 +301,30 @@ var err error
 	}
 
 	var rec []ChannelInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
+
+//
+// GET /api/connections/{name}
+//
+
+func (c *Client) GetConnection(name ConnectionName) (ConnectionInfo, error) {
+	var err error
+	req, err := NewHTTPRequest(c, "GET", "connections/" + string(name))
+	if err != nil {
+		return ConnectionInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return ConnectionInfo{}, err
+	}
+
+	var rec ConnectionInfo
 	decoder := json.NewDecoder(res.Body)
 	decoder.Decode(&rec)
 

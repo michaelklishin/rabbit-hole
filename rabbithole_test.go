@@ -153,4 +153,34 @@ var _ = Describe("Client", func() {
 			Ω(info.UncommittedAckCount).Should(Equal(uint32(0)))
 		})
 	})
+
+
+	Context("GET /connections/{name] when connection exists", func() {
+		It("returns decoded response", func() {
+			// this really should be tested with > 1 connection and channel. MK.
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			err = ch.Publish("",
+				"",
+				false,
+				false,
+				amqp.Publishing{Body: []byte("")})
+			Ω(err).Should(BeNil())
+
+			xs, err := rmqc.ListConnections()
+			Ω(err).Should(BeNil())
+
+			c1 := xs[0]
+			info, err := rmqc.GetConnection(c1.Name)
+			Ω(err).Should(BeNil())
+			Ω(string(info.Protocol)).Should(Equal("AMQP 0-9-1"))
+			Ω(string(info.User)).Should(Equal("guest"))
+		})
+	})
 })
