@@ -384,6 +384,30 @@ func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
 }
 
 
+//
+// GET /api/exchanges/{vhost}
+//
+
+func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
+	var err error
+	// TODO: percent encoding, e.g. / => %2F. MK.
+	req, err := NewHTTPRequest(c, "GET", "exchanges/" + vhost)
+	if err != nil {
+		return []ExchangeInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return []ExchangeInfo{}, err
+	}
+
+	var rec []ExchangeInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
 
 //
 // Implementation

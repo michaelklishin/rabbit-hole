@@ -234,4 +234,16 @@ var _ = Describe("Client", func() {
 			Ω(x.Durable).Should(Equal(true))
 		})
 	})
+
+
+	Context("GET /exchanges/{vhost}", func() {
+		It("returns decoded response", func() {
+			xs, err := rmqc.ListExchangesIn("/")
+			Ω(err).Should(BeNil())
+
+			x := xs[0]
+			Ω(x.Name).Should(Equal(""))
+			Ω(x.Durable).Should(Equal(true))
+		})
+	})
 })
