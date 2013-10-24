@@ -302,7 +302,7 @@ func (c *Client) ListChannels() ([]ChannelInfo, error) {
 
 func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "connections/" + string(name))
+	req, err := NewHTTPRequest(c, "GET", "connections/" + name)
 	if err != nil {
 		return ConnectionInfo{}, err
 	}
@@ -313,6 +313,30 @@ func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
 	}
 
 	var rec ConnectionInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
+
+//
+// GET /api/channels/{name}
+//
+
+func (c *Client) GetChannel(name string) (ChannelInfo, error) {
+	var err error
+	req, err := NewHTTPRequest(c, "GET", "channels/" + name)
+	if err != nil {
+		return ChannelInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return ChannelInfo{}, err
+	}
+
+	var rec ChannelInfo
 	decoder := json.NewDecoder(res.Body)
 	decoder.Decode(&rec)
 

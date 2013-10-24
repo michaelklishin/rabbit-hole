@@ -183,4 +183,43 @@ var _ = Describe("Client", func() {
 			Ω(info.User).Should(Equal("guest"))
 		})
 	})
+
+
+	Context("GET /channels/{name} when channel exists", func() {
+		It("returns decoded response", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			err = ch.Publish("",
+				"",
+				false,
+				false,
+				amqp.Publishing{Body: []byte("")})
+			Ω(err).Should(BeNil())
+
+
+			xs, err := rmqc.ListChannels()
+			Ω(err).Should(BeNil())
+
+			x := xs[0]
+			info, err := rmqc.GetChannel(x.Name)
+
+
+			Ω(info.Node).ShouldNot(BeNil())
+			Ω(info.User).Should(Equal("guest"))
+			Ω(info.Vhost).Should(Equal("/"))
+
+			Ω(info.Transactional).Should(Equal(false))
+
+			Ω(info.UnacknowledgedMessageCount).Should(Equal(uint32(0)))
+			Ω(info.UnconfirmedMessageCount).Should(Equal(uint32(0)))
+			Ω(info.UncommittedMessageCount).Should(Equal(uint32(0)))
+			Ω(info.UncommittedAckCount).Should(Equal(uint32(0)))
+		})
+	})
 })
