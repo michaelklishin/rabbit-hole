@@ -9,9 +9,6 @@ type Client struct {
 	Endpoint, Username, Password string
 }
 
-type Rate    float64
-type IntRate int32
-
 // TODO: this probably should be fixed in RabbitMQ management plugin
 type OsPid   string
 
@@ -34,13 +31,14 @@ type NameDescriptionVersion struct {
 type ExchangeType NameDescriptionEnabled
 
 type RateDetails struct {
-	Rate        Rate   `json:"rate"`
+	Rate        uint32   `json:"rate"`
 }
 
 type MessageStats struct {
-	Publish        IntRate     `json:"publish"`
+	Publish        uint32      `json:"publish"`
 	PublishDetails RateDetails `json:"publish_details"`
 }
+
 
 type QueueTotals struct {
 	Messages        uint64      `json:"messages"`
@@ -342,6 +340,49 @@ func (c *Client) GetChannel(name string) (ChannelInfo, error) {
 
 	return rec, nil
 }
+
+
+//
+// GET /api/exchanges
+//
+
+type ExchangeInfo struct {
+	Name       string                 `json:"name"`
+	Vhost      string                 `json:"vhost"`
+	Type       string                 `json:"type"`
+	Durable    bool                   `json:"durable"`
+	AutoDelete bool                   `json:"auto_delete"`
+	Internal   bool                   `json:"internal"`
+	Arguments  map[string]interface{} `json:"arguments"`
+
+	MessageStats IngressStats         `json:"message_stats"`
+}
+
+type IngressStats struct {
+	PublishIn        uint32      `json:"publish_in"`
+	PublishInDetails RateDetails `json:"publish_in_details"`
+}
+
+
+func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
+	var err error
+	req, err := NewHTTPRequest(c, "GET", "exchanges")
+	if err != nil {
+		return []ExchangeInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return []ExchangeInfo{}, err
+	}
+
+	var rec []ExchangeInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
 
 
 //

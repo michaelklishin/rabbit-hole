@@ -222,4 +222,16 @@ var _ = Describe("Client", func() {
 			Ω(info.UncommittedAckCount).Should(Equal(uint32(0)))
 		})
 	})
+
+
+	Context("GET /exchanges", func() {
+		It("returns decoded response", func() {
+			xs, err := rmqc.ListExchanges()
+			Ω(err).Should(BeNil())
+
+			x := xs[0]
+			Ω(x.Name).Should(Equal(""))
+			Ω(x.Durable).Should(Equal(true))
+		})
+	})
 })
