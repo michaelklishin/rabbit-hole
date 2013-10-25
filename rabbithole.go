@@ -1,8 +1,8 @@
 package rabbithole
 
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
 )
 
 type Client struct {
@@ -10,11 +10,10 @@ type Client struct {
 }
 
 // TODO: this probably should be fixed in RabbitMQ management plugin
-type OsPid   string
+type OsPid string
 
 type Properties map[string]interface{}
-type Port       int
-
+type Port int
 
 type NameDescriptionEnabled struct {
 	Name        string `json:"name"`
@@ -23,69 +22,66 @@ type NameDescriptionEnabled struct {
 }
 
 type NameDescriptionVersion struct {
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 	Version     string `json:"version"`
 }
 
 type ExchangeType NameDescriptionEnabled
 
 type RateDetails struct {
-	Rate        int   `json:"rate"`
+	Rate int `json:"rate"`
 }
 
 type MessageStats struct {
-	Publish        int      `json:"publish"`
+	Publish        int         `json:"publish"`
 	PublishDetails RateDetails `json:"publish_details"`
 }
 
-
 type QueueTotals struct {
-	Messages        int      `json:"messages"`
+	Messages        int         `json:"messages"`
 	MessagesDetails RateDetails `json:"messages_details"`
 
-	MessagesReady        int      `json:"messages_ready"`
+	MessagesReady        int         `json:"messages_ready"`
 	MessagesReadyDetails RateDetails `json:"messages_ready_details"`
 
-	MessagesUnacknowledged        int      `json:"messages_unacknowledged"`
+	MessagesUnacknowledged        int         `json:"messages_unacknowledged"`
 	MessagesUnacknowledgedDetails RateDetails `json:"messages_unacknowledged_details"`
 }
 
 type ObjectTotals struct {
-        Consumers   int   `json:"consumers"`
-	Queues      int   `json:"queues"`
-	Exchanges   int   `json:"exchanges"`
-	Connections int   `json:"connections"`
-	Channels    int   `json:"channels"`
+	Consumers   int `json:"consumers"`
+	Queues      int `json:"queues"`
+	Exchanges   int `json:"exchanges"`
+	Connections int `json:"connections"`
+	Channels    int `json:"channels"`
 }
 
 type Listener struct {
-	Node              string       `json:"node"`
-	Protocol          string       `json:"protocol"`
-	IpAddress         string       `json:"ip_address"`
-	Port              Port         `json:"port"`
+	Node      string `json:"node"`
+	Protocol  string `json:"protocol"`
+	IpAddress string `json:"ip_address"`
+	Port      Port   `json:"port"`
 }
 
 type BrokerContext struct {
-	Node              string       `json:"node"`
-	Description       string         `json:"description"`
-	Path              string         `json:"path"`
-	Port              Port           `json:"port"`
-	Ignore            bool           `json:"ignore_in_use"`
+	Node        string `json:"node"`
+	Description string `json:"description"`
+	Path        string `json:"path"`
+	Port        Port   `json:"port"`
+	Ignore      bool   `json:"ignore_in_use"`
 }
-
-
 
 //
 // GET /api/overview
 //
 
 type Overview struct {
-	ManagementVersion string         `json:"management_version"`
+	ManagementVersion string          `json:"management_version"`
 	StatisticsLevel   string          `json:"statistics_level"`
-	RabbitMQVersion   string         `json:"rabbitmq_version"`
-	ErlangVersion     string         `json:"erlang_version"`
-	FullErlangVersion string         `json:"erlang_full_version"`
+	RabbitMQVersion   string          `json:"rabbitmq_version"`
+	ErlangVersion     string          `json:"erlang_version"`
+	FullErlangVersion string          `json:"erlang_full_version"`
 	ExchangeTypes     []ExchangeType  `json:"exchange_types"`
 	MessageStats      MessageStats    `json:"message_stats"`
 	QueueTotals       QueueTotals     `json:"queue_totals"`
@@ -96,7 +92,7 @@ type Overview struct {
 	Contexts          []BrokerContext `json:"contexts"`
 }
 
-func (c *Client) Overview () (Overview, error) {
+func (c *Client) Overview() (Overview, error) {
 	var err error
 	req, err := NewHTTPRequest(c, "GET", "overview")
 
@@ -116,36 +112,34 @@ func (c *Client) Overview () (Overview, error) {
 	return rec, nil
 }
 
-
 //
 // GET /api/nodes
 //
 
 type AuthMechanism NameDescriptionEnabled
-type ErlangApp     NameDescriptionVersion
+type ErlangApp NameDescriptionVersion
 
 type NodeInfo struct {
-	Name      string   `json:"name"`
-	NodeType  string   `json:"type"`
-	IsRunning bool     `json:"running"`
-	OsPid     OsPid    `json:"os_pid"`
+	Name      string `json:"name"`
+	NodeType  string `json:"type"`
+	IsRunning bool   `json:"running"`
+	OsPid     OsPid  `json:"os_pid"`
 
-	FdUsed       int  `json:"fd_used"`
-	FdTotal      int  `json:"fd_total"`
-	SocketsUsed  int  `json:"sockets_used"`
-	SocketsTotal int  `json:"sockets_total"`
-	MemUsed      int  `json:"mem_used"`
-	MemLimit     int  `json:"mem_limit"`
+	FdUsed       int `json:"fd_used"`
+	FdTotal      int `json:"fd_total"`
+	SocketsUsed  int `json:"sockets_used"`
+	SocketsTotal int `json:"sockets_total"`
+	MemUsed      int `json:"mem_used"`
+	MemLimit     int `json:"mem_limit"`
 
-	MemAlarm      bool   `json:"mem_alarm"`
-	DiskFreeAlarm bool   `json:"disk_free_alarm"`
+	MemAlarm      bool `json:"mem_alarm"`
+	DiskFreeAlarm bool `json:"disk_free_alarm"`
 
 	ExchangeTypes  []ExchangeType  `json:"exchange_types"`
 	AuthMechanisms []AuthMechanism `json:"auth_mechanisms"`
 	ErlangApps     []ErlangApp     `json:"applications"`
 	Contexts       []BrokerContext `json:"contexts"`
 }
-
 
 func (c *Client) ListNodes() ([]NodeInfo, error) {
 	var err error
@@ -171,50 +165,48 @@ func (c *Client) ListNodes() ([]NodeInfo, error) {
 //
 
 type ConnectionInfo struct {
-        Name           string              `json:"name"`
-	Node           string              `json:"node"`
-	Channels       int              `json:"channels"`
-	State          string              `json:"state"`
-	Type           string              `json:"type"`
+	Name     string `json:"name"`
+	Node     string `json:"node"`
+	Channels int    `json:"channels"`
+	State    string `json:"state"`
+	Type     string `json:"type"`
 
-	Port           Port                `json:"port"`
-	PeerPort       Port                `json:"peer_port"`
+	Port     Port `json:"port"`
+	PeerPort Port `json:"peer_port"`
 
-	Host           string              `json:"host"`
-	PeerHost       string              `json:"peer_host"`
+	Host     string `json:"host"`
+	PeerHost string `json:"peer_host"`
 
-	LastBlockedBy  string              `json:"last_blocked_by"`
-	LastBlockedAge string              `json:"last_blocked_age"`
+	LastBlockedBy  string `json:"last_blocked_by"`
+	LastBlockedAge string `json:"last_blocked_age"`
 
-	UsesTLS          bool              `json:"ssl"`
-	PeerCertSubject  string            `json:"peer_cert_subject"`
-	PeerCertValidity string            `json:"peer_cert_validity"`
-	PeerCertIssuer   string            `json:"peer_cert_issuer"`
+	UsesTLS          bool   `json:"ssl"`
+	PeerCertSubject  string `json:"peer_cert_subject"`
+	PeerCertValidity string `json:"peer_cert_validity"`
+	PeerCertIssuer   string `json:"peer_cert_issuer"`
 
-	SSLProtocol      string            `json:"ssl_protocol"`
-	SSLKeyExchange   string            `json:"ssl_key_exchange"`
-	SSLCipher        string            `json:"ssl_cipher"`
-	SSLHash          string            `json:"ssl_hash"`
+	SSLProtocol    string `json:"ssl_protocol"`
+	SSLKeyExchange string `json:"ssl_key_exchange"`
+	SSLCipher      string `json:"ssl_cipher"`
+	SSLHash        string `json:"ssl_hash"`
 
-	Protocol         string            `json:"protocol"`
-	User             string            `json:"user"`
-	Vhost            string            `json:"vhost"`
+	Protocol string `json:"protocol"`
+	User     string `json:"user"`
+	Vhost    string `json:"vhost"`
 
-	Timeout           int           `json:"timeout"`
-	FrameMax          int           `json:"frame_max"`
+	Timeout  int `json:"timeout"`
+	FrameMax int `json:"frame_max"`
 
-	ClientProperties  Properties       `json:"client_properties"`
+	ClientProperties Properties `json:"client_properties"`
 
-
-	RecvOct      uint64          `json:"recv_oct"`
-	SendOct      uint64          `json:"send_oct"`
-	RecvCount    uint64          `json:"recv_cnt"`
-	SendCount    uint64          `json:"send_cnt"`
-	SendPendi    uint64          `json:"send_pend"`
-	RecvOctDetails RateDetails   `json:"recv_oct_details"`
-	SendOctDetails RateDetails   `json:"send_oct_details"`
+	RecvOct        uint64      `json:"recv_oct"`
+	SendOct        uint64      `json:"send_oct"`
+	RecvCount      uint64      `json:"recv_cnt"`
+	SendCount      uint64      `json:"send_cnt"`
+	SendPendi      uint64      `json:"send_pend"`
+	RecvOctDetails RateDetails `json:"recv_oct_details"`
+	SendOctDetails RateDetails `json:"send_oct_details"`
 }
-
 
 func (c *Client) ListConnections() ([]ConnectionInfo, error) {
 	var err error
@@ -235,44 +227,41 @@ func (c *Client) ListConnections() ([]ConnectionInfo, error) {
 	return rec, nil
 }
 
-
 //
 // GET /api/channels
 //
 
 type BriefConnectionDetails struct {
-        Name           string               `json:"name"`
-	PeerPort       Port                `json:"peer_port"`
-	PeerHost       string              `json:"peer_host"`
-
+	Name     string `json:"name"`
+	PeerPort Port   `json:"peer_port"`
+	PeerHost string `json:"peer_host"`
 }
 
 type ChannelInfo struct {
-	Number         int               `json:"number"`
-	Name           string               `json:"name"`
+	Number int    `json:"number"`
+	Name   string `json:"name"`
 
-        PrefetchCount  int               `json:"prefetch_count"`
-        ConsumerCount  int               `json:"consumer_count"`
+	PrefetchCount int `json:"prefetch_count"`
+	ConsumerCount int `json:"consumer_count"`
 
-        UnacknowledgedMessageCount  int  `json:"messages_unacknowledged"`
-        UnconfirmedMessageCount     int  `json:"messages_unconfirmed"`
-        UncommittedMessageCount     int  `json:"messages_uncommitted"`
-        UncommittedAckCount         int  `json:"acks_uncommitted"`
+	UnacknowledgedMessageCount int `json:"messages_unacknowledged"`
+	UnconfirmedMessageCount    int `json:"messages_unconfirmed"`
+	UncommittedMessageCount    int `json:"messages_uncommitted"`
+	UncommittedAckCount        int `json:"acks_uncommitted"`
 
 	// TODO: custom deserializer to date/time?
-	IdleSince      string               `json:"idle_since"`
+	IdleSince string `json:"idle_since"`
 
-	UsesPublisherConfirms bool          `json:"confirm"`
-	Transactional         bool          `json:"transactional"`
-	ClientFlowBlocked     bool          `json:"client_flow_blocked"`
+	UsesPublisherConfirms bool `json:"confirm"`
+	Transactional         bool `json:"transactional"`
+	ClientFlowBlocked     bool `json:"client_flow_blocked"`
 
-        User           string               `json:"user"`
-	Vhost          string               `json:"vhost"`
-	Node           string               `json:"node"`
+	User  string `json:"user"`
+	Vhost string `json:"vhost"`
+	Node  string `json:"node"`
 
 	ConnectionDetails BriefConnectionDetails `json:"connection_details"`
 }
-
 
 func (c *Client) ListChannels() ([]ChannelInfo, error) {
 	var err error
@@ -293,14 +282,13 @@ func (c *Client) ListChannels() ([]ChannelInfo, error) {
 	return rec, nil
 }
 
-
 //
 // GET /api/connections/{name}
 //
 
 func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "connections/" + name)
+	req, err := NewHTTPRequest(c, "GET", "connections/"+name)
 	if err != nil {
 		return ConnectionInfo{}, err
 	}
@@ -317,14 +305,13 @@ func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
 	return rec, nil
 }
 
-
 //
 // GET /api/channels/{name}
 //
 
 func (c *Client) GetChannel(name string) (ChannelInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "channels/" + name)
+	req, err := NewHTTPRequest(c, "GET", "channels/"+name)
 	if err != nil {
 		return ChannelInfo{}, err
 	}
@@ -341,7 +328,6 @@ func (c *Client) GetChannel(name string) (ChannelInfo, error) {
 	return rec, nil
 }
 
-
 //
 // GET /api/exchanges
 //
@@ -355,14 +341,13 @@ type ExchangeInfo struct {
 	Internal   bool                   `json:"internal"`
 	Arguments  map[string]interface{} `json:"arguments"`
 
-	MessageStats IngressStats         `json:"message_stats"`
+	MessageStats IngressStats `json:"message_stats"`
 }
 
 type IngressStats struct {
-	PublishIn        int      `json:"publish_in"`
+	PublishIn        int         `json:"publish_in"`
 	PublishInDetails RateDetails `json:"publish_in_details"`
 }
-
 
 func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
 	var err error
@@ -383,7 +368,6 @@ func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
 	return rec, nil
 }
 
-
 //
 // GET /api/exchanges/{vhost}
 //
@@ -391,7 +375,7 @@ func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
 func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
 	var err error
 	// TODO: percent encoding, e.g. / => %2F. MK.
-	req, err := NewHTTPRequest(c, "GET", "exchanges/" + vhost)
+	req, err := NewHTTPRequest(c, "GET", "exchanges/"+vhost)
 	if err != nil {
 		return []ExchangeInfo{}, err
 	}
@@ -408,16 +392,15 @@ func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
 	return rec, nil
 }
 
-
 //
 // Implementation
 //
 
-func NewClient(uri string, username string, password string) (*Client) {
+func NewClient(uri string, username string, password string) *Client {
 	me := &Client{
 		Endpoint: uri,
 		Username: username,
-	        Password: password}
+		Password: password}
 
 	return me
 }

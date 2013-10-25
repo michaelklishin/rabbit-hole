@@ -3,8 +3,8 @@ package rabbithole_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "rabbithole"
 	"github.com/streadway/amqp"
+	. "rabbithole"
 )
 
 var _ = Describe("Client", func() {
@@ -44,8 +44,8 @@ var _ = Describe("Client", func() {
 			Ω(res.FdUsed).Should(BeNumerically(">=", 0))
 			Ω(res.FdTotal).Should(BeNumerically(">", 64))
 
-			Ω(res.MemUsed).Should(BeNumerically(">", 10 * 1024 * 1024))
-			Ω(res.MemLimit).Should(BeNumerically(">", 64 * 1024 * 1024))
+			Ω(res.MemUsed).Should(BeNumerically(">", 10*1024*1024))
+			Ω(res.MemLimit).Should(BeNumerically(">", 64*1024*1024))
 			Ω(res.MemAlarm).Should(Equal(false))
 
 			Ω(res.IsRunning).Should(Equal(true))
@@ -55,8 +55,6 @@ var _ = Describe("Client", func() {
 
 		})
 	})
-
-
 
 	Context("GET /connections when there are active connections", func() {
 		It("returns decoded response", func() {
@@ -98,8 +96,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-
-
 	Context("GET /channels when there are active connections with open channels", func() {
 		It("returns decoded response", func() {
 			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
@@ -136,7 +132,6 @@ var _ = Describe("Client", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
-
 			xs, err := rmqc.ListChannels()
 			Ω(err).Should(BeNil())
 
@@ -153,7 +148,6 @@ var _ = Describe("Client", func() {
 			Ω(info.UncommittedAckCount).Should(Equal(0))
 		})
 	})
-
 
 	Context("GET /connections/{name] when connection exists", func() {
 		It("returns decoded response", func() {
@@ -184,7 +178,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-
 	Context("GET /channels/{name} when channel exists", func() {
 		It("returns decoded response", func() {
 			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
@@ -202,13 +195,11 @@ var _ = Describe("Client", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
-
 			xs, err := rmqc.ListChannels()
 			Ω(err).Should(BeNil())
 
 			x := xs[0]
 			info, err := rmqc.GetChannel(x.Name)
-
 
 			Ω(info.Node).ShouldNot(BeNil())
 			Ω(info.User).Should(Equal("guest"))
@@ -223,7 +214,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-
 	Context("GET /exchanges", func() {
 		It("returns decoded response", func() {
 			xs, err := rmqc.ListExchanges()
@@ -234,7 +224,6 @@ var _ = Describe("Client", func() {
 			Ω(x.Durable).Should(Equal(true))
 		})
 	})
-
 
 	Context("GET /exchanges/{vhost}", func() {
 		It("returns decoded response", func() {
