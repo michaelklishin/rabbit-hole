@@ -81,11 +81,11 @@ type BrokerContext struct {
 //
 
 type Overview struct {
-	ManagementVersion string         `json:"management_version"`
+	ManagementVersion string          `json:"management_version"`
 	StatisticsLevel   string          `json:"statistics_level"`
-	RabbitMQVersion   string         `json:"rabbitmq_version"`
-	ErlangVersion     string         `json:"erlang_version"`
-	FullErlangVersion string         `json:"erlang_full_version"`
+	RabbitMQVersion   string          `json:"rabbitmq_version"`
+	ErlangVersion     string          `json:"erlang_version"`
+	FullErlangVersion string          `json:"erlang_full_version"`
 	ExchangeTypes     []ExchangeType  `json:"exchange_types"`
 	MessageStats      MessageStats    `json:"message_stats"`
 	QueueTotals       QueueTotals     `json:"queue_totals"`
