@@ -147,10 +147,10 @@ var _ = Describe("Client", func() {
 
 			Ω(info.Transactional).Should(Equal(false))
 
-			Ω(info.UnacknowledgedMessageCount).Should(Equal(uint32(0)))
-			Ω(info.UnconfirmedMessageCount).Should(Equal(uint32(0)))
-			Ω(info.UncommittedMessageCount).Should(Equal(uint32(0)))
-			Ω(info.UncommittedAckCount).Should(Equal(uint32(0)))
+			Ω(info.UnacknowledgedMessageCount).Should(Equal(0))
+			Ω(info.UnconfirmedMessageCount).Should(Equal(0))
+			Ω(info.UncommittedMessageCount).Should(Equal(0))
+			Ω(info.UncommittedAckCount).Should(Equal(0))
 		})
 	})
 
@@ -216,10 +216,10 @@ var _ = Describe("Client", func() {
 
 			Ω(info.Transactional).Should(Equal(false))
 
-			Ω(info.UnacknowledgedMessageCount).Should(Equal(uint32(0)))
-			Ω(info.UnconfirmedMessageCount).Should(Equal(uint32(0)))
-			Ω(info.UncommittedMessageCount).Should(Equal(uint32(0)))
-			Ω(info.UncommittedAckCount).Should(Equal(uint32(0)))
+			Ω(info.UnacknowledgedMessageCount).Should(Equal(0))
+			Ω(info.UnconfirmedMessageCount).Should(Equal(0))
+			Ω(info.UncommittedMessageCount).Should(Equal(0))
+			Ω(info.UncommittedAckCount).Should(Equal(0))
 		})
 	})
 

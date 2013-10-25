@@ -31,32 +31,32 @@ type NameDescriptionVersion struct {
 type ExchangeType NameDescriptionEnabled
 
 type RateDetails struct {
-	Rate        uint32   `json:"rate"`
+	Rate        int   `json:"rate"`
 }
 
 type MessageStats struct {
-	Publish        uint32      `json:"publish"`
+	Publish        int      `json:"publish"`
 	PublishDetails RateDetails `json:"publish_details"`
 }
 
 
 type QueueTotals struct {
-	Messages        uint64      `json:"messages"`
+	Messages        int      `json:"messages"`
 	MessagesDetails RateDetails `json:"messages_details"`
 
-	MessagesReady        uint64      `json:"messages_ready"`
+	MessagesReady        int      `json:"messages_ready"`
 	MessagesReadyDetails RateDetails `json:"messages_ready_details"`
 
-	MessagesUnacknowledged        uint64      `json:"messages_unacknowledged"`
+	MessagesUnacknowledged        int      `json:"messages_unacknowledged"`
 	MessagesUnacknowledgedDetails RateDetails `json:"messages_unacknowledged_details"`
 }
 
 type ObjectTotals struct {
-        Consumers   uint64   `json:"consumers"`
-	Queues      uint64   `json:"queues"`
-	Exchanges   uint64   `json:"exchanges"`
-	Connections uint64   `json:"connections"`
-	Channels    uint32   `json:"channels"`
+        Consumers   int   `json:"consumers"`
+	Queues      int   `json:"queues"`
+	Exchanges   int   `json:"exchanges"`
+	Connections int   `json:"connections"`
+	Channels    int   `json:"channels"`
 }
 
 type Listener struct {
@@ -130,12 +130,12 @@ type NodeInfo struct {
 	IsRunning bool     `json:"running"`
 	OsPid     OsPid    `json:"os_pid"`
 
-	FdUsed       uint32  `json:"fd_used"`
-	FdTotal      uint32  `json:"fd_total"`
-	SocketsUsed  uint32  `json:"sockets_used"`
-	SocketsTotal uint32  `json:"sockets_total"`
-	MemUsed      uint64  `json:"mem_used"`
-	MemLimit     uint64  `json:"mem_limit"`
+	FdUsed       int  `json:"fd_used"`
+	FdTotal      int  `json:"fd_total"`
+	SocketsUsed  int  `json:"sockets_used"`
+	SocketsTotal int  `json:"sockets_total"`
+	MemUsed      int  `json:"mem_used"`
+	MemLimit     int  `json:"mem_limit"`
 
 	MemAlarm      bool   `json:"mem_alarm"`
 	DiskFreeAlarm bool   `json:"disk_free_alarm"`
@@ -173,7 +173,7 @@ func (c *Client) ListNodes() ([]NodeInfo, error) {
 type ConnectionInfo struct {
         Name           string              `json:"name"`
 	Node           string              `json:"node"`
-	Channels       uint32              `json:"channels"`
+	Channels       int              `json:"channels"`
 	State          string              `json:"state"`
 	Type           string              `json:"type"`
 
@@ -200,17 +200,17 @@ type ConnectionInfo struct {
 	User             string            `json:"user"`
 	Vhost            string            `json:"vhost"`
 
-	Timeout           uint32           `json:"timeout"`
-	FrameMax          uint32           `json:"frame_max"`
+	Timeout           int           `json:"timeout"`
+	FrameMax          int           `json:"frame_max"`
 
 	ClientProperties  Properties       `json:"client_properties"`
 
 
-	RecvOct      uint64          `json:"recv_oct"`
-	SendOct      uint64          `json:"send_oct"`
-	RecvCount    uint64          `json:"recv_cnt"`
-	SendCount    uint64          `json:"send_cnt"`
-	SendPendi    uint64          `json:"send_pend"`
+	RecvOct      int          `json:"recv_oct"`
+	SendOct      int          `json:"send_oct"`
+	RecvCount    int          `json:"recv_cnt"`
+	SendCount    int          `json:"send_cnt"`
+	SendPendi    int          `json:"send_pend"`
 	RecvOctDetails RateDetails   `json:"recv_oct_details"`
 	SendOctDetails RateDetails   `json:"send_oct_details"`
 }
@@ -248,16 +248,16 @@ type BriefConnectionDetails struct {
 }
 
 type ChannelInfo struct {
-	Number         uint32               `json:"number"`
+	Number         int               `json:"number"`
 	Name           string               `json:"name"`
 
-        PrefetchCount  uint32               `json:"prefetch_count"`
-        ConsumerCount  uint32               `json:"consumer_count"`
+        PrefetchCount  int               `json:"prefetch_count"`
+        ConsumerCount  int               `json:"consumer_count"`
 
-        UnacknowledgedMessageCount  uint32  `json:"messages_unacknowledged"`
-        UnconfirmedMessageCount     uint32  `json:"messages_unconfirmed"`
-        UncommittedMessageCount     uint32  `json:"messages_uncommitted"`
-        UncommittedAckCount         uint32  `json:"acks_uncommitted"`
+        UnacknowledgedMessageCount  int  `json:"messages_unacknowledged"`
+        UnconfirmedMessageCount     int  `json:"messages_unconfirmed"`
+        UncommittedMessageCount     int  `json:"messages_uncommitted"`
+        UncommittedAckCount         int  `json:"acks_uncommitted"`
 
 	// TODO: custom deserializer to date/time?
 	IdleSince      string               `json:"idle_since"`
@@ -359,7 +359,7 @@ type ExchangeInfo struct {
 }
 
 type IngressStats struct {
-	PublishIn        uint32      `json:"publish_in"`
+	PublishIn        int      `json:"publish_in"`
 	PublishInDetails RateDetails `json:"publish_in_details"`
 }
 
