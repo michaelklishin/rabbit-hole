@@ -375,7 +375,6 @@ func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
 
 func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
 	var err error
-	// TODO: percent encoding, e.g. / => %2F. MK.
 	req, err := NewHTTPRequest(c, "GET", "exchanges/" + url.QueryEscape(vhost))
 	if err != nil {
 		return []ExchangeInfo{}, err
