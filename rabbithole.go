@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"fmt"
 )
 
 type Client struct {
@@ -138,7 +137,6 @@ type NodeInfo struct {
 	SocketsTotal int `json:"sockets_total"`
 	MemUsed      int `json:"mem_used"`
 	MemLimit     int `json:"mem_limit"`
-
 	MemAlarm      bool `json:"mem_alarm"`
 	DiskFreeAlarm bool `json:"disk_free_alarm"`
 
@@ -397,7 +395,6 @@ func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
 
 	return rec, nil
 }
-
 
 //
 // GET /api/exchanges/{vhost}/{name}
