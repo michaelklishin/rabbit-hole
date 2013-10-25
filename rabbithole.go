@@ -206,11 +206,11 @@ type ConnectionInfo struct {
 	ClientProperties  Properties       `json:"client_properties"`
 
 
-	RecvOct      int          `json:"recv_oct"`
-	SendOct      int          `json:"send_oct"`
-	RecvCount    int          `json:"recv_cnt"`
-	SendCount    int          `json:"send_cnt"`
-	SendPendi    int          `json:"send_pend"`
+	RecvOct      uint64          `json:"recv_oct"`
+	SendOct      uint64          `json:"send_oct"`
+	RecvCount    uint64          `json:"recv_cnt"`
+	SendCount    uint64          `json:"send_cnt"`
+	SendPendi    uint64          `json:"send_pend"`
 	RecvOctDetails RateDetails   `json:"recv_oct_details"`
 	SendOctDetails RateDetails   `json:"send_oct_details"`
 }
