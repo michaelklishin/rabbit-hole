@@ -235,4 +235,12 @@ var _ = Describe("Client", func() {
 			Ω(x.Durable).Should(Equal(true))
 		})
 	})
+
+	Context("GET /exchanges/{vhost}/{name}", func() {
+		It("returns decoded response", func() {
+			x, err := rmqc.GetExchange("rabbit/hole", "amq.fanout")
+			Ω(err).Should(BeNil())
+			Ω(x).Should(BeNil())
+		})
+	})
 })
