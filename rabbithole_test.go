@@ -7,9 +7,9 @@ import (
 	. "rabbithole"
 )
 
-func FindQueueByName(qs []QueueInfo, name string) (QueueInfo) {
+func FindQueueByName(qs []QueueInfo, name string) QueueInfo {
 	var q QueueInfo
-	for _, i := range(qs) {
+	for _, i := range qs {
 		if i.Name == name {
 			q = i
 		}
@@ -286,7 +286,6 @@ var _ = Describe("Client", func() {
 			Ω(q.Status).ShouldNot(BeNil())
 		})
 	})
-
 
 	Context("GET /queues/{vhost}", func() {
 		It("returns decoded response", func() {
