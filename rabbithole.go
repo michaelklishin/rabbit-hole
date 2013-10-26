@@ -29,7 +29,7 @@ type NameDescriptionVersion struct {
 }
 
 type NameAndVhost struct {
-	Name string `json:"name"`
+	Name  string `json:"name"`
 	Vhost string `json:"vhost"`
 }
 
@@ -131,12 +131,12 @@ type NodeInfo struct {
 	IsRunning bool   `json:"running"`
 	OsPid     OsPid  `json:"os_pid"`
 
-	FdUsed       int `json:"fd_used"`
-	FdTotal      int `json:"fd_total"`
-	SocketsUsed  int `json:"sockets_used"`
-	SocketsTotal int `json:"sockets_total"`
-	MemUsed      int `json:"mem_used"`
-	MemLimit     int `json:"mem_limit"`
+	FdUsed        int  `json:"fd_used"`
+	FdTotal       int  `json:"fd_total"`
+	SocketsUsed   int  `json:"sockets_used"`
+	SocketsTotal  int  `json:"sockets_total"`
+	MemUsed       int  `json:"mem_used"`
+	MemLimit      int  `json:"mem_limit"`
 	MemAlarm      bool `json:"mem_alarm"`
 	DiskFreeAlarm bool `json:"disk_free_alarm"`
 
@@ -382,7 +382,7 @@ func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
 
 func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "exchanges/" + url.QueryEscape(vhost))
+	req, err := NewHTTPRequest(c, "GET", "exchanges/"+url.QueryEscape(vhost))
 	if err != nil {
 		return []ExchangeInfo{}, err
 	}
@@ -459,16 +459,16 @@ func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
 // }
 
 type ExchangeIngressDetails struct {
-	Stats MessageStats `json:"stats"`
+	Stats          MessageStats      `json:"stats"`
 	ChannelDetails PublishingChannel `json:"channel_details"`
 }
 
 type PublishingChannel struct {
-	Number int    `json:"number"`
-	Name   string `json:"name"`
+	Number         int    `json:"number"`
+	Name           string `json:"name"`
 	ConnectionName string `json:"connection_name"`
-	PeerPort Port `json:"peer_port"`
-	PeerHost string `json:"peer_host"`
+	PeerPort       Port   `json:"peer_port"`
+	PeerHost       string `json:"peer_host"`
 }
 
 type ExchangeEgressDetails struct {
@@ -486,13 +486,12 @@ type DetailedExchangeInfo struct {
 	Arguments  map[string]interface{} `json:"arguments"`
 
 	Incoming ExchangeIngressDetails `json:"incoming"`
-	Outgoing ExchangeEgressDetails `json:"outgoing"`
+	Outgoing ExchangeEgressDetails  `json:"outgoing"`
 }
-
 
 func (c *Client) GetExchange(vhost, exchange string) (DetailedExchangeInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "exchanges/" + url.QueryEscape(vhost) + "/" + exchange)
+	req, err := NewHTTPRequest(c, "GET", "exchanges/"+url.QueryEscape(vhost)+"/"+exchange)
 	if err != nil {
 		return DetailedExchangeInfo{}, err
 	}
@@ -508,7 +507,6 @@ func (c *Client) GetExchange(vhost, exchange string) (DetailedExchangeInfo, erro
 
 	return rec, nil
 }
-
 
 //
 // GET /api/queues
@@ -579,17 +577,17 @@ func (c *Client) GetExchange(vhost, exchange string) (DetailedExchangeInfo, erro
 // ]
 
 type QueueInfo struct {
-	Name  string `json:"name"`
-	Vhost string `json:"vhost"`
+	Name       string                 `json:"name"`
+	Vhost      string                 `json:"vhost"`
 	Durable    bool                   `json:"durable"`
 	AutoDelete bool                   `json:"auto_delete"`
 	Arguments  map[string]interface{} `json:"arguments"`
 
-	Node  string `json:"node"`
+	Node   string `json:"node"`
 	Status string `json:"status"`
 
-	Memory    int64 `json:"memory"`
-	Consumers int   `json:"consumers"`
+	Memory               int64  `json:"memory"`
+	Consumers            int    `json:"consumers"`
 	ExclusiveConsumerTag string `json:"exclusive_consumer_tag"`
 
 	Policy string `json:"policy"`
@@ -603,16 +601,16 @@ type QueueInfo struct {
 	MessagesUnacknowledged        int         `json:"messages_unacknowledged"`
 	MessagesUnacknowledgedDetails RateDetails `json:"messages_unacknowledged_details"`
 
-	MessageStats      MessageStats    `json:"message_stats"`
+	MessageStats MessageStats `json:"message_stats"`
 
-	OwnerPidDetails   OwnerPidDetails `json:"owner_pid_details"`
+	OwnerPidDetails OwnerPidDetails `json:"owner_pid_details"`
 
 	// TODO: backing_queue_status
 }
 
 type OwnerPidDetails struct {
 	Name     string `json:"name"`
-	PeerPort Port `json:"peer_port"`
+	PeerPort Port   `json:"peer_port"`
 	PeerHost string `json:"peer_host"`
 }
 
@@ -635,7 +633,6 @@ func (c *Client) ListQueues() ([]QueueInfo, error) {
 	return rec, nil
 }
 
-
 //
 // Implementation
 //
@@ -648,7 +645,7 @@ func NewClient(uri string, username string, password string) (*Client, error) {
 
 	me := &Client{
 		Endpoint: uri,
-	        Host: u.Host,
+		Host:     u.Host,
 		Username: username,
 		Password: password}
 
