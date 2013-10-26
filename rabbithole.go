@@ -7,7 +7,7 @@ import (
 )
 
 type Client struct {
-	Endpoint, Username, Password string
+	Endpoint, Host, Username, Password string
 }
 
 // TODO: this probably should be fixed in RabbitMQ management plugin
@@ -293,7 +293,7 @@ func (c *Client) ListChannels() ([]ChannelInfo, error) {
 
 func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "connections/"+name)
+	req, err := NewHTTPRequest(c, "GET", "connections/"+url.QueryEscape(name))
 	if err != nil {
 		return ConnectionInfo{}, err
 	}
@@ -316,7 +316,7 @@ func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
 
 func (c *Client) GetChannel(name string) (ChannelInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "channels/"+name)
+	req, err := NewHTTPRequest(c, "GET", "channels/"+url.QueryEscape(name))
 	if err != nil {
 		return ChannelInfo{}, err
 	}
@@ -346,12 +346,15 @@ type ExchangeInfo struct {
 	Internal   bool                   `json:"internal"`
 	Arguments  map[string]interface{} `json:"arguments"`
 
-	MessageStats IngressStats `json:"message_stats"`
+	MessageStats IngressEgressStats `json:"message_stats"`
 }
 
-type IngressStats struct {
+type IngressEgressStats struct {
 	PublishIn        int         `json:"publish_in"`
 	PublishInDetails RateDetails `json:"publish_in_details"`
+
+	PublishOut        int         `json:"publish_out"`
+	PublishOutDetails RateDetails `json:"publish_out_details"`
 }
 
 func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
@@ -451,7 +454,7 @@ func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
 //   "auto_delete": false,
 //   "internal": false,
 //   "arguments": {
-    
+
 //   }
 // }
 
@@ -482,14 +485,14 @@ type DetailedExchangeInfo struct {
 	Internal   bool                   `json:"internal"`
 	Arguments  map[string]interface{} `json:"arguments"`
 
-	Incoming ExchangeIngressDetails `json:"incoming"`
-	Outgoing ExchangeEgressDetails `json:"outgoing"`
+	// Incoming ExchangeIngressDetails `json:"incoming"`
+	// Outgoing ExchangeEgressDetails `json:"outgoing"`
 }
 
 
 func (c *Client) GetExchange(vhost, exchange string) (DetailedExchangeInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "exchanges/" + url.QueryEscape(vhost) + "/" + url.QueryEscape(exchange))
+	req, err := NewHTTPRequest(c, "GET", "exchanges/" + url.QueryEscape(vhost) + "/" + exchange)
 	if err != nil {
 		return DetailedExchangeInfo{}, err
 	}
@@ -511,24 +514,28 @@ func (c *Client) GetExchange(vhost, exchange string) (DetailedExchangeInfo, erro
 // Implementation
 //
 
-func NewClient(uri string, username string, password string) *Client {
+func NewClient(uri string, username string, password string) (*Client, error) {
+	u, err := url.Parse(uri)
+	if err != nil {
+		return &Client{}, err
+	}
+
 	me := &Client{
 		Endpoint: uri,
+	        Host: u.Host,
 		Username: username,
 		Password: password}
 
-	return me
-}
-
-func BuildPath(uri string, path string) string {
-	return uri + "/api/" + path
+	return me, nil
 }
 
 func NewHTTPRequest(client *Client, method string, path string) (*http.Request, error) {
-	url := BuildPath(client.Endpoint, path)
+	s := client.Endpoint + "/api/" + path
 
-	req, err := http.NewRequest(method, url, nil)
+	req, err := http.NewRequest(method, s, nil)
 	req.SetBasicAuth(client.Username, client.Password)
+	// set Opaque to preserve percent-encoded path. MK.
+	req.URL.Opaque = "//" + client.Host + "/api/" + path
 
 	return req, err
 }

@@ -13,7 +13,7 @@ var _ = Describe("Client", func() {
 	)
 
 	BeforeEach(func() {
-		rmqc = NewClient("http://127.0.0.1:15672", "guest", "guest")
+		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 	})
 
 	Context("GET /overview", func() {
@@ -240,7 +240,10 @@ var _ = Describe("Client", func() {
 		It("returns decoded response", func() {
 			x, err := rmqc.GetExchange("rabbit/hole", "amq.fanout")
 			Ω(err).Should(BeNil())
-			Ω(x).Should(BeNil())
+			Ω(x.Name).Should(Equal("amq.fanout"))
+			Ω(x.Durable).Should(Equal(true))
+			Ω(x.Type).Should(Equal("fanout"))
+			Ω(x.Vhost).Should(Equal("rabbit/hole"))
 		})
 	})
 })
