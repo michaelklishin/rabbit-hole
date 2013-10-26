@@ -246,4 +246,34 @@ var _ = Describe("Client", func() {
 			Ω(x.Vhost).Should(Equal("rabbit/hole"))
 		})
 	})
+
+	Context("GET /queues", func() {
+		It("returns decoded response", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/rabbit%2Fhole")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			ch.QueueDeclare(
+				"q1",  // name
+				false, // durable
+				false, // delete when usused
+				true,  // exclusive
+				false,
+				nil)
+
+			qs, err := rmqc.ListQueues()
+			Ω(err).Should(BeNil())
+
+			q := qs[0]
+			Ω(q.Name).ShouldNot(BeNil())
+			Ω(q.Node).ShouldNot(BeNil())
+			Ω(q.Durable).ShouldNot(BeNil())
+			Ω(q.Status).Should(Equal("running"))
+		})
+	})
+
 })
