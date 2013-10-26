@@ -673,6 +673,31 @@ func (c *Client) ListQueuesIn(vhost string) ([]QueueInfo, error) {
 }
 
 //
+// GET /api/queues/{vhost}/{name}
+//
+
+type DetailedQueueInfo QueueInfo
+
+func (c *Client) GetQueue(vhost, queue string) (DetailedQueueInfo, error) {
+	var err error
+	req, err := NewHTTPRequest(c, "GET", "queues/"+url.QueryEscape(vhost)+"/"+queue)
+	if err != nil {
+		return DetailedQueueInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return DetailedQueueInfo{}, err
+	}
+
+	var rec DetailedQueueInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
+//
 // Implementation
 //
 
