@@ -633,6 +633,32 @@ func (c *Client) ListQueues() ([]QueueInfo, error) {
 	return rec, nil
 }
 
+
+//
+// GET /api/queues/{vhost}
+//
+
+func (c *Client) ListQueuesIn(vhost string) ([]QueueInfo, error) {
+	var err error
+	req, err := NewHTTPRequest(c, "GET", "queues/"+url.QueryEscape(vhost))
+	if err != nil {
+		return []QueueInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return []QueueInfo{}, err
+	}
+
+	var rec []QueueInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
+
+
 //
 // Implementation
 //

@@ -7,6 +7,17 @@ import (
 	. "rabbithole"
 )
 
+func FindQueueByName(qs []QueueInfo, name string) (QueueInfo) {
+	var q QueueInfo
+	for _, i := range(qs) {
+		if i.Name == name {
+			q = i
+		}
+	}
+
+	return q
+}
+
 var _ = Describe("Client", func() {
 	var (
 		rmqc *Client
@@ -249,7 +260,7 @@ var _ = Describe("Client", func() {
 
 	Context("GET /queues", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/rabbit%2Fhole")
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672")
 			Ω(err).Should(BeNil())
 			defer conn.Close()
 
@@ -269,9 +280,39 @@ var _ = Describe("Client", func() {
 			Ω(err).Should(BeNil())
 
 			q := qs[0]
-			Ω(q.Name).ShouldNot(BeNil())
+			Ω(q.Name).ShouldNot(Equal(""))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
+			Ω(q.Status).Should(Equal("running"))
+		})
+	})
+
+
+	Context("GET /queues/{vhost}", func() {
+		It("returns decoded response", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/rabbit%2Fhole")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			ch.QueueDeclare(
+				"q1",  // name
+				false, // durable
+				false, // delete when usused
+				true,  // exclusive
+				false,
+				nil)
+
+			qs, err := rmqc.ListQueuesIn("rabbit/hole")
+			Ω(err).Should(BeNil())
+
+			q := FindQueueByName(qs, "q1")
+			Ω(q.Name).Should(Equal("q1"))
+			Ω(q.Vhost).Should(Equal("rabbit/hole"))
+			Ω(q.Durable).Should(Equal(false))
 			Ω(q.Status).Should(Equal("running"))
 		})
 	})
