@@ -605,7 +605,23 @@ type QueueInfo struct {
 
 	OwnerPidDetails OwnerPidDetails `json:"owner_pid_details"`
 
-	// TODO: backing_queue_status
+	BackingQueueStatus BackingQueueStatus `json:"backing_queue_status"`
+}
+
+type BackingQueueStatus struct {
+	Q1 int `json:"q1"`
+	Q2 int `json:"q2"`
+	Q3 int `json:"q3"`
+	Q4 int `json:"q4"`
+	Length int64 `json:"len"`
+	PendingAcks int64 `json:"pending_acks"`
+	RAMMessageCount int64 `json:"ram_msg_count"`
+	RAMAckCount int64 `json:"ram_ack_count"`
+	PersistentCount int64 `json:"persistent_count"`
+	AverageIngressRate float64 `json:"avg_ingress_rate"`
+	AverageEgressRate float64 `json:"avg_egress_rate"`
+	AverageAckIngressRate float32 `json:"avg_ack_ingress_rate"`
+	AverageAckEgressRate float32 `json:"avg_ack_egress_rate"`
 }
 
 type OwnerPidDetails struct {
