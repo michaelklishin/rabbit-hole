@@ -485,8 +485,8 @@ type DetailedExchangeInfo struct {
 	Internal   bool                   `json:"internal"`
 	Arguments  map[string]interface{} `json:"arguments"`
 
-	// Incoming ExchangeIngressDetails `json:"incoming"`
-	// Outgoing ExchangeEgressDetails `json:"outgoing"`
+	Incoming ExchangeIngressDetails `json:"incoming"`
+	Outgoing ExchangeEgressDetails `json:"outgoing"`
 }
 
 
