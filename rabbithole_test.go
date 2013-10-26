@@ -316,7 +316,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-
 	Context("GET /queues/{vhost}/{name}", func() {
 		It("returns decoded response", func() {
 			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/rabbit%2Fhole")
