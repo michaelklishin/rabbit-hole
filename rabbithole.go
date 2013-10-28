@@ -740,26 +740,26 @@ func (c *Client) ListUsers() ([]UserInfo, error) {
 // GET /api/users/{name}
 //
 
-func (c *Client) GetUser(username string) (UserInfo, error) {
+func (c *Client) GetUser(username string) (*UserInfo, error) {
 	var err error
 	req, err := NewGETRequest(c, "users/"+url.QueryEscape(username))
 	if err != nil {
-		return UserInfo{}, err
+		return nil, err
 	}
 
 	res, err := ExecuteHTTPRequest(c, req)
 	if err != nil {
-		return UserInfo{}, err
+		return nil, err
 	}
 	if IsNotFound(res) {
-		return UserInfo{}, errors.New("user not found")
+		return nil, errors.New("user not found")
 	}
 
 	var rec UserInfo
 	decoder := json.NewDecoder(res.Body)
 	decoder.Decode(&rec)
 
-	return rec, nil
+	return &rec, nil
 }
 
 //

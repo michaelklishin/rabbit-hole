@@ -411,9 +411,7 @@ var _ = Describe("Client", func() {
 
 			u2, err := rmqc.GetUser("rabbithole")
 			Ω(err).Should(Equal(errors.New("user not found")))
-			// empty struct
-			Ω(u2.Name).Should(Equal(""))
-
+			Ω(u2).Should(BeNil())
 		})
 	})
 })
