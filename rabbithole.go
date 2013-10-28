@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"bytes"
 )
 
 type Client struct {
@@ -100,7 +101,7 @@ type Overview struct {
 
 func (c *Client) Overview() (Overview, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "overview")
+	req, err := NewGETRequest(c, "overview")
 
 	if err != nil {
 		return Overview{}, err
@@ -148,7 +149,7 @@ type NodeInfo struct {
 
 func (c *Client) ListNodes() ([]NodeInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "nodes")
+	req, err := NewGETRequest(c, "nodes")
 	if err != nil {
 		return []NodeInfo{}, err
 	}
@@ -215,7 +216,7 @@ type ConnectionInfo struct {
 
 func (c *Client) ListConnections() ([]ConnectionInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "connections")
+	req, err := NewGETRequest(c, "connections")
 	if err != nil {
 		return []ConnectionInfo{}, err
 	}
@@ -270,7 +271,7 @@ type ChannelInfo struct {
 
 func (c *Client) ListChannels() ([]ChannelInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "channels")
+	req, err := NewGETRequest(c, "channels")
 	if err != nil {
 		return []ChannelInfo{}, err
 	}
@@ -293,7 +294,7 @@ func (c *Client) ListChannels() ([]ChannelInfo, error) {
 
 func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "connections/"+url.QueryEscape(name))
+	req, err := NewGETRequest(c, "connections/"+url.QueryEscape(name))
 	if err != nil {
 		return ConnectionInfo{}, err
 	}
@@ -316,7 +317,7 @@ func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
 
 func (c *Client) GetChannel(name string) (ChannelInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "channels/"+url.QueryEscape(name))
+	req, err := NewGETRequest(c, "channels/"+url.QueryEscape(name))
 	if err != nil {
 		return ChannelInfo{}, err
 	}
@@ -359,7 +360,7 @@ type IngressEgressStats struct {
 
 func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "exchanges")
+	req, err := NewGETRequest(c, "exchanges")
 	if err != nil {
 		return []ExchangeInfo{}, err
 	}
@@ -382,7 +383,7 @@ func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
 
 func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "exchanges/"+url.QueryEscape(vhost))
+	req, err := NewGETRequest(c, "exchanges/"+url.QueryEscape(vhost))
 	if err != nil {
 		return []ExchangeInfo{}, err
 	}
@@ -491,7 +492,7 @@ type DetailedExchangeInfo struct {
 
 func (c *Client) GetExchange(vhost, exchange string) (DetailedExchangeInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "exchanges/"+url.QueryEscape(vhost)+"/"+exchange)
+	req, err := NewGETRequest(c, "exchanges/"+url.QueryEscape(vhost)+"/"+exchange)
 	if err != nil {
 		return DetailedExchangeInfo{}, err
 	}
@@ -632,7 +633,7 @@ type OwnerPidDetails struct {
 
 func (c *Client) ListQueues() ([]QueueInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "queues")
+	req, err := NewGETRequest(c, "queues")
 	if err != nil {
 		return []QueueInfo{}, err
 	}
@@ -655,7 +656,7 @@ func (c *Client) ListQueues() ([]QueueInfo, error) {
 
 func (c *Client) ListQueuesIn(vhost string) ([]QueueInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "queues/"+url.QueryEscape(vhost))
+	req, err := NewGETRequest(c, "queues/"+url.QueryEscape(vhost))
 	if err != nil {
 		return []QueueInfo{}, err
 	}
@@ -680,7 +681,7 @@ type DetailedQueueInfo QueueInfo
 
 func (c *Client) GetQueue(vhost, queue string) (DetailedQueueInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "queues/"+url.QueryEscape(vhost)+"/"+queue)
+	req, err := NewGETRequest(c, "queues/"+url.QueryEscape(vhost)+"/"+queue)
 	if err != nil {
 		return DetailedQueueInfo{}, err
 	}
@@ -708,11 +709,15 @@ type UserInfo struct {
 	Name         string `json:"name"`
 	PasswordHash string `json:"password_hash"`
 	Tags         string `json:"tags"`
+
+	// *never* returned by RabbitMQ. Set by the client
+	// to create/update a user. MK.
+	Password     string `json:"password"`
 }
 
 func (c *Client) ListUsers() ([]UserInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "users/")
+	req, err := NewGETRequest(c, "users/")
 	if err != nil {
 		return []UserInfo{}, err
 	}
@@ -735,7 +740,7 @@ func (c *Client) ListUsers() ([]UserInfo, error) {
 
 func (c *Client) GetUser(username string) (UserInfo, error) {
 	var err error
-	req, err := NewHTTPRequest(c, "GET", "users/"+url.QueryEscape(username))
+	req, err := NewGETRequest(c, "users/"+url.QueryEscape(username))
 	if err != nil {
 		return UserInfo{}, err
 	}
@@ -751,6 +756,33 @@ func (c *Client) GetUser(username string) (UserInfo, error) {
 
 	return rec, nil
 }
+
+
+//
+// PUT /api/users/{name}
+//
+
+func (c *Client) PutUser(username string, info UserInfo) (*http.Response, error) {
+	var err error
+
+	body, err := json.Marshal(info)
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	req, err := NewHTTPRequestWithBody(c, "PUT", "users/"+url.QueryEscape(username), body)
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	return res, nil
+}
+
 
 //
 // Implementation
@@ -771,13 +803,26 @@ func NewClient(uri string, username string, password string) (*Client, error) {
 	return me, nil
 }
 
-func NewHTTPRequest(client *Client, method string, path string) (*http.Request, error) {
+func NewGETRequest(client *Client, path string) (*http.Request, error) {
 	s := client.Endpoint + "/api/" + path
 
-	req, err := http.NewRequest(method, s, nil)
+	req, err := http.NewRequest("GET", s, nil)
 	req.SetBasicAuth(client.Username, client.Password)
 	// set Opaque to preserve percent-encoded path. MK.
 	req.URL.Opaque = "//" + client.Host + "/api/" + path
+
+	return req, err
+}
+
+func NewHTTPRequestWithBody(client *Client, method string, path string, body []byte) (*http.Request, error) {
+	s := client.Endpoint + "/api/" + path
+
+	req, err := http.NewRequest(method, s, bytes.NewReader(body))
+	req.SetBasicAuth(client.Username, client.Password)
+	// set Opaque to preserve percent-encoded path. MK.
+	req.URL.Opaque = "//" + client.Host + "/api/" + path
+
+	req.Header.Add("Content-Type", "application/json")
 
 	return req, err
 }
