@@ -1,10 +1,10 @@
 package rabbithole
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"bytes"
 )
 
 type Client struct {
@@ -712,7 +712,7 @@ type UserInfo struct {
 
 	// *never* returned by RabbitMQ. Set by the client
 	// to create/update a user. MK.
-	Password     string `json:"password"`
+	Password string `json:"password"`
 }
 
 func (c *Client) ListUsers() ([]UserInfo, error) {
@@ -757,7 +757,6 @@ func (c *Client) GetUser(username string) (UserInfo, error) {
 	return rec, nil
 }
 
-
 //
 // PUT /api/users/{name}
 //
@@ -782,7 +781,6 @@ func (c *Client) PutUser(username string, info UserInfo) (*http.Response, error)
 
 	return res, nil
 }
-
 
 //
 // Implementation

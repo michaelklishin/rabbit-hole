@@ -379,7 +379,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-
 	Context("PUT /users/{name}", func() {
 		It("updates the user", func() {
 			info := UserInfo{Password: "s3krE7", Tags: "management policymaker"}
