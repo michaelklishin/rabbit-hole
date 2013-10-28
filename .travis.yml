@@ -1,5 +1,4 @@
 language: go
-
 go:
   - 1.1
   - tip
@@ -8,5 +7,8 @@ services:
   - rabbitmq
 
 before_script: ./bin/ci/before_build.sh
-
 script: make
+
+notifications:
+  email:
+    - michael@rabbitmq.com
