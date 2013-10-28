@@ -393,4 +393,26 @@ var _ = Describe("Client", func() {
 			Ω(u.Tags).Should(Equal("management policymaker"))
 		})
 	})
+
+	Context("DELETE /users/{name}", func() {
+		It("deletes the user", func() {
+			info := UserInfo{Password: "s3krE7", Tags: "management policymaker"}
+			_, err := rmqc.PutUser("rabbithole", info)
+			Ω(err).Should(BeNil())
+
+			u, err := rmqc.GetUser("rabbithole")
+			Ω(err).Should(BeNil())
+			Ω(u).ShouldNot(BeNil())
+
+			resp, err := rmqc.DeleteUser("rabbithole")
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(Equal("204 No Content"))
+
+			u2, err := rmqc.GetUser("rabbithole")
+			Ω(err).ShouldNot(BeNil())
+			// empty struct
+			Ω(u2.Name).Should(Equal(""))
+
+		})
+	})
 })

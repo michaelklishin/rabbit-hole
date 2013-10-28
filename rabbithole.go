@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"errors"
+	"fmt"
 )
 
 type Client struct {
@@ -749,6 +751,10 @@ func (c *Client) GetUser(username string) (UserInfo, error) {
 	if err != nil {
 		return UserInfo{}, err
 	}
+	fmt.Println(res.Status)
+	if res.Status == "404 Object Not Found" {
+		return UserInfo{}, errors.New("user not found")
+	}
 
 	var rec UserInfo
 	decoder := json.NewDecoder(res.Body)
@@ -776,11 +782,33 @@ func (c *Client) PutUser(username string, info UserInfo) (*http.Response, error)
 
 	res, err := ExecuteHTTPRequest(c, req)
 	if err != nil {
-		return &http.Response{}, err
+		return res, err
 	}
 
 	return res, nil
 }
+
+
+//
+// DELETE /api/users/{name}
+//
+
+func (c *Client) DeleteUser(username string) (*http.Response, error) {
+	var err error
+
+	req, err := NewHTTPRequestWithBody(c, "DELETE", "users/"+url.QueryEscape(username), nil)
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
 
 //
 // Implementation
