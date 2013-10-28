@@ -336,7 +336,6 @@ var _ = Describe("Client", func() {
 
 			q, err := rmqc.GetQueue("rabbit/hole", "q1")
 			Ω(err).Should(BeNil())
-			Ω(q).Should(BeNil())
 
 			Ω(q.Name).Should(Equal("q1"))
 			Ω(q.Vhost).Should(Equal("rabbit/hole"))
