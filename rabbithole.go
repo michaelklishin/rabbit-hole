@@ -3,9 +3,9 @@ package rabbithole
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
-	"errors"
 	"strings"
 )
 
@@ -787,7 +787,6 @@ func (c *Client) PutUser(username string, info UserInfo) (*http.Response, error)
 	return res, nil
 }
 
-
 //
 // DELETE /api/users/{name}
 //
@@ -807,7 +806,6 @@ func (c *Client) DeleteUser(username string) (*http.Response, error) {
 
 	return res, nil
 }
-
 
 //
 // Implementation
@@ -858,6 +856,6 @@ func ExecuteHTTPRequest(client *Client, req *http.Request) (*http.Response, erro
 	return httpc.Do(req)
 }
 
-func IsNotFound(res *http.Response) (bool) {
+func IsNotFound(res *http.Response) bool {
 	return strings.HasPrefix(res.Status, "404")
 }

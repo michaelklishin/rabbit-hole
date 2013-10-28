@@ -1,11 +1,11 @@
 package rabbithole_test
 
 import (
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/streadway/amqp"
 	. "rabbithole"
-	"errors"
 )
 
 // TODO: extract duplication between these
