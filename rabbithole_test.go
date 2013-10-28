@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/streadway/amqp"
 	. "rabbithole"
+	"errors"
 )
 
 // TODO: extract duplication between these
@@ -409,7 +410,7 @@ var _ = Describe("Client", func() {
 			Ω(resp.Status).Should(Equal("204 No Content"))
 
 			u2, err := rmqc.GetUser("rabbithole")
-			Ω(err).ShouldNot(BeNil())
+			Ω(err).Should(Equal(errors.New("user not found")))
 			// empty struct
 			Ω(u2.Name).Should(Equal(""))
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"errors"
-	"fmt"
+	"strings"
 )
 
 type Client struct {
@@ -751,8 +751,7 @@ func (c *Client) GetUser(username string) (UserInfo, error) {
 	if err != nil {
 		return UserInfo{}, err
 	}
-	fmt.Println(res.Status)
-	if res.Status == "404 Object Not Found" {
+	if IsNotFound(res) {
 		return UserInfo{}, errors.New("user not found")
 	}
 
@@ -857,4 +856,8 @@ func ExecuteHTTPRequest(client *Client, req *http.Request) (*http.Response, erro
 	httpc := &http.Client{}
 
 	return httpc.Do(req)
+}
+
+func IsNotFound(res *http.Response) (bool) {
+	return strings.HasPrefix(res.Status, "404")
 }
