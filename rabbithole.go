@@ -729,6 +729,31 @@ func (c *Client) ListUsers() ([]UserInfo, error) {
 	return rec, nil
 }
 
+
+//
+// GET /api/users/{name}
+//
+
+func (c *Client) GetUser(username string) (UserInfo, error) {
+	var err error
+	req, err := NewHTTPRequest(c, "GET", "users/"+url.QueryEscape(username))
+	if err != nil {
+		return UserInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return UserInfo{}, err
+	}
+
+	var rec UserInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
+
 //
 // Implementation
 //

@@ -367,4 +367,15 @@ var _ = Describe("Client", func() {
 			Ω(u.Tags).Should(Equal("administrator"))
 		})
 	})
+
+	Context("GET /users/{name} when user exists", func() {
+		It("returns decoded response", func() {
+			u, err := rmqc.GetUser("guest")
+			Ω(err).Should(BeNil())
+
+			Ω(u.Name).Should(BeEquivalentTo("guest"))
+			Ω(u.PasswordHash).ShouldNot(BeNil())
+			Ω(u.Tags).Should(Equal("administrator"))
+		})
+	})
 })
