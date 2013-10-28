@@ -729,7 +729,6 @@ func (c *Client) ListUsers() ([]UserInfo, error) {
 	return rec, nil
 }
 
-
 //
 // GET /api/users/{name}
 //
@@ -752,7 +751,6 @@ func (c *Client) GetUser(username string) (UserInfo, error) {
 
 	return rec, nil
 }
-
 
 //
 // Implementation
