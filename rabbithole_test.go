@@ -356,7 +356,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-
 	Context("GET /users", func() {
 		It("returns decoded response", func() {
 			xs, err := rmqc.ListUsers()

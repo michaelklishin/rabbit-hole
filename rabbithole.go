@@ -697,7 +697,6 @@ func (c *Client) GetQueue(vhost, queue string) (DetailedQueueInfo, error) {
 	return rec, nil
 }
 
-
 //
 // GET /api/users
 //
@@ -706,9 +705,9 @@ func (c *Client) GetQueue(vhost, queue string) (DetailedQueueInfo, error) {
 // [{"name":"guest","password_hash":"8LYTIFbVUwi8HuV/dGlp2BYsD1I=","tags":"administrator"}]
 
 type UserInfo struct {
-	Name          string  `json:"name"`
-	PasswordHash  string  `json:"password_hash"`
-	Tags          string  `json:"tags"`
+	Name         string `json:"name"`
+	PasswordHash string `json:"password_hash"`
+	Tags         string `json:"tags"`
 }
 
 func (c *Client) ListUsers() ([]UserInfo, error) {
@@ -729,8 +728,6 @@ func (c *Client) ListUsers() ([]UserInfo, error) {
 
 	return rec, nil
 }
-
-
 
 //
 // Implementation
