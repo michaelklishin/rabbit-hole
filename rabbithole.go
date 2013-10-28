@@ -741,7 +741,11 @@ func (c *Client) ListUsers() ([]UserInfo, error) {
 //
 
 func (c *Client) GetUser(username string) (*UserInfo, error) {
-	var err error
+	var (
+		rec *UserInfo
+		err error
+	)
+
 	req, err := NewGETRequest(c, "users/"+url.QueryEscape(username))
 	if err != nil {
 		return nil, err
@@ -751,15 +755,15 @@ func (c *Client) GetUser(username string) (*UserInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if IsNotFound(res) {
 		return nil, errors.New("user not found")
 	}
 
-	var rec UserInfo
 	decoder := json.NewDecoder(res.Body)
 	decoder.Decode(&rec)
 
-	return &rec, nil
+	return rec, nil
 }
 
 //
