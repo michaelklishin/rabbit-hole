@@ -1,9 +1,8 @@
-package rabbithole_test
+package rabbithole
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
 	"testing"
 )
 
