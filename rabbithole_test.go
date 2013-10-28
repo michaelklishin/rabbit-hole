@@ -7,6 +7,7 @@ import (
 	. "rabbithole"
 )
 
+// TODO: extract duplication between these
 func FindQueueByName(qs []QueueInfo, name string) QueueInfo {
 	var q QueueInfo
 	for _, i := range qs {
@@ -16,6 +17,17 @@ func FindQueueByName(qs []QueueInfo, name string) QueueInfo {
 	}
 
 	return q
+}
+
+func FindUserByName(us []UserInfo, name string) UserInfo {
+	var u UserInfo
+	for _, i := range us {
+		if name == i.Name {
+			u = i
+		}
+	}
+
+	return u
 }
 
 var _ = Describe("Client", func() {
@@ -341,6 +353,19 @@ var _ = Describe("Client", func() {
 			Ω(q.Vhost).Should(Equal("rabbit/hole"))
 			Ω(q.Durable).Should(Equal(false))
 			Ω(q.Status).ShouldNot(BeNil())
+		})
+	})
+
+
+	Context("GET /users", func() {
+		It("returns decoded response", func() {
+			xs, err := rmqc.ListUsers()
+			Ω(err).Should(BeNil())
+
+			u := FindUserByName(xs, "guest")
+			Ω(u.Name).Should(BeEquivalentTo("guest"))
+			Ω(u.PasswordHash).ShouldNot(BeNil())
+			Ω(u.Tags).Should(Equal("administrator"))
 		})
 	})
 })

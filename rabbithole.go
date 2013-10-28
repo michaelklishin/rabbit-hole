@@ -697,6 +697,41 @@ func (c *Client) GetQueue(vhost, queue string) (DetailedQueueInfo, error) {
 	return rec, nil
 }
 
+
+//
+// GET /api/users
+//
+
+// Example response:
+// [{"name":"guest","password_hash":"8LYTIFbVUwi8HuV/dGlp2BYsD1I=","tags":"administrator"}]
+
+type UserInfo struct {
+	Name          string  `json:"name"`
+	PasswordHash  string  `json:"password_hash"`
+	Tags          string  `json:"tags"`
+}
+
+func (c *Client) ListUsers() ([]UserInfo, error) {
+	var err error
+	req, err := NewHTTPRequest(c, "GET", "users/")
+	if err != nil {
+		return []UserInfo{}, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return []UserInfo{}, err
+	}
+
+	var rec []UserInfo
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&rec)
+
+	return rec, nil
+}
+
+
+
 //
 // Implementation
 //
