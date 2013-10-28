@@ -54,6 +54,19 @@ var _ = Describe("Client", func() {
 		})
 	})
 
+	Context("GET /whoami", func() {
+		It("returns decoded response", func() {
+			res, err := rmqc.Whoami()
+
+			Ω(err).Should(BeNil())
+
+			Ω(res.Name).ShouldNot(BeNil())
+			Ω(res.Name).Should(Equal("guest"))
+			Ω(res.Tags).ShouldNot(BeNil())
+			Ω(res.AuthBackend).ShouldNot(BeNil())
+		})
+	})
+
 	Context("GET /nodes", func() {
 		It("returns decoded response", func() {
 			xs, err := rmqc.ListNodes()

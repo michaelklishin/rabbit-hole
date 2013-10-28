@@ -122,6 +122,37 @@ func (c *Client) Overview() (Overview, error) {
 }
 
 //
+// GET /api/whoami
+//
+
+type WhoamiInfo struct {
+	Name        string `json:"name"`
+	Tags        string `json:"tags"`
+	AuthBackend string `json:"auth_backend"`
+}
+
+func (c *Client) Whoami() (rec *WhoamiInfo, err error) {
+	req, err := NewGETRequest(c, "whoami")
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := ExecuteHTTPRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	decoder := json.NewDecoder(res.Body)
+	defer res.Body.Close()
+	err = decoder.Decode(&rec)
+	if err != nil {
+		return nil, err
+	}
+
+	return rec, nil
+}
+
+//
 // GET /api/nodes
 //
 
