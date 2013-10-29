@@ -1,7 +1,5 @@
 package rabbithole
 
-import "encoding/json"
-
 // TODO: this probably should be fixed in RabbitMQ management plugin
 type OsPid string
 
@@ -48,21 +46,15 @@ type NodeInfo struct {
 // GET /api/nodes
 //
 
-func (c *Client) ListNodes() ([]NodeInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "nodes")
+func (c *Client) ListNodes() (rec []NodeInfo, err error) {
+	req, err := newGETRequest(c, "nodes")
 	if err != nil {
 		return []NodeInfo{}, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
-		return []NodeInfo{}, err
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return nil, err
 	}
-
-	var rec []NodeInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }

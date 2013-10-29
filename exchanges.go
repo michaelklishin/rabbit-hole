@@ -1,9 +1,6 @@
 package rabbithole
 
-import (
-	"encoding/json"
-	"net/url"
-)
+import "net/url"
 
 //
 // GET /api/exchanges
@@ -29,21 +26,15 @@ type ExchangeInfo struct {
 	MessageStats IngressEgressStats `json:"message_stats"`
 }
 
-func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "exchanges")
+func (c *Client) ListExchanges() (rec []ExchangeInfo, err error) {
+	req, err := newGETRequest(c, "exchanges")
 	if err != nil {
 		return []ExchangeInfo{}, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
+	if err = executeAndParseRequest(req, &rec); err != nil {
 		return []ExchangeInfo{}, err
 	}
-
-	var rec []ExchangeInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
@@ -52,21 +43,15 @@ func (c *Client) ListExchanges() ([]ExchangeInfo, error) {
 // GET /api/exchanges/{vhost}
 //
 
-func (c *Client) ListExchangesIn(vhost string) ([]ExchangeInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "exchanges/"+url.QueryEscape(vhost))
+func (c *Client) ListExchangesIn(vhost string) (rec []ExchangeInfo, err error) {
+	req, err := newGETRequest(c, "exchanges/"+url.QueryEscape(vhost))
 	if err != nil {
 		return []ExchangeInfo{}, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
+	if err = executeAndParseRequest(req, &rec); err != nil {
 		return []ExchangeInfo{}, err
 	}
-
-	var rec []ExchangeInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
@@ -161,25 +146,19 @@ type DetailedExchangeInfo struct {
 	Internal   bool                   `json:"internal"`
 	Arguments  map[string]interface{} `json:"arguments"`
 
-	Incoming ExchangeIngressDetails `json:"incoming"`
-	Outgoing ExchangeEgressDetails  `json:"outgoing"`
+	Incoming []ExchangeIngressDetails `json:"incoming"`
+	Outgoing []ExchangeEgressDetails  `json:"outgoing"`
 }
 
-func (c *Client) GetExchange(vhost, exchange string) (DetailedExchangeInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "exchanges/"+url.QueryEscape(vhost)+"/"+exchange)
+func (c *Client) GetExchange(vhost, exchange string) (rec *DetailedExchangeInfo, err error) {
+	req, err := newGETRequest(c, "exchanges/"+url.QueryEscape(vhost)+"/"+exchange)
 	if err != nil {
-		return DetailedExchangeInfo{}, err
+		return nil, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
-		return DetailedExchangeInfo{}, err
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return nil, err
 	}
-
-	var rec DetailedExchangeInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }

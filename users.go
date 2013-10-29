@@ -2,7 +2,6 @@ package rabbithole
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/url"
 )
@@ -24,21 +23,15 @@ type UserInfo struct {
 // Example response:
 // [{"name":"guest","password_hash":"8LYTIFbVUwi8HuV/dGlp2BYsD1I=","tags":"administrator"}]
 
-func (c *Client) ListUsers() ([]UserInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "users/")
+func (c *Client) ListUsers() (rec []UserInfo, err error) {
+	req, err := newGETRequest(c, "users/")
 	if err != nil {
 		return []UserInfo{}, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
+	if err = executeAndParseRequest(req, &rec); err != nil {
 		return []UserInfo{}, err
 	}
-
-	var rec []UserInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
@@ -47,28 +40,15 @@ func (c *Client) ListUsers() ([]UserInfo, error) {
 // GET /api/users/{name}
 //
 
-func (c *Client) GetUser(username string) (*UserInfo, error) {
-	var (
-		rec *UserInfo
-		err error
-	)
-
-	req, err := NewGETRequest(c, "users/"+url.QueryEscape(username))
+func (c *Client) GetUser(username string) (rec *UserInfo, err error) {
+	req, err := newGETRequest(c, "users/"+url.QueryEscape(username))
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
+	if err = executeAndParseRequest(req, &rec); err != nil {
 		return nil, err
 	}
-
-	if IsNotFound(res) {
-		return nil, errors.New("user not found")
-	}
-
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
@@ -77,22 +57,20 @@ func (c *Client) GetUser(username string) (*UserInfo, error) {
 // PUT /api/users/{name}
 //
 
-func (c *Client) PutUser(username string, info UserInfo) (*http.Response, error) {
-	var err error
-
+func (c *Client) PutUser(username string, info UserInfo) (res *http.Response, err error) {
 	body, err := json.Marshal(info)
 	if err != nil {
-		return &http.Response{}, err
+		return nil, err
 	}
 
-	req, err := NewHTTPRequestWithBody(c, "PUT", "users/"+url.QueryEscape(username), body)
+	req, err := newRequestWithBody(c, "PUT", "users/"+url.QueryEscape(username), body)
 	if err != nil {
-		return &http.Response{}, err
+		return nil, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
+	res, err = executeRequest(c, req)
 	if err != nil {
-		return res, err
+		return nil, err
 	}
 
 	return res, nil
@@ -102,17 +80,15 @@ func (c *Client) PutUser(username string, info UserInfo) (*http.Response, error)
 // DELETE /api/users/{name}
 //
 
-func (c *Client) DeleteUser(username string) (*http.Response, error) {
-	var err error
-
-	req, err := NewHTTPRequestWithBody(c, "DELETE", "users/"+url.QueryEscape(username), nil)
+func (c *Client) DeleteUser(username string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "users/"+url.QueryEscape(username), nil)
 	if err != nil {
-		return &http.Response{}, err
+		return nil, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
+	res, err = executeRequest(c, req)
 	if err != nil {
-		return res, err
+		return nil, err
 	}
 
 	return res, nil

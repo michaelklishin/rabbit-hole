@@ -1,9 +1,6 @@
 package rabbithole
 
-import (
-	"encoding/json"
-	"net/url"
-)
+import "net/url"
 
 type ConnectionInfo struct {
 	Name     string `json:"name"`
@@ -53,21 +50,15 @@ type ConnectionInfo struct {
 // GET /api/connections
 //
 
-func (c *Client) ListConnections() ([]ConnectionInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "connections")
+func (c *Client) ListConnections() (rec []ConnectionInfo, err error) {
+	req, err := newGETRequest(c, "connections")
 	if err != nil {
 		return []ConnectionInfo{}, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
+	if err = executeAndParseRequest(req, &rec); err != nil {
 		return []ConnectionInfo{}, err
 	}
-
-	var rec []ConnectionInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
@@ -76,21 +67,15 @@ func (c *Client) ListConnections() ([]ConnectionInfo, error) {
 // GET /api/connections/{name}
 //
 
-func (c *Client) GetConnection(name string) (ConnectionInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "connections/"+url.QueryEscape(name))
+func (c *Client) GetConnection(name string) (rec *ConnectionInfo, err error) {
+	req, err := newGETRequest(c, "connections/"+url.QueryEscape(name))
 	if err != nil {
-		return ConnectionInfo{}, err
+		return nil, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
-		return ConnectionInfo{}, err
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return nil, err
 	}
-
-	var rec ConnectionInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }

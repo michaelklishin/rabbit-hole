@@ -1,9 +1,6 @@
 package rabbithole
 
-import (
-	"encoding/json"
-	"net/url"
-)
+import "net/url"
 
 type BriefConnectionDetails struct {
 	Name     string `json:"name"`
@@ -41,21 +38,15 @@ type ChannelInfo struct {
 // GET /api/channels
 //
 
-func (c *Client) ListChannels() ([]ChannelInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "channels")
+func (c *Client) ListChannels() (rec []ChannelInfo, err error) {
+	req, err := newGETRequest(c, "channels")
 	if err != nil {
 		return []ChannelInfo{}, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
+	if err = executeAndParseRequest(req, &rec); err != nil {
 		return []ChannelInfo{}, err
 	}
-
-	var rec []ChannelInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
@@ -64,21 +55,15 @@ func (c *Client) ListChannels() ([]ChannelInfo, error) {
 // GET /api/channels/{name}
 //
 
-func (c *Client) GetChannel(name string) (ChannelInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "channels/"+url.QueryEscape(name))
+func (c *Client) GetChannel(name string) (rec *ChannelInfo, err error) {
+	req, err := newGETRequest(c, "channels/"+url.QueryEscape(name))
 	if err != nil {
-		return ChannelInfo{}, err
+		return nil, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
-		return ChannelInfo{}, err
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return nil, err
 	}
-
-	var rec ChannelInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
