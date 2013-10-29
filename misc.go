@@ -1,7 +1,5 @@
 package rabbithole
 
-import "encoding/json"
-
 //
 // GET /api/overview
 //
@@ -48,22 +46,15 @@ type Overview struct {
 	Contexts          []BrokerContext `json:"contexts"`
 }
 
-func (c *Client) Overview() (Overview, error) {
-	var err error
-	req, err := NewGETRequest(c, "overview")
-
+func (c *Client) Overview() (rec *Overview, err error) {
+	req, err := newGETRequest(c, "overview")
 	if err != nil {
-		return Overview{}, err
+		return nil, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
-		return Overview{}, err
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return nil, err
 	}
-
-	var rec Overview
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
@@ -79,20 +70,12 @@ type WhoamiInfo struct {
 }
 
 func (c *Client) Whoami() (rec *WhoamiInfo, err error) {
-	req, err := NewGETRequest(c, "whoami")
+	req, err := newGETRequest(c, "whoami")
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
-		return nil, err
-	}
-
-	decoder := json.NewDecoder(res.Body)
-	defer res.Body.Close()
-	err = decoder.Decode(&rec)
-	if err != nil {
+	if err = executeAndParseRequest(req, &rec); err != nil {
 		return nil, err
 	}
 

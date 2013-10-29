@@ -41,6 +41,26 @@ var _ = Describe("Client", func() {
 
 	Context("GET /overview", func() {
 		It("returns decoded response", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+
+			err = ch.Publish("", "", false, false, amqp.Publishing{Body: []byte("")})
+			Ω(err).Should(BeNil())
+
+			_, err = ch.QueueDeclare(
+				"q1",  // name
+				false, // durable
+				false, // delete when usused
+				true,  // exclusive
+				false,
+				nil)
+			Ω(err).Should(BeNil())
+			ch.Close() // Close the channel, or spec will fail. @kavu
+
 			res, err := rmqc.Overview()
 
 			Ω(err).Should(BeNil())
@@ -50,7 +70,6 @@ var _ = Describe("Client", func() {
 
 			fanoutExchange := ExchangeType{Name: "fanout", Description: "AMQP fanout exchange, as per the AMQP specification", Enabled: true}
 			Ω(res.ExchangeTypes).Should(ContainElement(fanoutExchange))
-
 		})
 	})
 
@@ -236,6 +255,7 @@ var _ = Describe("Client", func() {
 
 			x := xs[0]
 			info, err := rmqc.GetChannel(x.Name)
+			Ω(err).Should(BeNil())
 
 			Ω(info.Node).ShouldNot(BeNil())
 			Ω(info.User).Should(Equal("guest"))
@@ -278,8 +298,13 @@ var _ = Describe("Client", func() {
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal("amq.fanout"))
 			Ω(x.Durable).Should(Equal(true))
+			Ω(x.AutoDelete).Should(Equal(false))
+			Ω(x.Internal).Should(Equal(false))
 			Ω(x.Type).Should(Equal("fanout"))
 			Ω(x.Vhost).Should(Equal("rabbit/hole"))
+			Ω(x.Incoming).Should(BeEmpty())
+			Ω(x.Outgoing).Should(BeEmpty())
+			Ω(x.Arguments).Should(BeEmpty())
 		})
 	})
 
@@ -293,13 +318,14 @@ var _ = Describe("Client", func() {
 			Ω(err).Should(BeNil())
 			defer ch.Close()
 
-			ch.QueueDeclare(
+			_, err = ch.QueueDeclare(
 				"q1",  // name
 				false, // durable
 				false, // delete when usused
 				true,  // exclusive
 				false,
 				nil)
+			Ω(err).Should(BeNil())
 
 			qs, err := rmqc.ListQueues()
 			Ω(err).Should(BeNil())
@@ -322,13 +348,14 @@ var _ = Describe("Client", func() {
 			Ω(err).Should(BeNil())
 			defer ch.Close()
 
-			ch.QueueDeclare(
+			_, err = ch.QueueDeclare(
 				"q1",  // name
 				false, // durable
 				false, // delete when usused
 				true,  // exclusive
 				false,
 				nil)
+			Ω(err).Should(BeNil())
 
 			qs, err := rmqc.ListQueuesIn("rabbit/hole")
 			Ω(err).Should(BeNil())
@@ -351,13 +378,14 @@ var _ = Describe("Client", func() {
 			Ω(err).Should(BeNil())
 			defer ch.Close()
 
-			ch.QueueDeclare(
+			_, err = ch.QueueDeclare(
 				"q1",  // name
 				false, // durable
 				false, // delete when usused
 				true,  // exclusive
 				false,
 				nil)
+			Ω(err).Should(BeNil())
 
 			q, err := rmqc.GetQueue("rabbit/hole", "q1")
 			Ω(err).Should(BeNil())
@@ -422,7 +450,7 @@ var _ = Describe("Client", func() {
 			Ω(resp.Status).Should(Equal("204 No Content"))
 
 			u2, err := rmqc.GetUser("rabbithole")
-			Ω(err).Should(Equal(errors.New("user not found")))
+			Ω(err).Should(Equal(errors.New("not found")))
 			Ω(u2).Should(BeNil())
 		})
 	})

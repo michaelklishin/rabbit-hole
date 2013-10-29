@@ -5,7 +5,7 @@ type Properties map[string]interface{}
 type Port int
 
 type RateDetails struct {
-	Rate int `json:"rate"`
+	Rate float32 `json:"rate"`
 }
 
 type BrokerContext struct {

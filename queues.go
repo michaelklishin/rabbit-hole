@@ -1,9 +1,6 @@
 package rabbithole
 
-import (
-	"encoding/json"
-	"net/url"
-)
+import "net/url"
 
 type BackingQueueStatus struct {
 	Q1                    int     `json:"q1"`
@@ -129,21 +126,15 @@ type DetailedQueueInfo QueueInfo
 //   }
 // ]
 
-func (c *Client) ListQueues() ([]QueueInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "queues")
+func (c *Client) ListQueues() (rec []QueueInfo, err error) {
+	req, err := newGETRequest(c, "queues")
 	if err != nil {
 		return []QueueInfo{}, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
+	if err = executeAndParseRequest(req, &rec); err != nil {
 		return []QueueInfo{}, err
 	}
-
-	var rec []QueueInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
@@ -152,21 +143,15 @@ func (c *Client) ListQueues() ([]QueueInfo, error) {
 // GET /api/queues/{vhost}
 //
 
-func (c *Client) ListQueuesIn(vhost string) ([]QueueInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "queues/"+url.QueryEscape(vhost))
+func (c *Client) ListQueuesIn(vhost string) (rec []QueueInfo, err error) {
+	req, err := newGETRequest(c, "queues/"+url.QueryEscape(vhost))
 	if err != nil {
 		return []QueueInfo{}, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
+	if err = executeAndParseRequest(req, &rec); err != nil {
 		return []QueueInfo{}, err
 	}
-
-	var rec []QueueInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
@@ -175,21 +160,15 @@ func (c *Client) ListQueuesIn(vhost string) ([]QueueInfo, error) {
 // GET /api/queues/{vhost}/{name}
 //
 
-func (c *Client) GetQueue(vhost, queue string) (DetailedQueueInfo, error) {
-	var err error
-	req, err := NewGETRequest(c, "queues/"+url.QueryEscape(vhost)+"/"+queue)
+func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err error) {
+	req, err := newGETRequest(c, "queues/"+url.QueryEscape(vhost)+"/"+queue)
 	if err != nil {
-		return DetailedQueueInfo{}, err
+		return nil, err
 	}
 
-	res, err := ExecuteHTTPRequest(c, req)
-	if err != nil {
-		return DetailedQueueInfo{}, err
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return nil, err
 	}
-
-	var rec DetailedQueueInfo
-	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&rec)
 
 	return rec, nil
 }
