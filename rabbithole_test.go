@@ -7,6 +7,10 @@ import (
 	"github.com/streadway/amqp"
 )
 
+type Named interface {
+	FindByName() Named
+}
+
 // TODO: extract duplication between these
 func FindQueueByName(qs []QueueInfo, name string) QueueInfo {
 	var q QueueInfo
@@ -504,6 +508,18 @@ var _ = Describe("Client", func() {
 			u2, err := rmqc.GetUser("rabbithole")
 			Ω(err).Should(Equal(errors.New("not found")))
 			Ω(u2).Should(BeNil())
+		})
+	})
+
+
+	Context("GET /vhosts", func() {
+		It("returns decoded response", func() {
+			xs, err := rmqc.ListVhosts()
+			Ω(err).Should(BeNil())
+
+			defaultVhost := xs[0]
+			Ω(defaultVhost.Name).Should(BeEquivalentTo("/"))
+			Ω(defaultVhost.Tracing).Should(Equal(false))
 		})
 	})
 })
