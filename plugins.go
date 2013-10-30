@@ -1,6 +1,7 @@
 package rabbithole
 
-func (c *Client) EnabledProtocols() (rec []string, err error) {
+func (c *Client) EnabledProtocols() ([]string, error) {
+	var err error
 	overview, err := c.Overview()
 	if err != nil {
 		return []string{}, err
@@ -14,4 +15,19 @@ func (c *Client) EnabledProtocols() (rec []string, err error) {
 	}
 
 	return xs, nil
+}
+
+func (c *Client) ProtocolPorts() (map[string]Port, error) {
+	var err error
+	overview, err := c.Overview()
+	if err != nil {
+		return map[string]Port{}, err
+	}
+
+	var res map[string]Port = map[string]Port{}
+	for _, lnr := range overview.Listeners {
+		res[lnr.Protocol] = lnr.Port
+	}
+
+	return res, nil
 }

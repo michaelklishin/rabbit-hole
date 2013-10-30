@@ -86,6 +86,15 @@ var _ = Describe("Client", func() {
 		})
 	})
 
+	Context("EnabledProtocols", func() {
+		It("returns a map of enabled protocols => ports", func() {
+			m, err := rmqc.ProtocolPorts()
+
+			Ω(err).Should(BeNil())
+			Ω(m["amqp"]).Should(BeEquivalentTo(5672))
+		})
+	})
+
 	Context("GET /whoami", func() {
 		It("returns decoded response", func() {
 			res, err := rmqc.Whoami()
