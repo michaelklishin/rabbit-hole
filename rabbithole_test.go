@@ -527,4 +527,34 @@ var _ = Describe("Client", func() {
 			Ω(x.Tracing).ShouldNot(BeNil())
 		})
 	})
+
+	Context("PUT /vhosts/{name}", func() {
+		It("creates a vhost", func() {
+			vs := VhostSettings{Tracing: false}
+			_, err := rmqc.PutVhost("rabbit/hole2", vs)
+			Ω(err).Should(BeNil())
+
+			x, err := rmqc.GetVhost("rabbit/hole2")
+
+			Ω(x.Name).Should(BeEquivalentTo("rabbit/hole2"))
+			Ω(x.Tracing).Should(Equal(false))
+
+			rmqc.DeleteVhost("rabbit/hole2")
+		})
+	})
+
+	Context("DELETE /vhosts/{name}", func() {
+		It("creates a vhost", func() {
+			vs := VhostSettings{Tracing: false}
+			_, err := rmqc.PutVhost("rabbit/hole2", vs)
+			Ω(err).Should(BeNil())
+
+			x, err := rmqc.GetVhost("rabbit/hole2")
+			Ω(x).ShouldNot(BeNil())
+
+			rmqc.DeleteVhost("rabbit/hole2")
+			x2, err := rmqc.GetVhost("rabbit/hole2")
+			Ω(x2).Should(BeNil())
+		})
+	})
 })

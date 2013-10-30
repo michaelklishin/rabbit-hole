@@ -1,6 +1,8 @@
 package rabbithole
 
 import (
+	"encoding/json"
+	"net/http"
 	"net/url"
 )
 
@@ -97,4 +99,50 @@ func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
 	}
 
 	return rec, nil
+}
+
+
+//
+// PUT /api/vhosts/{name}
+//
+
+type VhostSettings struct {
+	Tracing bool `json:"tracing"`
+}
+
+func (c *Client) PutVhost(vhostname string, settings VhostSettings) (res *http.Response, err error) {
+	body, err := json.Marshal(settings)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestWithBody(c, "PUT", "vhosts/"+url.QueryEscape(vhostname), body)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+//
+// DELETE /api/vhosts/{name}
+//
+
+func (c *Client) DeleteVhost(vhostname string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "vhosts/"+url.QueryEscape(vhostname), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
