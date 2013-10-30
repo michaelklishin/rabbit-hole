@@ -59,8 +59,6 @@ var _ = Describe("Client", func() {
 				ch.Publish("", q.Name, false, false, amqp.Publishing{Body: []byte("")})
 			}
 
-			Ω(err).Should(BeNil())
-
 			res, err := rmqc.Overview()
 			Ω(err).Should(BeNil())
 
