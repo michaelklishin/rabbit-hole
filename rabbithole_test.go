@@ -513,9 +513,9 @@ var _ = Describe("Client", func() {
 			xs, err := rmqc.ListVhosts()
 			Ω(err).Should(BeNil())
 
-			defaultVhost := xs[0]
-			Ω(defaultVhost.Name).Should(BeEquivalentTo("/"))
-			Ω(defaultVhost.Tracing).Should(Equal(false))
+			x := xs[0]
+			Ω(x.Name).ShouldNot(BeNil())
+			Ω(x.Tracing).ShouldNot(BeNil())
 		})
 	})
 })
