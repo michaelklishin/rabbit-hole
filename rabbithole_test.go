@@ -62,7 +62,6 @@ var _ = Describe("Client", func() {
 			Ω(err).Should(BeNil())
 
 			res, err := rmqc.Overview()
-
 			Ω(err).Should(BeNil())
 
 			Ω(res.Node).ShouldNot(BeNil())
