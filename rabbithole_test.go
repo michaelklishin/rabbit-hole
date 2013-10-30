@@ -50,15 +50,15 @@ var _ = Describe("Client", func() {
 
 			for i := 0; i < 1000; i++ {
 				q, _ := ch.QueueDeclare(
-				"",    // name
-				false, // durable
-				false, // delete when usused
-				true,  // exclusive
-				false,
-				nil)
+					"",    // name
+					false, // durable
+					false, // delete when usused
+					true,  // exclusive
+					false,
+					nil)
 				ch.Publish("", q.Name, false, false, amqp.Publishing{Body: []byte("")})
 			}
-			
+
 			Ω(err).Should(BeNil())
 
 			res, err := rmqc.Overview()

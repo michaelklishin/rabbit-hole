@@ -101,7 +101,6 @@ func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
 	return rec, nil
 }
 
-
 //
 // PUT /api/vhosts/{name}
 //

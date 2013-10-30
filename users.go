@@ -13,8 +13,8 @@ type UserInfo struct {
 }
 
 type UserSettings struct {
-	Name         string `json:"name"`
-	Tags         string `json:"tags"`
+	Name string `json:"name"`
+	Tags string `json:"tags"`
 
 	// *never* returned by RabbitMQ. Set by the client
 	// to create/update a user. MK.
