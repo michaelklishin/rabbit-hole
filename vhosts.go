@@ -83,7 +83,7 @@ func (c *Client) ListVhosts() (rec []VhostInfo, err error) {
 }
 
 //
-// GET /api/users/{name}
+// GET /api/vhosts/{name}
 //
 
 func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
