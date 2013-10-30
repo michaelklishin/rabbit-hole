@@ -78,9 +78,6 @@ var _ = Describe("Client", func() {
 
 			Ω(err).Should(BeNil())
 			Ω(xs).ShouldNot(BeEmpty())
-			// TODO: we need a sane function to check for list
-			//       membership. Go standard library does not
-			//       seem to provide anything. MK.
 			Ω(xs).Should(ContainElement("amqp"))
 		})
 	})
