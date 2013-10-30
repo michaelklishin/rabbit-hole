@@ -18,13 +18,15 @@ func (c *Client) EnabledProtocols() ([]string, error) {
 }
 
 func (c *Client) ProtocolPorts() (map[string]Port, error) {
-	var err error
+	var (
+		err error
+		res map[string]Port = map[string]Port{}
+	)
 	overview, err := c.Overview()
 	if err != nil {
 		return map[string]Port{}, err
 	}
 
-	var res map[string]Port = map[string]Port{}
 	for _, lnr := range overview.Listeners {
 		res[lnr.Protocol] = lnr.Port
 	}
