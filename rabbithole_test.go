@@ -418,6 +418,37 @@ var _ = Describe("Client", func() {
 		})
 	})
 
+	Context("DELETE /queues/{vhost}/{name}", func() {
+		It("deletes a queue", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/rabbit%2Fhole")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			_, err = ch.QueueDeclare(
+				"q1",  // name
+				false, // durable
+				false, // delete when usused
+				false,  // exclusive
+				false,
+				nil)
+			Ω(err).Should(BeNil())
+
+			q, err := rmqc.GetQueue("rabbit/hole", "q1")
+			Ω(err).Should(BeNil())
+			Ω(q.Name).Should(Equal("q1"))
+
+			rmqc.DeleteQueue("rabbit/hole", "q1")
+
+			q2, err := rmqc.GetQueue("rabbit/hole", "q1")
+			Ω(err).Should(Equal(errors.New("not found")))
+			Ω(q2).Should(BeNil())
+		})
+	})
+
 	Context("GET /users", func() {
 		It("returns decoded response", func() {
 			xs, err := rmqc.ListUsers()

@@ -1,6 +1,9 @@
 package rabbithole
 
-import "net/url"
+import (
+	"net/url"
+	"net/http"
+)
 
 type BackingQueueStatus struct {
 	Q1                    int     `json:"q1"`
@@ -171,4 +174,23 @@ func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err erro
 	}
 
 	return rec, nil
+}
+
+
+//
+// DELETE /api/queues/{vhost}/{name}
+//
+
+func (c *Client) DeleteQueue(vhost, queue string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "queues/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(queue), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
