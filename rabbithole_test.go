@@ -86,7 +86,7 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-	Context("EnabledProtocols", func() {
+	Context("ProtocolPorts", func() {
 		It("returns a map of enabled protocols => ports", func() {
 			m, err := rmqc.ProtocolPorts()
 
