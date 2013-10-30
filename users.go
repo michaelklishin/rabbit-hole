@@ -10,6 +10,11 @@ type UserInfo struct {
 	Name         string `json:"name"`
 	PasswordHash string `json:"password_hash"`
 	Tags         string `json:"tags"`
+}
+
+type UserSettings struct {
+	Name         string `json:"name"`
+	Tags         string `json:"tags"`
 
 	// *never* returned by RabbitMQ. Set by the client
 	// to create/update a user. MK.
@@ -57,7 +62,7 @@ func (c *Client) GetUser(username string) (rec *UserInfo, err error) {
 // PUT /api/users/{name}
 //
 
-func (c *Client) PutUser(username string, info UserInfo) (res *http.Response, err error) {
+func (c *Client) PutUser(username string, info UserSettings) (res *http.Response, err error) {
 	body, err := json.Marshal(info)
 	if err != nil {
 		return nil, err

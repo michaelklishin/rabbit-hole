@@ -474,7 +474,7 @@ var _ = Describe("Client", func() {
 
 	Context("PUT /users/{name}", func() {
 		It("updates the user", func() {
-			info := UserInfo{Password: "s3krE7", Tags: "management policymaker"}
+			info := UserSettings{Password: "s3krE7", Tags: "management policymaker"}
 			resp, err := rmqc.PutUser("rabbithole", info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(Equal("204 No Content"))
@@ -489,7 +489,7 @@ var _ = Describe("Client", func() {
 
 	Context("DELETE /users/{name}", func() {
 		It("deletes the user", func() {
-			info := UserInfo{Password: "s3krE7", Tags: "management policymaker"}
+			info := UserSettings{Password: "s3krE7", Tags: "management policymaker"}
 			_, err := rmqc.PutUser("rabbithole", info)
 			Ω(err).Should(BeNil())
 
