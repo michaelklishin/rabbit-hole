@@ -73,6 +73,19 @@ var _ = Describe("Client", func() {
 		})
 	})
 
+	Context("EnabledProtocols", func() {
+		It("returns a list of enabled protocols", func() {
+			xs, err := rmqc.EnabledProtocols()
+
+			Ω(err).Should(BeNil())
+			Ω(xs).ShouldNot(BeEmpty())
+			// TODO: we need a sane function to check for list
+			//       membership. Go standard library does not
+			//       seem to provide anything. MK.
+			Ω(xs[0]).Should(Equal("amqp"))
+		})
+	})
+
 	Context("GET /whoami", func() {
 		It("returns decoded response", func() {
 			res, err := rmqc.Whoami()
