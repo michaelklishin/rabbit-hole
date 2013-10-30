@@ -7,10 +7,6 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type Named interface {
-	FindByName() Named
-}
-
 // TODO: extract duplication between these
 func FindQueueByName(qs []QueueInfo, name string) QueueInfo {
 	var q QueueInfo
