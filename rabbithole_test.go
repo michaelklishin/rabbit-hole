@@ -59,7 +59,6 @@ var _ = Describe("Client", func() {
 				false,
 				nil)
 			Ω(err).Should(BeNil())
-			ch.Close() // Close the channel, or spec will fail. @kavu
 
 			res, err := rmqc.Overview()
 			Ω(err).Should(BeNil())
@@ -69,6 +68,8 @@ var _ = Describe("Client", func() {
 
 			fanoutExchange := ExchangeType{Name: "fanout", Description: "AMQP fanout exchange, as per the AMQP specification", Enabled: true}
 			Ω(res.ExchangeTypes).Should(ContainElement(fanoutExchange))
+
+			ch.Close()
 		})
 	})
 
