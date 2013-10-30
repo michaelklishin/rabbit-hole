@@ -47,7 +47,6 @@ var _ = Describe("Client", func() {
 
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
-			defer ch.Close()
 
 			err = ch.Publish("", "", false, false, amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
@@ -60,6 +59,7 @@ var _ = Describe("Client", func() {
 				false,
 				nil)
 			Ω(err).Should(BeNil())
+			ch.Close() // Close the channel, or spec will fail. @kavu
 
 			res, err := rmqc.Overview()
 			Ω(err).Should(BeNil())
