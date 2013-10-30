@@ -1,8 +1,8 @@
 package rabbithole
 
 import (
-	"net/url"
 	"net/http"
+	"net/url"
 )
 
 type BackingQueueStatus struct {
@@ -175,7 +175,6 @@ func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err erro
 
 	return rec, nil
 }
-
 
 //
 // DELETE /api/queues/{vhost}/{name}

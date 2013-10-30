@@ -432,7 +432,7 @@ var _ = Describe("Client", func() {
 				"q1",  // name
 				false, // durable
 				false, // delete when usused
-				false,  // exclusive
+				false, // exclusive
 				false,
 				nil)
 			Ω(err).Should(BeNil())
