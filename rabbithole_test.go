@@ -53,7 +53,7 @@ var _ = Describe("Client", func() {
 			Ω(err).Should(BeNil())
 
 			_, err = ch.QueueDeclare(
-				"q1",  // name
+				"",    // name
 				false, // durable
 				false, // delete when usused
 				true,  // exclusive
