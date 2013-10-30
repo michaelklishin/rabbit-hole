@@ -507,7 +507,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-
 	Context("GET /vhosts", func() {
 		It("returns decoded response", func() {
 			xs, err := rmqc.ListVhosts()

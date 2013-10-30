@@ -4,7 +4,6 @@ import (
 	"net/url"
 )
 
-
 //
 // GET /api/vhosts
 //
@@ -49,8 +48,8 @@ import (
 // ]
 
 type VhostInfo struct {
-	Name        string       `json:"name"`
-	Tracing     bool         `json:"tracing"`
+	Name    string `json:"name"`
+	Tracing bool   `json:"tracing"`
 
 	Messages        int         `json:"messages"`
 	MessagesDetails RateDetails `json:"messages_details"`
