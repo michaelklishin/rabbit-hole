@@ -1,5 +1,10 @@
 package rabbithole
 
+import (
+	"net/url"
+)
+
+
 //
 // GET /api/vhosts
 //
@@ -73,6 +78,23 @@ func (c *Client) ListVhosts() (rec []VhostInfo, err error) {
 
 	if err = executeAndParseRequest(req, &rec); err != nil {
 		return []VhostInfo{}, err
+	}
+
+	return rec, nil
+}
+
+//
+// GET /api/users/{name}
+//
+
+func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
+	req, err := newGETRequest(c, "vhosts/"+url.QueryEscape(vhostname))
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return nil, err
 	}
 
 	return rec, nil

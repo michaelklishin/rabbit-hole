@@ -518,4 +518,14 @@ var _ = Describe("Client", func() {
 			Ω(x.Tracing).ShouldNot(BeNil())
 		})
 	})
+
+	Context("GET /vhosts/{name} when vhost exists", func() {
+		It("returns decoded response", func() {
+			x, err := rmqc.GetVhost("rabbit/hole")
+			Ω(err).Should(BeNil())
+
+			Ω(x.Name).ShouldNot(BeNil())
+			Ω(x.Tracing).ShouldNot(BeNil())
+		})
+	})
 })
