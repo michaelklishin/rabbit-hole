@@ -623,4 +623,39 @@ var _ = Describe("Client", func() {
 			Ω(x.Read).Should(Equal(".*"))
 		})
 	})
+
+	Context("PUT /permissions/{vhost}/{user}", func() {
+		It("updates permissions", func() {
+			u := "temporary"
+
+			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
+			Ω(err).Should(BeNil())
+
+			permissions := Permissions{Configure: "log.*", Write: "log.*", Read: "log.*"}
+			_, err = rmqc.UpdatePermissionsIn("/", u, permissions)
+
+			fetched, err := rmqc.GetPermissionsIn("/", u)
+			Ω(err).Should(BeNil())
+			Ω(fetched.Configure).Should(Equal(permissions.Configure))
+			Ω(fetched.Write).Should(Equal(permissions.Write))
+			Ω(fetched.Read).Should(Equal(permissions.Read))
+
+			rmqc.DeleteUser(u)
+		})
+	})
+
+	Context("DELETE /permissions/{vhost}/{user}", func() {
+		It("clears permissions", func() {
+			u := "temporary"
+
+			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
+			Ω(err).Should(BeNil())
+
+			_, err = rmqc.ClearPermissionsIn("/", u)
+			_, err = rmqc.GetPermissionsIn("/", u)
+			Ω(err).Should(Equal(errors.New("not found")))
+			
+			rmqc.DeleteUser(u)
+		})
+	})
 })

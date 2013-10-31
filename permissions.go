@@ -1,6 +1,8 @@
 package rabbithole
 
 import (
+	"encoding/json"
+	"net/http"
 	"net/url"
 )
 
@@ -66,4 +68,54 @@ func (c *Client) GetPermissionsIn(vhost, username string) (rec PermissionInfo, e
 	}
 
 	return rec, nil
+}
+
+
+//
+// PUT /api/permissions/{vhost}/{user}
+//
+
+type Permissions struct {
+	Configure string `json:"configure"`
+	Write     string `json:"write"`
+	Read      string `json:"read"`
+}
+
+func (c *Client) UpdatePermissionsIn(vhost, username string, permissions Permissions) (res *http.Response, err error) {
+	body, err := json.Marshal(permissions)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestWithBody(c, "PUT", "permissions/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(username), body)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+
+
+//
+// DELETE /api/permissions/{vhost}/{user}
+//
+
+func (c *Client) ClearPermissionsIn(vhost, username string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "permissions/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(username), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
