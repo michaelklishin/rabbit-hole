@@ -579,4 +579,19 @@ var _ = Describe("Client", func() {
 			Ω(b.Vhost).Should(Equal("/"))
 		})
 	})
+
+	Context("GET /permissions", func() {
+		It("returns decoded response", func() {
+			xs, err := rmqc.ListPermissions()
+			Ω(err).Should(BeNil())
+
+			x := xs[0]
+			Ω(x.User).ShouldNot(BeNil())
+			Ω(x.Vhost).ShouldNot(BeNil())
+
+			Ω(x.Configure).ShouldNot(BeNil())
+			Ω(x.Write).ShouldNot(BeNil())
+			Ω(x.Read).ShouldNot(BeNil())
+		})
+	})
 })
