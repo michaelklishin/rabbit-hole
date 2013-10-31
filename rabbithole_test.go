@@ -595,6 +595,21 @@ var _ = Describe("Client", func() {
 		})
 	})
 
+	Context("GET /users/{name}/permissions", func() {
+		It("returns decoded response", func() {
+			xs, err := rmqc.ListPermissionsOf("guest")
+			Ω(err).Should(BeNil())
+
+			x := xs[0]
+			Ω(x.User).ShouldNot(BeNil())
+			Ω(x.Vhost).ShouldNot(BeNil())
+
+			Ω(x.Configure).ShouldNot(BeNil())
+			Ω(x.Write).ShouldNot(BeNil())
+			Ω(x.Read).ShouldNot(BeNil())
+		})
+	})
+
 	Context("GET /permissions/{vhost}/{user}", func() {
 		It("returns decoded response", func() {
 			x, err := rmqc.GetPermissionsIn("/", "guest")

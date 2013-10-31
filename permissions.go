@@ -35,6 +35,24 @@ func (c *Client) ListPermissions() (rec []PermissionInfo, err error) {
 }
 
 //
+// GET /api/users/{user}/permissions
+//
+
+func (c *Client) ListPermissionsOf(username string) (rec []PermissionInfo, err error) {
+	req, err := newGETRequest(c, "users/"+url.QueryEscape(username) + "/permissions")
+	if err != nil {
+		return []PermissionInfo{}, err
+	}
+
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return []PermissionInfo{}, err
+	}
+
+	return rec, nil
+}
+
+
+//
 // GET /api/permissions/{vhost}/{user}
 //
 
