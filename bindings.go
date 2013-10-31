@@ -47,11 +47,9 @@ func (c *Client) ListBindings() (rec []BindingInfo, err error) {
 	return rec, nil
 }
 
-
 //
 // GET /api/bindings/{vhost}
 //
-
 
 func (c *Client) ListBindingsIn(vhost string) (rec []BindingInfo, err error) {
 	req, err := newGETRequest(c, "bindings/"+url.QueryEscape(vhost))
