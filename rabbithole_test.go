@@ -654,7 +654,7 @@ var _ = Describe("Client", func() {
 			_, err = rmqc.ClearPermissionsIn("/", u)
 			_, err = rmqc.GetPermissionsIn("/", u)
 			Ω(err).Should(Equal(errors.New("not found")))
-			
+
 			rmqc.DeleteUser(u)
 		})
 	})

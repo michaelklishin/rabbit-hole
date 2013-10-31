@@ -70,7 +70,6 @@ func (c *Client) GetPermissionsIn(vhost, username string) (rec PermissionInfo, e
 	return rec, nil
 }
 
-
 //
 // PUT /api/permissions/{vhost}/{user}
 //
@@ -99,8 +98,6 @@ func (c *Client) UpdatePermissionsIn(vhost, username string, permissions Permiss
 
 	return res, nil
 }
-
-
 
 //
 // DELETE /api/permissions/{vhost}/{user}
