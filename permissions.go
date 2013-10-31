@@ -39,7 +39,7 @@ func (c *Client) ListPermissions() (rec []PermissionInfo, err error) {
 //
 
 func (c *Client) GetPermissionsIn(vhost, username string) (rec PermissionInfo, err error) {
-	req, err := newGETRequest(c, "permissions/" + url.QueryEscape(vhost) + "/"  + url.QueryEscape(username))
+	req, err := newGETRequest(c, "permissions/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(username))
 	if err != nil {
 		return PermissionInfo{}, err
 	}
