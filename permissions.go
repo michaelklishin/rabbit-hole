@@ -9,12 +9,12 @@ package rabbithole
 // [{"user":"guest","vhost":"/","configure":".*","write":".*","read":".*"}]
 
 type PermissionInfo struct {
-	User       string `json:"user"`
-	Vhost      string `json:"vhost"`
+	User  string `json:"user"`
+	Vhost string `json:"vhost"`
 
-	Configure  string `json:"configure"`
-	Write      string `json:"write"`
-	Read       string `json:"read"`
+	Configure string `json:"configure"`
+	Write     string `json:"write"`
+	Read      string `json:"read"`
 }
 
 func (c *Client) ListPermissions() (rec []PermissionInfo, err error) {
