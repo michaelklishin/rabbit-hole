@@ -555,7 +555,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-
 	Context("GET /bindings", func() {
 		It("returns decoded response", func() {
 			bs, err := rmqc.ListBindings()
