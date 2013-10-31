@@ -1,5 +1,9 @@
 package rabbithole
 
+import (
+	"net/url"
+)
+
 //
 // GET /api/permissions
 //
@@ -25,6 +29,23 @@ func (c *Client) ListPermissions() (rec []PermissionInfo, err error) {
 
 	if err = executeAndParseRequest(req, &rec); err != nil {
 		return []PermissionInfo{}, err
+	}
+
+	return rec, nil
+}
+
+//
+// GET /api/permissions/{vhost}/{user}
+//
+
+func (c *Client) GetPermissionsIn(vhost, username string) (rec PermissionInfo, err error) {
+	req, err := newGETRequest(c, "permissions/" + url.QueryEscape(vhost) + "/"  + url.QueryEscape(username))
+	if err != nil {
+		return PermissionInfo{}, err
+	}
+
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return PermissionInfo{}, err
 	}
 
 	return rec, nil
