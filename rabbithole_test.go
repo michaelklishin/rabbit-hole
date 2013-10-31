@@ -567,4 +567,16 @@ var _ = Describe("Client", func() {
 			Ω([]string{"queue", "exchange"}).Should(ContainElement(b.DestinationType))
 		})
 	})
+
+	Context("GET /bindings/{vhost}", func() {
+		It("returns decoded response", func() {
+			bs, err := rmqc.ListBindingsIn("/")
+			Ω(err).Should(BeNil())
+
+			b := bs[0]
+			Ω(b.Source).ShouldNot(BeNil())
+			Ω(b.Destination).ShouldNot(BeNil())
+			Ω(b.Vhost).Should(Equal("/"))
+		})
+	})
 })

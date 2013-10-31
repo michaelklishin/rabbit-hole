@@ -1,5 +1,9 @@
 package rabbithole
 
+import (
+	"net/url"
+)
+
 //
 // GET /api/bindings
 //
@@ -32,6 +36,25 @@ type BindingInfo struct {
 
 func (c *Client) ListBindings() (rec []BindingInfo, err error) {
 	req, err := newGETRequest(c, "bindings/")
+	if err != nil {
+		return []BindingInfo{}, err
+	}
+
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return []BindingInfo{}, err
+	}
+
+	return rec, nil
+}
+
+
+//
+// GET /api/bindings/{vhost}
+//
+
+
+func (c *Client) ListBindingsIn(vhost string) (rec []BindingInfo, err error) {
+	req, err := newGETRequest(c, "bindings/"+url.QueryEscape(vhost))
 	if err != nil {
 		return []BindingInfo{}, err
 	}
