@@ -39,7 +39,7 @@ func (c *Client) ListPermissions() (rec []PermissionInfo, err error) {
 //
 
 func (c *Client) ListPermissionsOf(username string) (rec []PermissionInfo, err error) {
-	req, err := newGETRequest(c, "users/"+url.QueryEscape(username) + "/permissions")
+	req, err := newGETRequest(c, "users/"+url.QueryEscape(username)+"/permissions")
 	if err != nil {
 		return []PermissionInfo{}, err
 	}
@@ -50,7 +50,6 @@ func (c *Client) ListPermissionsOf(username string) (rec []PermissionInfo, err e
 
 	return rec, nil
 }
-
 
 //
 // GET /api/permissions/{vhost}/{user}
