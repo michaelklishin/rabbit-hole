@@ -658,4 +658,24 @@ var _ = Describe("Client", func() {
 			rmqc.DeleteUser(u)
 		})
 	})
+
+	Context("PUT /exchanges/{vhost}/{exchange}", func() {
+		It("declares an exchange", func() {
+			vh := "rabbit/hole"
+			xn := "temporary"
+
+			_, err := rmqc.DeclareExchange(vh, xn, ExchangeSettings{Type: "fanout", Durable: false})
+			Ω(err).Should(BeNil())
+
+			x, err := rmqc.GetExchange(vh, xn)
+			Ω(err).Should(BeNil())
+			Ω(x.Name).Should(Equal(xn))
+			Ω(x.Durable).Should(Equal(false))
+			Ω(x.AutoDelete).Should(Equal(false))
+			Ω(x.Type).Should(Equal("fanout"))
+			Ω(x.Vhost).Should(Equal(vh))
+
+			rmqc.DeleteExchange(vh, xn)
+		})
+	})
 })

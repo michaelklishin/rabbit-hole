@@ -1,6 +1,10 @@
 package rabbithole
 
-import "net/url"
+import (
+	"encoding/json"
+	"net/http"
+	"net/url"
+)
 
 //
 // GET /api/exchanges
@@ -24,6 +28,13 @@ type ExchangeInfo struct {
 	Arguments  map[string]interface{} `json:"arguments"`
 
 	MessageStats IngressEgressStats `json:"message_stats"`
+}
+
+type ExchangeSettings struct {
+	Type       string                 `json:"type"`
+	Durable    bool                   `json:"durable"`
+	AutoDelete bool                   `json:"auto_delete"`
+	Arguments  map[string]interface{} `json:"arguments"`
 }
 
 func (c *Client) ListExchanges() (rec []ExchangeInfo, err error) {
@@ -162,3 +173,49 @@ func (c *Client) GetExchange(vhost, exchange string) (rec *DetailedExchangeInfo,
 
 	return rec, nil
 }
+
+
+//
+// PUT /api/exchanges/{vhost}/{exchange}
+//
+
+func (c *Client) DeclareExchange(vhost, exchange string, info ExchangeSettings) (res *http.Response, err error) {
+	if info.Arguments == nil {
+		info.Arguments = make(map[string]interface{})
+	}
+	body, err := json.Marshal(info)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestWithBody(c, "PUT", "exchanges/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(exchange), body)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+//
+// DELETE /api/exchanges/{vhost}/{name}
+//
+
+func (c *Client) DeleteExchange(vhost, exchange string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "exchanges/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(exchange), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
