@@ -174,7 +174,6 @@ func (c *Client) GetExchange(vhost, exchange string) (rec *DetailedExchangeInfo,
 	return rec, nil
 }
 
-
 //
 // PUT /api/exchanges/{vhost}/{exchange}
 //
@@ -218,4 +217,3 @@ func (c *Client) DeleteExchange(vhost, exchange string) (res *http.Response, err
 
 	return res, nil
 }
-
