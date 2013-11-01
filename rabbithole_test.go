@@ -678,4 +678,19 @@ var _ = Describe("Client", func() {
 			rmqc.DeleteExchange(vh, xn)
 		})
 	})
+
+	Context("DELETE /exchanges/{vhost}/{exchange}", func() {
+		It("deletes an exchange", func() {
+			vh := "rabbit/hole"
+			xn := "temporary"
+
+			_, err := rmqc.DeclareExchange(vh, xn, ExchangeSettings{Type: "fanout", Durable: false})
+			Ω(err).Should(BeNil())
+
+			rmqc.DeleteExchange(vh, xn)
+			x, err := rmqc.GetExchange(vh, xn)
+			Ω(x).Should(BeNil())
+			Ω(err).Should(Equal(errors.New("not found")))
+		})
+	})
 })
