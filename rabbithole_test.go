@@ -693,4 +693,137 @@ var _ = Describe("Client", func() {
 			Ω(err).Should(Equal(errors.New("not found")))
 		})
 	})
+
+	Context("GET /policies/{vhost}/{name}", func() {
+		Context("when policy exists", func() {
+			It("returns decoded response", func() {
+				policy := Policy{
+					Pattern:    ".*",
+					ApplyTo:    "all",
+					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Priority:   0,
+				}
+
+				_, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
+				Ω(err).Should(BeNil())
+
+				pol, err := rmqc.GetPolicy("rabbit/hole", "woot")
+				Ω(err).Should(BeNil())
+				Ω(pol.Vhost).Should(Equal("rabbit/hole"))
+				Ω(pol.Name).Should(Equal("woot"))
+				Ω(pol.ApplyTo).Should(Equal("all"))
+				Ω(pol.Pattern).Should(Equal(".*"))
+				Ω(pol.Priority).Should(BeEquivalentTo(0))
+				Ω(pol.Definition).Should(BeAssignableToTypeOf(PolicyDefinition{}))
+				Ω(pol.Definition["expires"]).Should(BeEquivalentTo(100))
+				Ω(pol.Definition["ha-mode"]).Should(Equal("all"))
+
+				_, err = rmqc.DeletePolicy("rabbit/hole", "woot")
+				Ω(err).Should(BeNil())
+			})
+		})
+
+		Context("when policy not found", func() {
+			It("returns decoded response", func() {
+				pol, err := rmqc.GetPolicy("rabbit/hole", "woot")
+				Ω(err).Should(Equal(errors.New("not found")))
+				Ω(pol).Should(BeNil())
+			})
+		})
+	})
+
+	Context("DELETE /polices/{vhost}/{name}", func() {
+		It("deletes the policy", func() {
+			policy := Policy{
+				Pattern:    ".*",
+				ApplyTo:    "all",
+				Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+				Priority:   0,
+			}
+
+			_, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
+			Ω(err).Should(BeNil())
+
+			resp, err := rmqc.DeletePolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(Equal("204 No Content"))
+		})
+	})
+
+	Context("PUT /policies/{vhost}/{name}", func() {
+		It("creates the policy", func() {
+			policy := Policy{
+				Pattern: ".*",
+				ApplyTo: "all",
+				Definition: PolicyDefinition{
+					"expires":   100,
+					"ha-mode":   "nodes",
+					"ha-params": NodeNames{"a", "b", "c"},
+				},
+				Priority: 0,
+			}
+
+			resp, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(Equal("204 No Content"))
+
+			_, err = rmqc.GetPolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+
+			_, err = rmqc.DeletePolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+		})
+
+		It("updates the policy", func() {
+			policy := Policy{
+				Pattern:    ".*",
+				Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+			}
+
+			// create Policy
+			_, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
+			Ω(err).Should(BeNil())
+
+			// create new Policy
+			new_policy := Policy{
+				Pattern: "\\d+",
+				ApplyTo: "all",
+				Definition: PolicyDefinition{
+					"max-length": 100,
+					"ha-mode":    "nodes",
+					"ha-params":  NodeNames{"a", "b", "c"},
+				},
+				Priority: 1,
+			}
+
+			// update old Policy
+			resp, err := rmqc.PutPolicy("/", "woot2", new_policy)
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(Equal("204 No Content"))
+
+			// old policy should not exist already
+			_, err = rmqc.GetPolicy("rabbit/hole", "woot")
+			Ω(err).Should(Equal(errors.New("not found")))
+
+			// but new (updated) policy is here
+			pol, err := rmqc.GetPolicy("/", "woot2")
+			Ω(err).Should(BeNil())
+			Ω(pol.Vhost).Should(Equal("/"))
+			Ω(pol.Name).Should(Equal("woot2"))
+			Ω(pol.Pattern).Should(Equal("\\d+"))
+			Ω(pol.ApplyTo).Should(Equal("all"))
+			Ω(pol.Priority).Should(BeEquivalentTo(1))
+			Ω(pol.Definition).Should(BeAssignableToTypeOf(PolicyDefinition{}))
+			Ω(pol.Definition["max-length"]).Should(BeEquivalentTo(100))
+			Ω(pol.Definition["ha-mode"]).Should(Equal("nodes"))
+			Ω(pol.Definition["ha-params"]).Should(HaveLen(3))
+			Ω(pol.Definition["ha-params"]).Should(ContainElement("a"))
+			Ω(pol.Definition["ha-params"]).Should(ContainElement("c"))
+			Ω(pol.Definition["expires"]).Should(BeNil())
+
+			// cleanup
+			_, err = rmqc.DeletePolicy("rabbit/hole", "woot2")
+			Ω(err).Should(BeNil())
+		})
+	})
 })
