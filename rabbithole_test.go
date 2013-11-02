@@ -694,6 +694,40 @@ var _ = Describe("Client", func() {
 		})
 	})
 
+	Context("PUT /queues/{vhost}/{queue}", func() {
+		It("declares an queue", func() {
+			vh := "rabbit/hole"
+			qn := "temporary"
+
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			Ω(err).Should(BeNil())
+
+			x, err := rmqc.GetQueue(vh, qn)
+			Ω(err).Should(BeNil())
+			Ω(x.Name).Should(Equal(qn))
+			Ω(x.Durable).Should(Equal(false))
+			Ω(x.AutoDelete).Should(Equal(false))
+			Ω(x.Vhost).Should(Equal(vh))
+
+			rmqc.DeleteQueue(vh, qn)
+		})
+	})
+
+	Context("DELETE /queues/{vhost}/{queue}", func() {
+		It("deletes an queue", func() {
+			vh := "rabbit/hole"
+			qn := "temporary"
+
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			Ω(err).Should(BeNil())
+
+			rmqc.DeleteQueue(vh, qn)
+			x, err := rmqc.GetQueue(vh, qn)
+			Ω(x).Should(BeNil())
+			Ω(err).Should(Equal(errors.New("not found")))
+		})
+	})
+
 	Context("GET /policies/{vhost}/{name}", func() {
 		Context("when policy exists", func() {
 			It("returns decoded response", func() {

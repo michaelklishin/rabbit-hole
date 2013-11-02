@@ -1,6 +1,7 @@
 package rabbithole
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 )
@@ -174,6 +175,38 @@ func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err erro
 	}
 
 	return rec, nil
+}
+
+//
+// PUT /api/exchanges/{vhost}/{exchange}
+//
+
+type QueueSettings struct {
+	Durable    bool                   `json:"durable"`
+	AutoDelete bool                   `json:"auto_delete"`
+	Arguments  map[string]interface{} `json:"arguments"`
+}
+
+func (c *Client) DeclareQueue(vhost, queue string, info QueueSettings) (res *http.Response, err error) {
+	if info.Arguments == nil {
+		info.Arguments = make(map[string]interface{})
+	}
+	body, err := json.Marshal(info)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestWithBody(c, "PUT", "queues/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(queue), body)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 //
