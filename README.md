@@ -24,12 +24,9 @@ anyone but the author.
 
 ## Installation
 
-TBD
-
-
-## Usage
-
-TBD
+```
+go get github.com/michaelklishin/rabbit-hole
+```
 
 
 ## Documentation
