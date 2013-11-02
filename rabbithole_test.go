@@ -598,7 +598,7 @@ var _ = Describe("Client", func() {
 					nil)
 			Ω(err).Should(BeNil())
 
-			bs, err := rmqc.ListBindingsOfQueue("/", q.Name)
+			bs, err := rmqc.ListQueueBindings("/", q.Name)
 			Ω(err).Should(BeNil())
 
 			b := bs[0]

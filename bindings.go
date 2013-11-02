@@ -86,7 +86,7 @@ func (c *Client) ListBindingsIn(vhost string) (rec []BindingInfo, err error) {
 //    "properties_key":"~"}
 // ]
 
-func (c *Client) ListBindingsOfQueue(vhost, queue string) (rec []BindingInfo, err error) {
+func (c *Client) ListQueueBindings(vhost, queue string) (rec []BindingInfo, err error) {
 	req, err := newGETRequest(c, "queues/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(queue)+"/bindings")
 	if err != nil {
 		return []BindingInfo{}, err
