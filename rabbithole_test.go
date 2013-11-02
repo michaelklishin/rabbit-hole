@@ -695,7 +695,7 @@ var _ = Describe("Client", func() {
 	})
 
 	Context("PUT /queues/{vhost}/{queue}", func() {
-		It("declares an queue", func() {
+		It("declares a queue", func() {
 			vh := "rabbit/hole"
 			qn := "temporary"
 
@@ -714,7 +714,7 @@ var _ = Describe("Client", func() {
 	})
 
 	Context("DELETE /queues/{vhost}/{queue}", func() {
-		It("deletes an queue", func() {
+		It("deletes a queue", func() {
 			vh := "rabbit/hole"
 			qn := "temporary"
 
