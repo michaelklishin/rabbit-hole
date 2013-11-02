@@ -31,7 +31,75 @@ go get github.com/michaelklishin/rabbit-hole
 
 ## Documentation
 
+### Overview
+
+To import the package:
+
+``` go
+import (
+       "github.com/michaelklishin/rabbit-hole"
+)
+```
+
+All HTTP API operations are accessible via `rabbithole.Client`, which
+should be instantiated with `rabbithole.NewClient`:
+
+``` go
+// URI, username, password
+rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
+```
+
+### Getting Overview
+
+``` go
+res, err := rmqc.Overview()
+```
+
+### Node and Cluster Status
+
 TBD
+
+
+### Operations on Connections
+
+TBD
+
+
+### Operations on Channels
+
+TBD
+
+
+### Operations on Exchanges
+
+TBD
+
+
+### Operations on Queues
+
+TBD
+
+
+### Operations on Bindings
+
+TBD
+
+
+### Operations on Vhosts
+
+TBD
+
+
+### Managing Users
+
+TBD
+
+
+### Managing Permissions
+
+TBD
+
+
 
 
 ## Contributing
