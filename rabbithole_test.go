@@ -58,6 +58,7 @@ var _ = Describe("Client", func() {
 					nil)
 				ch.Publish("", q.Name, false, false, amqp.Publishing{Body: []byte("")})
 			}
+			ch.Close()
 
 			res, err := rmqc.Overview()
 			Ω(err).Should(BeNil())
@@ -67,8 +68,6 @@ var _ = Describe("Client", func() {
 
 			fanoutExchange := ExchangeType{Name: "fanout", Description: "AMQP fanout exchange, as per the AMQP specification", Enabled: true}
 			Ω(res.ExchangeTypes).Should(ContainElement(fanoutExchange))
-
-			ch.Close()
 		})
 	})
 
@@ -559,8 +558,10 @@ var _ = Describe("Client", func() {
 		It("returns decoded response", func() {
 			bs, err := rmqc.ListBindings()
 			Ω(err).Should(BeNil())
+			Ω(bs).ShouldNot(BeEmpty())
 
 			b := bs[0]
+
 			Ω(b.Source).ShouldNot(BeNil())
 			Ω(b.Destination).ShouldNot(BeNil())
 			Ω(b.Vhost).ShouldNot(BeNil())
@@ -572,6 +573,7 @@ var _ = Describe("Client", func() {
 		It("returns decoded response", func() {
 			bs, err := rmqc.ListBindingsIn("/")
 			Ω(err).Should(BeNil())
+			Ω(bs).ShouldNot(BeEmpty())
 
 			b := bs[0]
 			Ω(b.Source).ShouldNot(BeNil())
