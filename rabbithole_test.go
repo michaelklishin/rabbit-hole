@@ -580,6 +580,37 @@ var _ = Describe("Client", func() {
 		})
 	})
 
+	Context("GET /queues/{vhost}/{queue}/bindings", func() {
+		It("returns decoded response", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+
+			q, err := ch.QueueDeclare(
+					"",    // name
+					false, // durable
+					false, // delete when usused
+					true,  // exclusive
+					false,
+					nil)
+			Ω(err).Should(BeNil())
+
+			bs, err := rmqc.ListBindingsOfQueue("/", q.Name)
+			Ω(err).Should(BeNil())
+
+			b := bs[0]
+			Ω(b.Source).Should(Equal(""))
+			Ω(b.Destination).Should(Equal(q.Name))
+			Ω(b.RoutingKey).Should(Equal(q.Name))
+			Ω(b.Vhost).Should(Equal("/"))
+
+			ch.Close()
+		})
+	})
+
 	Context("GET /permissions", func() {
 		It("returns decoded response", func() {
 			xs, err := rmqc.ListPermissions()
