@@ -1,15 +1,13 @@
 package rabbithole
 
-func (c *Client) EnabledProtocols() ([]string, error) {
-	var err error
+func (c *Client) EnabledProtocols() (xs []string, err error) {
 	overview, err := c.Overview()
 	if err != nil {
 		return []string{}, err
 	}
 
 	// we really need to implement Map/Filter/etc. MK.
-	l := len(overview.Listeners)
-	var xs = make([]string, l)
+	xs = make([]string, len(overview.Listeners))
 	for i, lnr := range overview.Listeners {
 		xs[i] = lnr.Protocol
 	}
@@ -17,14 +15,12 @@ func (c *Client) EnabledProtocols() ([]string, error) {
 	return xs, nil
 }
 
-func (c *Client) ProtocolPorts() (map[string]Port, error) {
-	var (
-		err error
-		res map[string]Port = map[string]Port{}
-	)
+func (c *Client) ProtocolPorts() (res map[string]Port, err error) {
+	res = map[string]Port{}
+
 	overview, err := c.Overview()
 	if err != nil {
-		return map[string]Port{}, err
+		return res, err
 	}
 
 	for _, lnr := range overview.Listeners {
