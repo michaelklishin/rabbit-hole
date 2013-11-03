@@ -3,12 +3,12 @@ go:
   - 1.1
   - tip
 
-install:
-  - go get -v ./...
-  - go get github.com/onsi/gomega
-  - go get github.com/onsi/ginkgo
-
 services:
   - rabbitmq
 
-script: go test -v ./...
+before_script: ./bin/ci/before_build.sh
+script: make
+
+notifications:
+  email:
+    - michael@rabbitmq.com
