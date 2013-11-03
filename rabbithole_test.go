@@ -8,29 +8,27 @@ import (
 )
 
 // TODO: extract duplication between these
-func FindQueueByName(qs []QueueInfo, name string) QueueInfo {
-	var q QueueInfo
-	for _, i := range qs {
-		if i.Name == name {
+func FindQueueByName(sl []QueueInfo, name string) (q QueueInfo) {
+	for _, i := range sl {
+		if name == i.Name {
 			q = i
+			break
 		}
 	}
-
 	return q
 }
 
-func FindUserByName(us []UserInfo, name string) UserInfo {
-	var u UserInfo
-	for _, i := range us {
+func FindUserByName(sl []UserInfo, name string) (u UserInfo) {
+	for _, i := range sl {
 		if name == i.Name {
 			u = i
+			break
 		}
 	}
-
 	return u
 }
 
-var _ = Describe("Client", func() {
+var _ = Describe("Rabbithole", func() {
 	var (
 		rmqc *Client
 	)
@@ -761,6 +759,105 @@ var _ = Describe("Client", func() {
 		})
 	})
 
+	Context("GET /policies", func() {
+		Context("when policy exists", func() {
+			It("returns decoded response", func() {
+				policy1 := Policy{
+					Pattern:    "abc",
+					ApplyTo:    "all",
+					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Priority:   0,
+				}
+
+				policy2 := Policy{
+					Pattern:    ".*",
+					ApplyTo:    "all",
+					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Priority:   0,
+				}
+
+				// prepare policies
+				_, err := rmqc.PutPolicy("rabbit/hole", "woot1", policy1)
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.PutPolicy("rabbit/hole", "woot2", policy2)
+				Ω(err).Should(BeNil())
+
+				// test
+				pols, err := rmqc.ListPolicies()
+				Ω(err).Should(BeNil())
+				Ω(pols).ShouldNot(BeEmpty())
+				Ω(len(pols)).Should(Equal(2))
+				Ω(pols[0].Name).Should(Equal("woot1"))
+				Ω(pols[1].Name).Should(Equal("woot2"))
+
+				// cleanup
+				_, err = rmqc.DeletePolicy("rabbit/hole", "woot1")
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.DeletePolicy("rabbit/hole", "woot2")
+				Ω(err).Should(BeNil())
+			})
+		})
+
+		Context("when no policies exist", func() {
+			It("returns decoded response", func() {
+				pols, err := rmqc.ListPolicies()
+				Ω(err).Should(BeNil())
+				Ω(pols).Should(BeEmpty())
+			})
+		})
+	})
+
+	Context("GET /polices/{vhost}", func() {
+		Context("when policy exists", func() {
+			It("returns decoded response", func() {
+				policy1 := Policy{
+					Pattern:    "abc",
+					ApplyTo:    "all",
+					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Priority:   0,
+				}
+
+				policy2 := Policy{
+					Pattern:    ".*",
+					ApplyTo:    "all",
+					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Priority:   0,
+				}
+
+				// prepare policies
+				_, err := rmqc.PutPolicy("rabbit/hole", "woot1", policy1)
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.PutPolicy("/", "woot2", policy2)
+				Ω(err).Should(BeNil())
+
+				// test
+				pols, err := rmqc.ListPoliciesIn("rabbit/hole")
+				Ω(err).Should(BeNil())
+				Ω(pols).ShouldNot(BeEmpty())
+				Ω(len(pols)).Should(Equal(1))
+				Ω(pols[0].Name).Should(Equal("woot1"))
+
+				// cleanup
+				_, err = rmqc.DeletePolicy("rabbit/hole", "woot1")
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.DeletePolicy("/", "woot2")
+				Ω(err).Should(BeNil())
+			})
+		})
+
+		Context("when no policies exist", func() {
+			It("returns decoded response", func() {
+				pols, err := rmqc.ListPoliciesIn("rabbit/hole")
+				Ω(err).Should(BeNil())
+				Ω(pols).Should(BeEmpty())
+			})
+		})
+	})
+
 	Context("GET /policies/{vhost}/{name}", func() {
 		Context("when policy exists", func() {
 			It("returns decoded response", func() {
@@ -889,7 +986,7 @@ var _ = Describe("Client", func() {
 			Ω(pol.Definition["expires"]).Should(BeNil())
 
 			// cleanup
-			_, err = rmqc.DeletePolicy("rabbit/hole", "woot2")
+			_, err = rmqc.DeletePolicy("/", "woot2")
 			Ω(err).Should(BeNil())
 		})
 	})

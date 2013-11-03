@@ -8,5 +8,5 @@ import (
 
 func TestRabbitHole(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Client")
+	RunSpecs(t, "Rabbithole Suite")
 }

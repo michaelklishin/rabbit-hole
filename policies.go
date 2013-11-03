@@ -20,7 +20,41 @@ type Policy struct {
 }
 
 //
-// GET /api/policies/{name}
+// GET /api/policies
+//
+
+func (c *Client) ListPolicies() (rec []Policy, err error) {
+	req, err := newGETRequest(c, "policies")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return nil, err
+	}
+
+	return rec, nil
+}
+
+//
+// GET /api/policies/{vhost}
+//
+
+func (c *Client) ListPoliciesIn(vhost string) (rec []Policy, err error) {
+	req, err := newGETRequest(c, "policies/"+url.QueryEscape(vhost))
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(req, &rec); err != nil {
+		return nil, err
+	}
+
+	return rec, nil
+}
+
+//
+// GET /api/policies/{vhost}/{name}
 //
 
 func (c *Client) GetPolicy(vhost, name string) (rec *Policy, err error) {
