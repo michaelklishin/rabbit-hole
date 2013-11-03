@@ -799,14 +799,6 @@ var _ = Describe("Rabbithole", func() {
 				Ω(err).Should(BeNil())
 			})
 		})
-
-		Context("when no policies exist", func() {
-			It("returns decoded response", func() {
-				pols, err := rmqc.ListPolicies()
-				Ω(err).Should(BeNil())
-				Ω(pols).Should(BeEmpty())
-			})
-		})
 	})
 
 	Context("GET /polices/{vhost}", func() {
