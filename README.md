@@ -57,7 +57,12 @@ res, err := rmqc.Overview()
 
 ### Node and Cluster Status
 
-TBD
+``` go
+var err error
+
+// => []NodeInfo, err
+xs, err := rmqc.ListNodes()
+```
 
 
 ### Operations on Connections
