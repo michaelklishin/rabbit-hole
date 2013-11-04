@@ -6,19 +6,29 @@ import (
 	"net/url"
 )
 
+// Information about backing queue (queue storage engine).
 type BackingQueueStatus struct {
 	Q1                    int     `json:"q1"`
 	Q2                    int     `json:"q2"`
 	Q3                    int     `json:"q3"`
 	Q4                    int     `json:"q4"`
+	// Total queue length
 	Length                int64   `json:"len"`
+	// Number of pending acks from consumers
 	PendingAcks           int64   `json:"pending_acks"`
+	// Number of messages held in RAM
 	RAMMessageCount       int64   `json:"ram_msg_count"`
+	// Number of outstanding acks held in RAM
 	RAMAckCount           int64   `json:"ram_ack_count"`
+	// Number of messages persisted to disk
 	PersistentCount       int64   `json:"persistent_count"`
+	// Average ingress (inbound) rate
 	AverageIngressRate    float64 `json:"avg_ingress_rate"`
+	// Average egress (outbound) rate
 	AverageEgressRate     float64 `json:"avg_egress_rate"`
+	// Average ingress rate for acknowledgements (via publisher confirms)
 	AverageAckIngressRate float32 `json:"avg_ack_ingress_rate"`
+	// Average egress rate for acknowledgements (from consumers)
 	AverageAckEgressRate  float32 `json:"avg_ack_egress_rate"`
 }
 
