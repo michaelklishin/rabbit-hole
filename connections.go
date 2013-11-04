@@ -3,21 +3,31 @@ package rabbithole
 import "net/url"
 
 type ConnectionInfo struct {
+	// Connection name
 	Name     string `json:"name"`
+	// Node the client is connected to
 	Node     string `json:"node"`
+	// Number of open channels
 	Channels int    `json:"channels"`
+	// Connection state
 	State    string `json:"state"`
+	// Connection type, network (via AMQP client) or direct (via direct Erlang client)
 	Type     string `json:"type"`
 
+	// Server port
 	Port     Port `json:"port"`
+	// Client port
 	PeerPort Port `json:"peer_port"`
 
+	// Server host
 	Host     string `json:"host"`
+	// Client host
 	PeerHost string `json:"peer_host"`
 
 	LastBlockedBy  string `json:"last_blocked_by"`
 	LastBlockedAge string `json:"last_blocked_age"`
 
+	// True if connection uses TLS/SSL
 	UsesTLS          bool   `json:"ssl"`
 	PeerCertSubject  string `json:"peer_cert_subject"`
 	PeerCertValidity string `json:"peer_cert_validity"`
