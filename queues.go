@@ -39,27 +39,41 @@ type OwnerPidDetails struct {
 }
 
 type QueueInfo struct {
+	// Queue name
 	Name       string                 `json:"name"`
+	// Virtual host this queue belongs to
 	Vhost      string                 `json:"vhost"`
+	// Is this queue durable?
 	Durable    bool                   `json:"durable"`
+	// Is this queue auto-delted?
 	AutoDelete bool                   `json:"auto_delete"`
+	// Extra queue arguments
 	Arguments  map[string]interface{} `json:"arguments"`
 
+	// RabbitMQ node that hosts master for this queue
 	Node   string `json:"node"`
+	// Queue status
 	Status string `json:"status"`
 
+	// Total amount of RAM used by this queue
 	Memory               int64  `json:"memory"`
+	// How many consumers this queue has
 	Consumers            int    `json:"consumers"`
+	// If there is an exclusive consumer, its consumer tag
 	ExclusiveConsumerTag string `json:"exclusive_consumer_tag"`
 
+	// Policy applied to this queue, if any
 	Policy string `json:"policy"`
 
+	// Total number of messages in this queue
 	Messages        int         `json:"messages"`
 	MessagesDetails RateDetails `json:"messages_details"`
 
+	// Number of messages ready to be delivered
 	MessagesReady        int         `json:"messages_ready"`
 	MessagesReadyDetails RateDetails `json:"messages_ready_details"`
 
+	// Number of messages delivered and pending acknowledgements from consumers
 	MessagesUnacknowledged        int         `json:"messages_unacknowledged"`
 	MessagesUnacknowledgedDetails RateDetails `json:"messages_unacknowledged_details"`
 
