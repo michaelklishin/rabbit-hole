@@ -15,6 +15,7 @@ type Client struct {
 	Username string
 	// Password to use.
 	Password string
+	// TODO(mk): make this private
 	Host     string
 }
 
