@@ -2,6 +2,7 @@ package rabbithole
 
 import "net/url"
 
+// Provides information about connection to a RabbitMQ node.
 type ConnectionInfo struct {
 	// Connection name
 	Name     string `json:"name"`
@@ -24,7 +25,9 @@ type ConnectionInfo struct {
 	// Client host
 	PeerHost string `json:"peer_host"`
 
+	// Last connection blocking reason, if any
 	LastBlockedBy  string `json:"last_blocked_by"`
+	// When connection was last blocked
 	LastBlockedAge string `json:"last_blocked_age"`
 
 	// True if connection uses TLS/SSL
