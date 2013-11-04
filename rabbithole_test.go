@@ -46,7 +46,7 @@ var _ = Describe("Rabbithole", func() {
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
 
-			for i := 0; i < 1000; i++ {
+			for i := 0; i < 2000; i++ {
 				q, _ := ch.QueueDeclare(
 					"",    // name
 					false, // durable
