@@ -32,30 +32,46 @@ type ConnectionInfo struct {
 
 	// True if connection uses TLS/SSL
 	UsesTLS          bool   `json:"ssl"`
+	// Client certificate subject
 	PeerCertSubject  string `json:"peer_cert_subject"`
+	// Client certificate validity
 	PeerCertValidity string `json:"peer_cert_validity"`
+	// Client certificate issuer
 	PeerCertIssuer   string `json:"peer_cert_issuer"`
 
+	// TLS/SSL protocol and version
 	SSLProtocol    string `json:"ssl_protocol"`
+	// Key exchange mechanism
 	SSLKeyExchange string `json:"ssl_key_exchange"`
+	// SSL cipher suite used
 	SSLCipher      string `json:"ssl_cipher"`
+	// SSL hash
 	SSLHash        string `json:"ssl_hash"`
 
+	// Protocol, e.g. AMQP 0-9-1 or MQTT 3-1
 	Protocol string `json:"protocol"`
 	User     string `json:"user"`
+	// Virtual host
 	Vhost    string `json:"vhost"`
 
+	// Heartbeat timeout
 	Timeout  int `json:"timeout"`
+	// Maximum frame size (AMQP 0-9-1)
 	FrameMax int `json:"frame_max"`
 
+	// A map of client properties (name, version, capabilities, etc)
 	ClientProperties Properties `json:"client_properties"`
 
+	// Octets received
 	RecvOct        uint64      `json:"recv_oct"`
+	// Octets sent
 	SendOct        uint64      `json:"send_oct"`
 	RecvCount      uint64      `json:"recv_cnt"`
 	SendCount      uint64      `json:"send_cnt"`
 	SendPendi      uint64      `json:"send_pend"`
+	// Ingress data rate
 	RecvOctDetails RateDetails `json:"recv_oct_details"`
+	// Egress data rate
 	SendOctDetails RateDetails `json:"send_oct_details"`
 }
 
