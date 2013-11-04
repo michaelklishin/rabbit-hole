@@ -9,7 +9,13 @@ import (
 )
 
 type Client struct {
-	Endpoint, Host, Username, Password string
+	// URI of a RabbitMQ node to use, not including the path, e.g. http://127.0.0.1:15672.
+	Endpoint string
+	// Username to use. This RabbitMQ user must have the "management" tag.
+	Username string
+	// Password to use.
+	Password string
+	Host     string
 }
 
 func NewClient(uri string, username string, password string) (me *Client, err error) {
