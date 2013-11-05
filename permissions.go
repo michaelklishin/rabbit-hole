@@ -18,8 +18,11 @@ type PermissionInfo struct {
 	User  string `json:"user"`
 	Vhost string `json:"vhost"`
 
+	// Configuration permissions
 	Configure string `json:"configure"`
+	// Write permissions
 	Write     string `json:"write"`
+	// Read permissions
 	Read      string `json:"read"`
 }
 
