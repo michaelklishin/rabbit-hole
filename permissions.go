@@ -26,6 +26,7 @@ type PermissionInfo struct {
 	Read      string `json:"read"`
 }
 
+// Returns permissions for all users and virtual hosts.
 func (c *Client) ListPermissions() (rec []PermissionInfo, err error) {
 	req, err := newGETRequest(c, "permissions/")
 	if err != nil {
@@ -43,6 +44,7 @@ func (c *Client) ListPermissions() (rec []PermissionInfo, err error) {
 // GET /api/users/{user}/permissions
 //
 
+// Returns permissions of a specific user.
 func (c *Client) ListPermissionsOf(username string) (rec []PermissionInfo, err error) {
 	req, err := newGETRequest(c, "users/"+url.QueryEscape(username)+"/permissions")
 	if err != nil {
@@ -60,6 +62,7 @@ func (c *Client) ListPermissionsOf(username string) (rec []PermissionInfo, err e
 // GET /api/permissions/{vhost}/{user}
 //
 
+// Returns permissions of user in virtual host.
 func (c *Client) GetPermissionsIn(vhost, username string) (rec PermissionInfo, err error) {
 	req, err := newGETRequest(c, "permissions/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(username))
 	if err != nil {
