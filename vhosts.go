@@ -144,6 +144,7 @@ func (c *Client) PutVhost(vhostname string, settings VhostSettings) (res *http.R
 // DELETE /api/vhosts/{name}
 //
 
+// Deletes a virtual host.
 func (c *Client) DeleteVhost(vhostname string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "vhosts/"+url.QueryEscape(vhostname), nil)
 	if err != nil {
