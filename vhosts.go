@@ -50,23 +50,30 @@ import (
 // ]
 
 type VhostInfo struct {
+	// Virtual host name
 	Name    string `json:"name"`
+	// True if tracing is enabled for this virtual host
 	Tracing bool   `json:"tracing"`
 
+	// Total number of messages in queues of this virtual host
 	Messages        int         `json:"messages"`
 	MessagesDetails RateDetails `json:"messages_details"`
 
+	// Total number of messages ready to be delivered in queues of this virtual host
 	MessagesReady        int         `json:"messages_ready"`
 	MessagesReadyDetails RateDetails `json:"messages_ready_details"`
 
+	// Total number of messages pending acknowledgement from consumers in this virtual host
 	MessagesUnacknowledged        int         `json:"messages_unacknowledged"`
 	MessagesUnacknowledgedDetails RateDetails `json:"messages_unacknowledged_details"`
 
+	// Octets received
 	RecvOct        uint64      `json:"recv_oct"`
+	// Octets sent
 	SendOct        uint64      `json:"send_oct"`
 	RecvCount      uint64      `json:"recv_cnt"`
 	SendCount      uint64      `json:"send_cnt"`
-	SendPendi      uint64      `json:"send_pend"`
+	SendPending    uint64      `json:"send_pend"`
 	RecvOctDetails RateDetails `json:"recv_oct_details"`
 	SendOctDetails RateDetails `json:"send_oct_details"`
 }
