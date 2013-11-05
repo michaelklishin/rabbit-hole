@@ -33,6 +33,7 @@ type Policy struct {
 // GET /api/policies
 //
 
+// Return all policies (across all virtual hosts).
 func (c *Client) ListPolicies() (rec []Policy, err error) {
 	req, err := newGETRequest(c, "policies")
 	if err != nil {
@@ -50,6 +51,7 @@ func (c *Client) ListPolicies() (rec []Policy, err error) {
 // GET /api/policies/{vhost}
 //
 
+// Returns policies in a specific virtual host.
 func (c *Client) ListPoliciesIn(vhost string) (rec []Policy, err error) {
 	req, err := newGETRequest(c, "policies/"+url.QueryEscape(vhost))
 	if err != nil {
@@ -67,6 +69,7 @@ func (c *Client) ListPoliciesIn(vhost string) (rec []Policy, err error) {
 // GET /api/policies/{vhost}/{name}
 //
 
+// Returns individual policy in virtual host.
 func (c *Client) GetPolicy(vhost, name string) (rec *Policy, err error) {
 	req, err := newGETRequest(c, "policies/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(name))
 	if err != nil {
@@ -84,6 +87,7 @@ func (c *Client) GetPolicy(vhost, name string) (rec *Policy, err error) {
 // PUT /api/policies/{vhost}/{name}
 //
 
+// Updates a policy.
 func (c *Client) PutPolicy(vhost string, name string, policy Policy) (res *http.Response, err error) {
 	body, err := json.Marshal(policy)
 	if err != nil {
@@ -107,6 +111,7 @@ func (c *Client) PutPolicy(vhost string, name string, policy Policy) (res *http.
 // DELETE /api/policies/{vhost}/{name}
 //
 
+// Deletes a policy.
 func (c *Client) DeletePolicy(vhost, name string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "policies/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(name), nil)
 	if err != nil {
