@@ -78,6 +78,7 @@ type VhostInfo struct {
 	SendOctDetails RateDetails `json:"send_oct_details"`
 }
 
+// Returns a list of virtual hosts.
 func (c *Client) ListVhosts() (rec []VhostInfo, err error) {
 	req, err := newGETRequest(c, "vhosts/")
 	if err != nil {
@@ -95,6 +96,7 @@ func (c *Client) ListVhosts() (rec []VhostInfo, err error) {
 // GET /api/vhosts/{name}
 //
 
+// Returns information about a specific virtual host.
 func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
 	req, err := newGETRequest(c, "vhosts/"+url.QueryEscape(vhostname))
 	if err != nil {
@@ -112,10 +114,13 @@ func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
 // PUT /api/vhosts/{name}
 //
 
+// Settings used to create or modify virtual hosts.
 type VhostSettings struct {
+	// True if tracing should be enabled.
 	Tracing bool `json:"tracing"`
 }
 
+// Creates or updates a virtual host.
 func (c *Client) PutVhost(vhostname string, settings VhostSettings) (res *http.Response, err error) {
 	body, err := json.Marshal(settings)
 	if err != nil {
