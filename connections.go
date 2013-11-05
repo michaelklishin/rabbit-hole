@@ -68,7 +68,7 @@ type ConnectionInfo struct {
 	SendOct        uint64      `json:"send_oct"`
 	RecvCount      uint64      `json:"recv_cnt"`
 	SendCount      uint64      `json:"send_cnt"`
-	SendPendi      uint64      `json:"send_pend"`
+	SendPending    uint64      `json:"send_pend"`
 	// Ingress data rate
 	RecvOctDetails RateDetails `json:"recv_oct_details"`
 	// Egress data rate
