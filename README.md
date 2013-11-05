@@ -58,10 +58,11 @@ res, err := rmqc.Overview()
 ### Node and Cluster Status
 
 ``` go
-var err error
-
-// => []NodeInfo, err
 xs, err := rmqc.ListNodes()
+// => []NodeInfo, err
+
+node, err := rmqc.GetNode("rabbit@mercurio")
+// => NodeInfo, err
 ```
 
 
