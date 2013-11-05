@@ -68,12 +68,26 @@ node, err := rmqc.GetNode("rabbit@mercurio")
 
 ### Operations on Connections
 
+``` go
+xs, err := rmqc.ListConnections()
+// => []ConnectionInfo, err
+
+conn, err := rmqc.GetConnection("127.0.0.1:50545 -> 127.0.0.1:5672")
+// => ConnectionInfo, err
+```
+
 TBD
 
 
 ### Operations on Channels
 
-TBD
+``` go
+xs, err := rmqc.ListChannels()
+// => []ChannelInfo, err
+
+ch, err := rmqc.GetChannel("127.0.0.1:50545 -> 127.0.0.1:5672 (1)")
+// => ChannelInfo, err
+```
 
 
 ### Operations on Exchanges
