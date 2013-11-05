@@ -86,6 +86,7 @@ type Permissions struct {
 	Read      string `json:"read"`
 }
 
+// Updates permissions of user in virtual host.
 func (c *Client) UpdatePermissionsIn(vhost, username string, permissions Permissions) (res *http.Response, err error) {
 	body, err := json.Marshal(permissions)
 	if err != nil {
