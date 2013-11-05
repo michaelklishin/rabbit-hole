@@ -110,6 +110,7 @@ func (c *Client) UpdatePermissionsIn(vhost, username string, permissions Permiss
 // DELETE /api/permissions/{vhost}/{user}
 //
 
+// Clears (deletes) permissions of user in virtual host.
 func (c *Client) ClearPermissionsIn(vhost, username string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "permissions/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(username), nil)
 	if err != nil {
