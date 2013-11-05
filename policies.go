@@ -6,16 +6,26 @@ import (
 	"net/url"
 )
 
+// Policy definition: additional arguments
+// added to the entities (queues, exchanges or both)
+// that match a policy.
 type PolicyDefinition map[string]interface{}
 
 type NodeNames []string
 
+// Represents a configured policy.
 type Policy struct {
+	// Virtual host this policy is in.
 	Vhost      string           `json:"vhost"`
+	// Regular expression pattern used to match queues and exchanges,
+	// , e.g. "^ha\..+"
 	Pattern    string           `json:"pattern"`
+	// What this policy applies to: "queues", "exchanges", etc.
 	ApplyTo    string           `json:"apply-to"`
 	Name       string           `json:"name"`
 	Priority   int              `json:"priority"`
+	// Additional arguments added to the entities (queues,
+	// exchanges or both) that match a policy
 	Definition PolicyDefinition `json:"definition"`
 }
 
