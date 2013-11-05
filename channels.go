@@ -53,6 +53,7 @@ type ChannelInfo struct {
 // GET /api/channels
 //
 
+// Returns information about all open channels.
 func (c *Client) ListChannels() (rec []ChannelInfo, err error) {
 	req, err := newGETRequest(c, "channels")
 	if err != nil {
@@ -70,6 +71,7 @@ func (c *Client) ListChannels() (rec []ChannelInfo, err error) {
 // GET /api/channels/{name}
 //
 
+// Returns channel information.
 func (c *Client) GetChannel(name string) (rec *ChannelInfo, err error) {
 	req, err := newGETRequest(c, "channels/"+url.QueryEscape(name))
 	if err != nil {
