@@ -69,6 +69,7 @@ func (c *Client) GetUser(username string) (rec *UserInfo, err error) {
 // PUT /api/users/{name}
 //
 
+// Updates information about individual user.
 func (c *Client) PutUser(username string, info UserSettings) (res *http.Response, err error) {
 	body, err := json.Marshal(info)
 	if err != nil {
@@ -92,6 +93,7 @@ func (c *Client) PutUser(username string, info UserSettings) (res *http.Response
 // DELETE /api/users/{name}
 //
 
+// Deletes user.
 func (c *Client) DeleteUser(username string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "users/"+url.QueryEscape(username), nil)
 	if err != nil {
