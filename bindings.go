@@ -25,15 +25,19 @@ import (
 // ]
 
 type BindingInfo struct {
+	// Binding source (exchange name)
 	Source          string                 `json:"source"`
 	Vhost           string                 `json:"vhost"`
+	// Binding destination (queue or exchange name)
 	Destination     string                 `json:"destination"`
+	// Destination type, either "queue" or "exchange"
 	DestinationType string                 `json:"destination_type"`
 	RoutingKey      string                 `json:"routing_key"`
 	Arguments       map[string]interface{} `json:"arguments"`
 	PropertiesKey   string                 `json:"properties_key"`
 }
 
+// Returns all bindings
 func (c *Client) ListBindings() (rec []BindingInfo, err error) {
 	req, err := newGETRequest(c, "bindings/")
 	if err != nil {
@@ -51,6 +55,7 @@ func (c *Client) ListBindings() (rec []BindingInfo, err error) {
 // GET /api/bindings/{vhost}
 //
 
+// Returns all bindings in a virtual host.
 func (c *Client) ListBindingsIn(vhost string) (rec []BindingInfo, err error) {
 	req, err := newGETRequest(c, "bindings/"+url.QueryEscape(vhost))
 	if err != nil {
@@ -86,6 +91,7 @@ func (c *Client) ListBindingsIn(vhost string) (rec []BindingInfo, err error) {
 //    "properties_key":"~"}
 // ]
 
+// Returns all bindings of individual queue.
 func (c *Client) ListQueueBindings(vhost, queue string) (rec []BindingInfo, err error) {
 	req, err := newGETRequest(c, "queues/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(queue)+"/bindings")
 	if err != nil {
