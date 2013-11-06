@@ -9,11 +9,16 @@ import (
 type UserInfo struct {
 	Name         string `json:"name"`
 	PasswordHash string `json:"password_hash"`
+	// Tags control permissions. Built-in tags: administrator, management, policymaker.
 	Tags         string `json:"tags"`
 }
 
+// Settings used to create users
 type UserSettings struct {
 	Name string `json:"name"`
+	// Tags control permissions. Administrator grants full
+	// permissions, management grants management UI and HTTP API
+	// access, policymaker grants policy management permissions.
 	Tags string `json:"tags"`
 
 	// *never* returned by RabbitMQ. Set by the client
@@ -28,6 +33,7 @@ type UserSettings struct {
 // Example response:
 // [{"name":"guest","password_hash":"8LYTIFbVUwi8HuV/dGlp2BYsD1I=","tags":"administrator"}]
 
+// Returns a list of all users in a cluster.
 func (c *Client) ListUsers() (rec []UserInfo, err error) {
 	req, err := newGETRequest(c, "users/")
 	if err != nil {
@@ -45,6 +51,7 @@ func (c *Client) ListUsers() (rec []UserInfo, err error) {
 // GET /api/users/{name}
 //
 
+// Returns information about individual user.
 func (c *Client) GetUser(username string) (rec *UserInfo, err error) {
 	req, err := newGETRequest(c, "users/"+url.QueryEscape(username))
 	if err != nil {
