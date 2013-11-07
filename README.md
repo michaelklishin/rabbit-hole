@@ -102,7 +102,7 @@ xs, err := rmqc.ListExchangesIn("/")
 
 // information about individual exchange
 x, err := rmqc.GetExchange("/", "amq.fanout")
-// => ChannelInfo, err
+// => ExchangeInfo, err
 
 // declares an exchange
 resp, err := rmqc.DeclareExchange("/", "an.exchange", ExchangeSettings{Type: "fanout", Durable: false})
