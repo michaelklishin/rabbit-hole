@@ -16,7 +16,7 @@ type Client struct {
 	// Password to use.
 	Password string
 	// TODO(mk): make this private
-	Host     string
+	host     string
 }
 
 func NewClient(uri string, username string, password string) (me *Client, err error) {
@@ -27,7 +27,7 @@ func NewClient(uri string, username string, password string) (me *Client, err er
 
 	me = &Client{
 		Endpoint: uri,
-		Host:     u.Host,
+		host:     u.Host,
 		Username: username,
 		Password: password,
 	}
@@ -41,7 +41,7 @@ func newGETRequest(client *Client, path string) (*http.Request, error) {
 	req, err := http.NewRequest("GET", s, nil)
 	req.SetBasicAuth(client.Username, client.Password)
 	// set Opaque to preserve percent-encoded path. MK.
-	req.URL.Opaque = "//" + client.Host + "/api/" + path
+	req.URL.Opaque = "//" + client.host + "/api/" + path
 
 	return req, err
 }
@@ -52,7 +52,7 @@ func newRequestWithBody(client *Client, method string, path string, body []byte)
 	req, err := http.NewRequest(method, s, bytes.NewReader(body))
 	req.SetBasicAuth(client.Username, client.Password)
 	// set Opaque to preserve percent-encoded path. MK.
-	req.URL.Opaque = "//" + client.Host + "/api/" + path
+	req.URL.Opaque = "//" + client.host + "/api/" + path
 
 	req.Header.Add("Content-Type", "application/json")
 
