@@ -92,7 +92,26 @@ ch, err := rmqc.GetChannel("127.0.0.1:50545 -> 127.0.0.1:5672 (1)")
 
 ### Operations on Exchanges
 
-TBD
+``` go
+xs, err := rmqc.ListExchanges()
+// => []ExchangeInfo, err
+
+// list exchanges in a vhost
+xs, err := rmqc.ListExchangesIn("/")
+// => []ExchangeInfo, err
+
+// information about individual exchange
+x, err := rmqc.GetExchange("/", "amq.fanout")
+// => ChannelInfo, err
+
+// declares an exchange
+resp, err := rmqc.DeclareExchange("/", "an.exchange", ExchangeSettings{Type: "fanout", Durable: false})
+// => *http.Response, err
+
+// deletes individual exchange
+resp, err := rmqc.DeleteExchange("/", "an.exchange")
+// => *http.Response, err
+```
 
 
 ### Operations on Queues
