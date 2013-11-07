@@ -128,7 +128,7 @@ xs, err := rmqc.ListQueuesIn("/")
 x, err := rmqc.GetQueue("/", "a.queue")
 // => QueueInfo, err
 
-// declares an queue
+// declares a queue
 resp, err := rmqc.DeclareQueue("/", "a.queue", QueueSettings{Durable: false})
 // => *http.Response, err
 
