@@ -116,7 +116,26 @@ resp, err := rmqc.DeleteExchange("/", "an.exchange")
 
 ### Operations on Queues
 
-TBD
+``` go
+xs, err := rmqc.ListQueues()
+// => []QueueInfo, err
+
+// list queues in a vhost
+xs, err := rmqc.ListQueuesIn("/")
+// => []QueueInfo, err
+
+// information about individual queue
+x, err := rmqc.GetQueue("/", "a.queue")
+// => QueueInfo, err
+
+// declares an queue
+resp, err := rmqc.DeclareQueue("/", "a.queue", QueueSettings{Durable: false})
+// => *http.Response, err
+
+// deletes individual queue
+resp, err := rmqc.DeleteQueue("/", "a.queue")
+// => *http.Response, err
+```
 
 
 ### Operations on Bindings
