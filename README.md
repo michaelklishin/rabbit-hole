@@ -165,7 +165,22 @@ resp, err := rmqc.DeleteVhost("/")
 
 ### Managing Users
 
-TBD
+``` go
+xs, err := rmqc.ListUsers()
+// => []UserInfo, err
+
+// information about individual user
+x, err := rmqc.GetUser("my.user")
+// => UserInfo, err
+
+// creates or updates individual user
+resp, err := rmqc.PutUser("my.user", UserSettings{Password: "s3krE7", Tags: "management policymaker"})
+// => *http.Response, err
+
+// deletes individual user
+resp, err := rmqc.DeleteUser("my.user")
+// => *http.Response, err
+```
 
 
 ### Managing Permissions
