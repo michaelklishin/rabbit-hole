@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/streadway/amqp"
+	"net/url"
 )
 
 // TODO: extract duplication between these
@@ -28,6 +29,30 @@ func FindUserByName(sl []UserInfo, name string) (u UserInfo) {
 	return u
 }
 
+func openConnection(vhost string) (*amqp.Connection) {
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/" + url.QueryEscape(vhost))
+	Ω(err).Should(BeNil())
+
+	if err != nil {
+		panic("failed to connect")
+	}
+
+	return conn
+}
+
+func ensureNonZeroMessageRate(ch *amqp.Channel) {
+	for i := 0; i < 2000; i++ {
+		q, _ := ch.QueueDeclare(
+			"",    // name
+			false, // durable
+			false, // delete when usused
+			true,  // exclusive
+			false,
+			nil)
+		ch.Publish("", q.Name, false, false, amqp.Publishing{Body: []byte("")})
+	}
+}
+
 var _ = Describe("Rabbithole", func() {
 	var (
 		rmqc *Client
@@ -39,23 +64,13 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /overview", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
 
-			for i := 0; i < 2000; i++ {
-				q, _ := ch.QueueDeclare(
-					"",    // name
-					false, // durable
-					false, // delete when usused
-					true,  // exclusive
-					false,
-					nil)
-				ch.Publish("", q.Name, false, false, amqp.Publishing{Body: []byte("")})
-			}
+			ensureNonZeroMessageRate(ch)
 
 			res, err := rmqc.Overview()
 			Ω(err).Should(BeNil())
@@ -72,8 +87,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("DELETE /api/connections/{name}", func() {
 		It("closes the connection", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 
 			xs, err := rmqc.ListConnections()
 			Ω(err).Should(BeNil())
@@ -86,6 +100,10 @@ var _ = Describe("Rabbithole", func() {
 
 			evt := <- closeEvents
 			Ω(evt).ShouldNot(BeNil())
+			Ω(evt.Code).Should(Equal(320))
+			Ω(evt.Reason).Should(Equal("CONNECTION_FORCED - Closed via management plugin"))
+			// server-initiated
+			Ω(evt.Server).Should(Equal(true))
 		})
 	})
 
@@ -175,12 +193,10 @@ var _ = Describe("Rabbithole", func() {
 	Context("GET /connections when there are active connections", func() {
 		It("returns decoded response", func() {
 			// this really should be tested with > 1 connection and channel. MK.
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 			defer conn.Close()
 
-			conn2, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn2 := openConnection("/")
 			defer conn2.Close()
 
 			ch, err := conn.Channel()
@@ -214,8 +230,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /channels when there are active connections with open channels", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
@@ -268,8 +283,7 @@ var _ = Describe("Rabbithole", func() {
 	Context("GET /connections/{name] when connection exists", func() {
 		It("returns decoded response", func() {
 			// this really should be tested with > 1 connection and channel. MK.
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
@@ -296,8 +310,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /channels/{name} when channel exists", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
@@ -371,8 +384,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /queues", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
@@ -380,7 +392,7 @@ var _ = Describe("Rabbithole", func() {
 			defer ch.Close()
 
 			_, err = ch.QueueDeclare(
-				"q1",  // name
+				"",    // name
 				false, // durable
 				false, // delete when usused
 				true,  // exclusive
@@ -401,8 +413,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /queues/{vhost}", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/rabbit%2Fhole")
-			Ω(err).Should(BeNil())
+			conn := openConnection("rabbit/hole")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
@@ -410,7 +421,7 @@ var _ = Describe("Rabbithole", func() {
 			defer ch.Close()
 
 			_, err = ch.QueueDeclare(
-				"q1",  // name
+				"q2",  // name
 				false, // durable
 				false, // delete when usused
 				true,  // exclusive
@@ -421,8 +432,8 @@ var _ = Describe("Rabbithole", func() {
 			qs, err := rmqc.ListQueuesIn("rabbit/hole")
 			Ω(err).Should(BeNil())
 
-			q := FindQueueByName(qs, "q1")
-			Ω(q.Name).Should(Equal("q1"))
+			q := FindQueueByName(qs, "q2")
+			Ω(q.Name).Should(Equal("q2"))
 			Ω(q.Vhost).Should(Equal("rabbit/hole"))
 			Ω(q.Durable).Should(Equal(false))
 			Ω(q.Status).ShouldNot(BeNil())
@@ -431,8 +442,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /queues/{vhost}/{name}", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/rabbit%2Fhole")
-			Ω(err).Should(BeNil())
+			conn := openConnection("rabbit/hole")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
@@ -440,7 +450,7 @@ var _ = Describe("Rabbithole", func() {
 			defer ch.Close()
 
 			_, err = ch.QueueDeclare(
-				"q1",  // name
+				"q3",    // name
 				false, // durable
 				false, // delete when usused
 				true,  // exclusive
@@ -448,10 +458,9 @@ var _ = Describe("Rabbithole", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			q, err := rmqc.GetQueue("rabbit/hole", "q1")
+			q, err := rmqc.GetQueue("rabbit/hole", "q3")
 			Ω(err).Should(BeNil())
 
-			Ω(q.Name).Should(Equal("q1"))
 			Ω(q.Vhost).Should(Equal("rabbit/hole"))
 			Ω(q.Durable).Should(Equal(false))
 			Ω(q.Status).ShouldNot(BeNil())
@@ -460,16 +469,15 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("DELETE /queues/{vhost}/{name}", func() {
 		It("deletes a queue", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/rabbit%2Fhole")
-			Ω(err).Should(BeNil())
+			conn := openConnection("rabbit/hole")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
 			defer ch.Close()
 
-			_, err = ch.QueueDeclare(
-				"q1",  // name
+			q, err := ch.QueueDeclare(
+				"",    // name
 				false, // durable
 				false, // delete when usused
 				false, // exclusive
@@ -477,15 +485,14 @@ var _ = Describe("Rabbithole", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			q, err := rmqc.GetQueue("rabbit/hole", "q1")
+			_, err = rmqc.GetQueue("rabbit/hole", q.Name)
 			Ω(err).Should(BeNil())
-			Ω(q.Name).Should(Equal("q1"))
 
-			rmqc.DeleteQueue("rabbit/hole", "q1")
+			rmqc.DeleteQueue("rabbit/hole", q.Name)
 
-			q2, err := rmqc.GetQueue("rabbit/hole", "q1")
+			qi2, err := rmqc.GetQueue("rabbit/hole", q.Name)
 			Ω(err).Should(Equal(errors.New("not found")))
-			Ω(q2).Should(BeNil())
+			Ω(qi2).Should(BeNil())
 		})
 	})
 
@@ -600,8 +607,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /bindings", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
@@ -633,8 +639,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /bindings/{vhost}", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
@@ -664,8 +669,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /queues/{vhost}/{queue}/bindings", func() {
 		It("returns decoded response", func() {
-			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			Ω(err).Should(BeNil())
+			conn := openConnection("/")
 			defer conn.Close()
 
 			ch, err := conn.Channel()
