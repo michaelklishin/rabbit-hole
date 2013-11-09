@@ -49,6 +49,8 @@ should be instantiated with `rabbithole.NewClient`:
 rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 ```
 
+[API reference](http://godoc.org/github.com/michaelklishin/rabbit-hole) is available on [godoc.org](http://godoc.org).
+
 ### Getting Overview
 
 ``` go
