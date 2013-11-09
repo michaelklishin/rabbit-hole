@@ -121,15 +121,15 @@ resp, err := rmqc.DeleteExchange("/", "an.exchange")
 ### Operations on Queues
 
 ``` go
-xs, err := rmqc.ListQueues()
+qs, err := rmqc.ListQueues()
 // => []QueueInfo, err
 
 // list queues in a vhost
-xs, err := rmqc.ListQueuesIn("/")
+qs, err := rmqc.ListQueuesIn("/")
 // => []QueueInfo, err
 
 // information about individual queue
-x, err := rmqc.GetQueue("/", "a.queue")
+q, err := rmqc.GetQueue("/", "a.queue")
 // => QueueInfo, err
 
 // declares a queue
