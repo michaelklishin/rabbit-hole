@@ -185,7 +185,26 @@ resp, err := rmqc.DeleteUser("my.user")
 
 ### Managing Permissions
 
-TBD
+``` go
+xs, err := rmqc.ListPermissions()
+// => []PermissionInfo, err
+
+// permissions of individual user
+x, err := rmqc.ListPermissionsOf("my.user")
+// => []PermissionInfo, err
+
+// permissions of individual user in vhost
+x, err := rmqc.GetPermissionsIn("/", "my.user")
+// => PermissionInfo, err
+
+// updates permissions of user in vhost
+resp, err := rmqc.UpdatePermissionsIn("/", "my.user", Permission{Configure: ".*", Write: ".*", Read: ".*"})
+// => *http.Response, err
+
+// revokes permissions in vhost
+resp, err := rmqc.ClearPermissionsIn("/", "my.user")
+// => *http.Response, err
+```
 
 
 
