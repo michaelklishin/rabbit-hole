@@ -29,6 +29,10 @@ Operations on Connections
         conn, err := rmqc.GetConnection("127.0.0.1:50545 -> 127.0.0.1:5672")
         // => ConnectionInfo, err
 
+        // Forcefully close connection
+        _, err := rmqc.CloseConnection("127.0.0.1:50545 -> 127.0.0.1:5672")
+        // => *http.Response, err
+
 Operations on Channels
 
         xs, err := rmqc.ListChannels()
