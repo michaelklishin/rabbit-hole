@@ -17,9 +17,9 @@ All versions require [RabbitMQ Management UI plugin](http://www.rabbitmq.com/man
 
 ## Project Maturity
 
-Rabbit Hole is a **very immature** project and breaking changes are quite likely.
-It also completely lacks documentation and at the moment likely isn't useful to
-anyone but the author.
+Rabbit Hole is a **young** project and breaking API changes are not out of the question.
+
+It is, however, about 90% feature complete and decently documented.
 
 
 ## Installation
