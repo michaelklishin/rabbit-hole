@@ -145,7 +145,22 @@ TBD
 
 ### Operations on Vhosts
 
-TBD
+``` go
+xs, err := rmqc.ListVhosts()
+// => []VhostInfo, err
+
+// information about individual vhost
+x, err := rmqc.GetVhost("/")
+// => VhostInfo, err
+
+// creates or updates individual vhost
+resp, err := rmqc.PutVhost("/")
+// => *http.Response, err
+
+// deletes individual vhost
+resp, err := rmqc.DeleteVhost("/")
+// => *http.Response, err
+```
 
 
 ### Managing Users
