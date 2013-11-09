@@ -70,6 +70,25 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("DELETE /api/connections/{name}", func() {
+		It("closes the connection", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			 (err).Should(BeNil())
+
+			xs, err := rmqc.ListConnections()
+			 (err).Should(BeNil())
+
+			closeEvents := make(chan *amqp.Error)
+			conn.NotifyClose(closeEvents)
+
+			n := xs[0].Name
+			rmqc.CloseConnection(n)
+
+			evt := <- closeEvents
+			 (evt).ShouldNot(BeNil())
+		})
+	})
+
 	Context("EnabledProtocols", func() {
 		It("returns a list of enabled protocols", func() {
 			xs, err := rmqc.EnabledProtocols()

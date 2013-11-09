@@ -1,6 +1,9 @@
 package rabbithole
 
-import "net/url"
+import (
+	"net/http"
+	"net/url"
+)
 
 // Provides information about connection to a RabbitMQ node.
 type ConnectionInfo struct {
@@ -107,4 +110,22 @@ func (c *Client) GetConnection(name string) (rec *ConnectionInfo, err error) {
 	}
 
 	return rec, nil
+}
+
+//
+// DELETE /api/connections/{name}
+//
+
+func (c *Client) CloseConnection (name string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "connections/"+url.QueryEscape(name), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
