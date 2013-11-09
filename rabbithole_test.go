@@ -73,10 +73,10 @@ var _ = Describe("Rabbithole", func() {
 	Context("DELETE /api/connections/{name}", func() {
 		It("closes the connection", func() {
 			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-			 (err).Should(BeNil())
+			Ω(err).Should(BeNil())
 
 			xs, err := rmqc.ListConnections()
-			 (err).Should(BeNil())
+			Ω(err).Should(BeNil())
 
 			closeEvents := make(chan *amqp.Error)
 			conn.NotifyClose(closeEvents)
@@ -85,7 +85,7 @@ var _ = Describe("Rabbithole", func() {
 			rmqc.CloseConnection(n)
 
 			evt := <- closeEvents
-			 (evt).ShouldNot(BeNil())
+			Ω(evt).ShouldNot(BeNil())
 		})
 	})
 
@@ -600,6 +600,24 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /bindings", func() {
 		It("returns decoded response", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			q, _ := ch.QueueDeclare(
+				"",
+				false,
+				false,
+				true,
+				false,
+				nil)
+			err = ch.QueueBind(q.Name, "", "amq.topic", false, nil)
+			Ω(err).Should(BeNil())
+
 			bs, err := rmqc.ListBindings()
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
@@ -615,6 +633,24 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /bindings/{vhost}", func() {
 		It("returns decoded response", func() {
+			conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			q, _ := ch.QueueDeclare(
+				"",
+				false,
+				false,
+				true,
+				false,
+				nil)
+			err = ch.QueueBind(q.Name, "", "amq.topic", false, nil)
+			Ω(err).Should(BeNil())
+
 			bs, err := rmqc.ListBindingsIn("/")
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
