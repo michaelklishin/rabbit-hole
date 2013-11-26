@@ -20,7 +20,7 @@ type BackingQueueStatus struct {
 	RAMMessageCount       int64   `json:"ram_msg_count"`
 	// Number of outstanding acks held in RAM
 	RAMAckCount           int64   `json:"ram_ack_count"`
-	// Number of messages persisted to disk
+	// Number of persistent messages in the store
 	PersistentCount       int64   `json:"persistent_count"`
 	// Average ingress (inbound) rate
 	AverageIngressRate    float64 `json:"avg_ingress_rate"`
