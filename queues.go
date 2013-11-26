@@ -26,9 +26,9 @@ type BackingQueueStatus struct {
 	AverageIngressRate    float64 `json:"avg_ingress_rate"`
 	// Average egress (outbound) rate
 	AverageEgressRate     float64 `json:"avg_egress_rate"`
-	// Average ingress rate for acknowledgements (via publisher confirms)
+	// Average ingress rate for acknowledgements (from consumers)
 	AverageAckIngressRate float32 `json:"avg_ack_ingress_rate"`
-	// Average egress rate for acknowledgements (from consumers)
+	// Average egress rate for acknowledgements (via publisher confirms)
 	AverageAckEgressRate  float32 `json:"avg_ack_egress_rate"`
 }
 
