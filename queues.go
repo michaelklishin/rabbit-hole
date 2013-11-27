@@ -22,9 +22,11 @@ type BackingQueueStatus struct {
 	RAMAckCount           int64   `json:"ram_ack_count"`
 	// Number of persistent messages in the store
 	PersistentCount       int64   `json:"persistent_count"`
-	// Average ingress (inbound) rate
+	// Average ingress (inbound) rate, not including messages
+	// that straight through to auto-acking consumers.
 	AverageIngressRate    float64 `json:"avg_ingress_rate"`
-	// Average egress (outbound) rate
+	// Average egress (outbound) rate, not including messages
+	// that straight through to auto-acking consumers.
 	AverageEgressRate     float64 `json:"avg_egress_rate"`
 	// Average ingress rate for acknowledgements (from consumers)
 	AverageAckIngressRate float32 `json:"avg_ack_ingress_rate"`
