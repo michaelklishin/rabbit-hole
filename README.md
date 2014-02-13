@@ -94,59 +94,6 @@ ch, err := rmqc.GetChannel("127.0.0.1:50545 -> 127.0.0.1:5672 (1)")
 ```
 
 
-### Operations on Exchanges
-
-``` go
-xs, err := rmqc.ListExchanges()
-// => []ExchangeInfo, err
-
-// list exchanges in a vhost
-xs, err := rmqc.ListExchangesIn("/")
-// => []ExchangeInfo, err
-
-// information about individual exchange
-x, err := rmqc.GetExchange("/", "amq.fanout")
-// => ExchangeInfo, err
-
-// declares an exchange
-resp, err := rmqc.DeclareExchange("/", "an.exchange", ExchangeSettings{Type: "fanout", Durable: false})
-// => *http.Response, err
-
-// deletes individual exchange
-resp, err := rmqc.DeleteExchange("/", "an.exchange")
-// => *http.Response, err
-```
-
-
-### Operations on Queues
-
-``` go
-qs, err := rmqc.ListQueues()
-// => []QueueInfo, err
-
-// list queues in a vhost
-qs, err := rmqc.ListQueuesIn("/")
-// => []QueueInfo, err
-
-// information about individual queue
-q, err := rmqc.GetQueue("/", "a.queue")
-// => QueueInfo, err
-
-// declares a queue
-resp, err := rmqc.DeclareQueue("/", "a.queue", QueueSettings{Durable: false})
-// => *http.Response, err
-
-// deletes individual queue
-resp, err := rmqc.DeleteQueue("/", "a.queue")
-// => *http.Response, err
-```
-
-
-### Operations on Bindings
-
-TBD
-
-
 ### Operations on Vhosts
 
 ``` go
@@ -210,6 +157,63 @@ resp, err := rmqc.ClearPermissionsIn("/", "my.user")
 // => *http.Response, err
 ```
 
+
+### Operations on Exchanges
+
+``` go
+xs, err := rmqc.ListExchanges()
+// => []ExchangeInfo, err
+
+// list exchanges in a vhost
+xs, err := rmqc.ListExchangesIn("/")
+// => []ExchangeInfo, err
+
+// information about individual exchange
+x, err := rmqc.GetExchange("/", "amq.fanout")
+// => ExchangeInfo, err
+
+// declares an exchange
+resp, err := rmqc.DeclareExchange("/", "an.exchange", ExchangeSettings{Type: "fanout", Durable: false})
+// => *http.Response, err
+
+// deletes individual exchange
+resp, err := rmqc.DeleteExchange("/", "an.exchange")
+// => *http.Response, err
+```
+
+
+### Operations on Queues
+
+``` go
+qs, err := rmqc.ListQueues()
+// => []QueueInfo, err
+
+// list queues in a vhost
+qs, err := rmqc.ListQueuesIn("/")
+// => []QueueInfo, err
+
+// information about individual queue
+q, err := rmqc.GetQueue("/", "a.queue")
+// => QueueInfo, err
+
+// declares a queue
+resp, err := rmqc.DeclareQueue("/", "a.queue", QueueSettings{Durable: false})
+// => *http.Response, err
+
+// deletes individual queue
+resp, err := rmqc.DeleteQueue("/", "a.queue")
+// => *http.Response, err
+```
+
+
+### Operations on Bindings
+
+TBD
+
+
+### HTTPS Connections
+
+TBD
 
 
 
