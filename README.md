@@ -230,4 +230,8 @@ TBD
 
 2-clause BSD license.
 
-(c) Michael S. Klishin, 2013.
+(c) Michael S. Klishin, 2013-2014.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/michaelklishin/rabbit-hole/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
