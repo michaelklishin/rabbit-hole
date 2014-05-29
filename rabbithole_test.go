@@ -521,7 +521,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("PUT /users/{name}", func() {
 		It("updates the user", func() {
-			info := UserSettings{Password: "s3krE7", Tags: "management policymaker"}
+			info := UserSettings{Password: "s3krE7", Tags: "policymaker, management"}
 			resp, err := rmqc.PutUser("rabbithole", info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(Equal("204 No Content"))
@@ -530,7 +530,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal("management policymaker"))
+			Ω(u.Tags).Should(Equal("policymaker,management"))
 		})
 	})
 
