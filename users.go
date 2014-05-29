@@ -13,7 +13,7 @@ type UserInfo struct {
 	Tags         string `json:"tags"`
 }
 
-// Settings used to create users
+// Settings used to create users. Tags must be comma-separated.
 type UserSettings struct {
 	Name string `json:"name"`
 	// Tags control permissions. Administrator grants full
