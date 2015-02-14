@@ -6,6 +6,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/streadway/amqp"
 	"net/url"
+	"strings"
 )
 
 // TODO: extract duplication between these
@@ -223,7 +224,8 @@ var _ = Describe("Rabbithole", func() {
 
 			info := xs[0]
 			Ω(info.Name).ShouldNot(BeNil())
-			Ω(info.Host).Should(Equal("127.0.0.1"))
+			// Host should match IPv4 regex. (This is to handle the case where rabbit is in a container or vm)	
+			Ω(info.Host).Should(MatchRegexp((`(?:(?:2(?:[0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])\.){3}(?:(?:2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9]))`)))
 			Ω(info.UsesTLS).Should(Equal(false))
 		})
 	})
@@ -694,6 +696,114 @@ var _ = Describe("Rabbithole", func() {
 			Ω(b.Vhost).Should(Equal("/"))
 
 			ch.Close()
+		})
+	})
+
+	Context("POST /bindings/{vhost}/e/{source}/q/{destination}", func() {
+		It("declares a binding to a queue", func() {
+			vh := "rabbit/hole"
+			qn := "test.bindings.post.queue"
+
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{})
+
+			info := BindingInfo{
+				Source:          "amq.topic",
+				Destination:     qn,
+				DestinationType: "queue",
+				RoutingKey:      "#",
+				Arguments: map[string]interface{}{
+					"one": "two",
+				},
+			}
+
+			res, err := rmqc.DeclareBinding(vh, info)
+			Ω(err).Should(BeNil())
+
+			// Grab the Location data from the POST response {destination}/{propertiesKey}
+			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
+
+			bs, err := rmqc.ListBindingsIn(vh)
+			Ω(err).Should(BeNil())
+			Ω(bs).ShouldNot(BeEmpty())
+
+			b := bs[1]
+			Ω(b.Source).Should(Equal(info.Source))
+			Ω(b.Vhost).Should(Equal(vh))
+			Ω(b.Destination).Should(Equal(info.Destination))
+			Ω(b.DestinationType).Should(Equal(info.DestinationType))
+			Ω(b.RoutingKey).Should(Equal(info.RoutingKey))
+			Ω(b.PropertiesKey).Should(Equal(propertiesKey))
+
+			rmqc.DeleteBinding(vh, b)
+		})
+	})
+
+	Context("POST /bindings/{vhost}/e/{source}/e/{destination}", func() {
+		It("declares a binding to an exchange", func() {
+			vh := "rabbit/hole"
+			xn := "test.bindings.post.exchange"
+
+			_, err := rmqc.DeclareExchange(vh, xn, ExchangeSettings{Type: "topic"})
+
+			info := BindingInfo{
+				Source:          "amq.topic",
+				Destination:     xn,
+				DestinationType: "exchange",
+				RoutingKey:      "#",
+				Arguments: map[string]interface{}{
+					"one": "two",
+				},
+			}
+
+			res, err := rmqc.DeclareBinding(vh, info)
+			Ω(err).Should(BeNil())
+
+			// Grab the Location data from the POST response {destination}/{propertiesKey}
+			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
+
+			bs, err := rmqc.ListBindingsIn(vh)
+			Ω(err).Should(BeNil())
+			Ω(bs).ShouldNot(BeEmpty())
+
+			b := bs[1]
+			Ω(b.Source).Should(Equal(info.Source))
+			Ω(b.Vhost).Should(Equal(vh))
+			Ω(b.Destination).Should(Equal(info.Destination))
+			Ω(b.DestinationType).Should(Equal(info.DestinationType))
+			Ω(b.RoutingKey).Should(Equal(info.RoutingKey))
+			Ω(b.PropertiesKey).Should(Equal(propertiesKey))
+
+			rmqc.DeleteBinding(vh, b)
+		})
+	})
+
+	Context("DELETE /bindings/{vhost}/e/{source}/e/{destination}/{propertiesKey}", func() {
+		It("deletes an individual exchange binding", func() {
+			vh := "rabbit/hole"
+			xn := "test.bindings.post.exchange"
+
+			rmqc.DeclareExchange(vh, xn, ExchangeSettings{Type: "topic"})
+
+			info := BindingInfo{
+				Source:          "amq.topic",
+				Destination:     xn,
+				DestinationType: "exchange",
+				RoutingKey:      "#",
+				Arguments: map[string]interface{}{
+					"one": "two",
+				},
+			}
+
+			res, _ := rmqc.DeclareBinding(vh, info)
+
+			// Grab the Location data from the POST response {destination}/{propertiesKey}
+			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
+			info.PropertiesKey = propertiesKey
+
+			rmqc.DeleteBinding(vh, info)
+			bs, _ := rmqc.ListBindingsIn(vh)
+
+			Ω(bs).Should(HaveLen(1))
 		})
 	})
 
