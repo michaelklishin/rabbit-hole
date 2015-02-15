@@ -108,7 +108,7 @@ func (c *Client) ListQueueBindings(vhost, queue string) (rec []BindingInfo, err 
 }
 
 //
-// POST /api/bindings/{vhost}/e/{exchange}/{destination_type}/{destination}
+// POST /api/bindings/{vhost}/e/{source}/{destination_type}/{destination}
 //
 
 // DeclareBinding updates information about a binding between a source and a target
@@ -138,7 +138,7 @@ func (c *Client) DeclareBinding(vhost string, info BindingInfo) (res *http.Respo
 }
 
 //
-// DELETE /api/bindings/{vhost}/e/{source}/{destination_type}/{destination}/{routing_key}
+// DELETE /api/bindings/{vhost}/e/{source}/{destination_type}/{destination}/{props}
 //
 
 // DeleteBinding delets an individual binding

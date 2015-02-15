@@ -222,7 +222,7 @@ bs, err := rmqc.ListQueueBindings("/", "a.queue")
 // => []BindingInfo, err
 
 // declare a binding
-resp, err := rmqc.DeclareBinding("/", "a.binding", BindingInfo{
+resp, err := rmqc.DeclareBinding("/", BindingInfo{
 	Source: "an.exchange", 
 	Destination: "a.queue", 
 	DestinationType: "queue", 
@@ -231,11 +231,12 @@ resp, err := rmqc.DeclareBinding("/", "a.binding", BindingInfo{
 // => *http.Response, err
 
 // deletes individual binding
-resp, err := rmqc.DeleteBinding("/", "a.binding", BindingInfo{
+resp, err := rmqc.DeleteBinding("/", BindingInfo{
 	Source: "an.exchange", 
 	Destination: "a.queue", 
 	DestinationType: "queue", 
 	RoutingKey: "#",
+	PropertiesKey: "%23",
 })
 // => *http.Response, err
 ```
