@@ -155,7 +155,6 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(res.MemUsed).Should(BeNumerically(">", 10*1024*1024))
 			Ω(res.MemLimit).Should(BeNumerically(">", 64*1024*1024))
-			Ω(res.MemAlarm).Should(Equal(false))
 
 			Ω(res.IsRunning).Should(Equal(true))
 
@@ -181,7 +180,6 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(res.MemUsed).Should(BeNumerically(">", 10*1024*1024))
 			Ω(res.MemLimit).Should(BeNumerically(">", 64*1024*1024))
-			Ω(res.MemAlarm).Should(Equal(false))
 
 			Ω(res.IsRunning).Should(Equal(true))
 
