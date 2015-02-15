@@ -209,8 +209,37 @@ resp, err := rmqc.DeleteQueue("/", "a.queue")
 
 ### Operations on Bindings
 
-TBD
+``` go
+bs, err := rmqc.ListBindings()
+// => []BindingInfo, err
 
+// list bindings in a vhost
+bs, err := rmqc.ListBindingsIn("/")
+// => []BindingInfo, err
+
+// list bindings of a queue 
+bs, err := rmqc.ListQueueBindings("/", "a.queue")
+// => []BindingInfo, err
+
+// declare a binding
+resp, err := rmqc.DeclareBinding("/", BindingInfo{
+	Source: "an.exchange", 
+	Destination: "a.queue", 
+	DestinationType: "queue", 
+	RoutingKey: "#",
+})
+// => *http.Response, err
+
+// deletes individual binding
+resp, err := rmqc.DeleteBinding("/", BindingInfo{
+	Source: "an.exchange", 
+	Destination: "a.queue", 
+	DestinationType: "queue", 
+	RoutingKey: "#",
+	PropertiesKey: "%23",
+})
+// => *http.Response, err
+```
 
 ### HTTPS Connections
 

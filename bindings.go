@@ -1,6 +1,8 @@
 package rabbithole
 
 import (
+	"encoding/json"
+	"net/http"
 	"net/url"
 )
 
@@ -103,4 +105,53 @@ func (c *Client) ListQueueBindings(vhost, queue string) (rec []BindingInfo, err 
 	}
 
 	return rec, nil
+}
+
+//
+// POST /api/bindings/{vhost}/e/{source}/{destination_type}/{destination}
+//
+
+// DeclareBinding updates information about a binding between a source and a target
+func (c *Client) DeclareBinding(vhost string, info BindingInfo) (res *http.Response, err error) {
+	info.Vhost = vhost
+
+	if info.Arguments == nil {
+		info.Arguments = make(map[string]interface{})
+	}
+	body, err := json.Marshal(info)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestWithBody(c, "POST", "bindings/"+url.QueryEscape(vhost)+"/e/"+url.QueryEscape(info.Source)+"/"+url.QueryEscape(string(info.DestinationType[0]))+"/"+url.QueryEscape(info.Destination), body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+//
+// DELETE /api/bindings/{vhost}/e/{source}/{destination_type}/{destination}/{props}
+//
+
+// DeleteBinding delets an individual binding
+func (c *Client) DeleteBinding(vhost string, info BindingInfo) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "bindings/"+url.QueryEscape(vhost)+"/e/"+url.QueryEscape(info.Source)+"/"+url.QueryEscape(string(info.DestinationType[0]))+"/"+url.QueryEscape(info.Destination)+"/"+url.QueryEscape(info.PropertiesKey), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = executeRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
