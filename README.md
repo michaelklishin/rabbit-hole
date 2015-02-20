@@ -106,7 +106,7 @@ x, err := rmqc.GetVhost("/")
 // => VhostInfo, err
 
 // creates or updates individual vhost
-resp, err := rmqc.PutVhost("/")
+resp, err := rmqc.PutVhost("/", VhostSettings{Tracing: false})
 // => *http.Response, err
 
 // deletes individual vhost
@@ -150,7 +150,7 @@ x, err := rmqc.GetPermissionsIn("/", "my.user")
 // => PermissionInfo, err
 
 // updates permissions of user in vhost
-resp, err := rmqc.UpdatePermissionsIn("/", "my.user", Permission{Configure: ".*", Write: ".*", Read: ".*"})
+resp, err := rmqc.UpdatePermissionsIn("/", "my.user", Permissions{Configure: ".*", Write: ".*", Read: ".*"})
 // => *http.Response, err
 
 // revokes permissions in vhost
