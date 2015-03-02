@@ -43,9 +43,9 @@ type NodeInfo struct {
 	DiskFreeAlarm bool `json:"disk_free_alarm"`
 
 	// Erlang scheduler run queue length
-	RunQueueLength  uint32  `json:"run_queue"`
-	Processors      uint32  `json:"processors"`
-	Uptime          uint32  `json:"uptime"`
+	RunQueueLength uint32 `json:"run_queue"`
+	Processors     uint32 `json:"processors"`
+	Uptime         uint64 `json:"uptime"`
 
 	ExchangeTypes  []ExchangeType  `json:"exchange_types"`
 	AuthMechanisms []AuthMechanism `json:"auth_mechanisms"`
@@ -286,7 +286,6 @@ func (c *Client) ListNodes() (rec []NodeInfo, err error) {
 //   "type": "disc",
 //   "running": true
 // }
-
 
 func (c *Client) GetNode(name string) (rec *NodeInfo, err error) {
 	req, err := newGETRequest(c, "nodes/"+url.QueryEscape(name))
