@@ -28,9 +28,11 @@ type BackingQueueStatus struct {
 	// Average egress (outbound) rate, not including messages
 	// that straight through to auto-acking consumers.
 	AverageEgressRate     float64 `json:"avg_egress_rate"`
-	// Average ingress rate for acknowledgements (from consumers)
+	// rate at which unacknowledged message records enter RAM,
+	// e.g. because messages are delivered requiring acknowledgement
 	AverageAckIngressRate float32 `json:"avg_ack_ingress_rate"`
-	// Average egress rate for acknowledgements (via publisher confirms)
+	// rate at which unacknowledged message records leave RAM,
+	// e.g. because acks arrive or unacked messages are paged out
 	AverageAckEgressRate  float32 `json:"avg_ack_egress_rate"`
 }
 
