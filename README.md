@@ -64,7 +64,8 @@ so you must enable it.
 ### Changing Transport Layer
 
 ``` go
-var transport := ...
+var transport *http.Transport
+...
 rmqc.SetTransport(transport)
 ```
 
