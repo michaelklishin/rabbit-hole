@@ -61,6 +61,13 @@ so you must enable it.
 
 [API reference](http://godoc.org/github.com/michaelklishin/rabbit-hole) is available on [godoc.org](http://godoc.org).
 
+### Changing Transport Layer
+
+``` go
+var transport := ...
+rmqc.SetTransport(transport)
+```
+
 ### Getting Overview
 
 ``` go
@@ -252,8 +259,7 @@ resp, err := rmqc.DeleteBinding("/", BindingInfo{
 
 ### HTTPS Connections
 
-TBD
-
+Added by GrimTheReaper Augest 7th, 2015
 
 
 ## Contributing
