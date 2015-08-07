@@ -164,7 +164,7 @@ func (c *Client) ListQueues() (rec []QueueInfo, err error) {
 		return []QueueInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []QueueInfo{}, err
 	}
 
@@ -181,7 +181,7 @@ func (c *Client) ListQueuesIn(vhost string) (rec []QueueInfo, err error) {
 		return []QueueInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []QueueInfo{}, err
 	}
 
@@ -198,7 +198,7 @@ func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err erro
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 

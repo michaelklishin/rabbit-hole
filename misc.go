@@ -52,7 +52,7 @@ func (c *Client) Overview() (rec *Overview, err error) {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 
@@ -75,7 +75,7 @@ func (c *Client) Whoami() (rec *WhoamiInfo, err error) {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 

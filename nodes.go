@@ -63,7 +63,7 @@ func (c *Client) ListNodes() (rec []NodeInfo, err error) {
 		return []NodeInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 
@@ -293,7 +293,7 @@ func (c *Client) GetNode(name string) (rec *NodeInfo, err error) {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 

@@ -28,10 +28,10 @@ import (
 
 type BindingInfo struct {
 	// Binding source (exchange name)
-	Source          string                 `json:"source"`
-	Vhost           string                 `json:"vhost"`
+	Source string `json:"source"`
+	Vhost  string `json:"vhost"`
 	// Binding destination (queue or exchange name)
-	Destination     string                 `json:"destination"`
+	Destination string `json:"destination"`
 	// Destination type, either "queue" or "exchange"
 	DestinationType string                 `json:"destination_type"`
 	RoutingKey      string                 `json:"routing_key"`
@@ -46,7 +46,7 @@ func (c *Client) ListBindings() (rec []BindingInfo, err error) {
 		return []BindingInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []BindingInfo{}, err
 	}
 
@@ -64,7 +64,7 @@ func (c *Client) ListBindingsIn(vhost string) (rec []BindingInfo, err error) {
 		return []BindingInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []BindingInfo{}, err
 	}
 
@@ -100,7 +100,7 @@ func (c *Client) ListQueueBindings(vhost, queue string) (rec []BindingInfo, err 
 		return []BindingInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []BindingInfo{}, err
 	}
 
