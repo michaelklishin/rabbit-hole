@@ -54,20 +54,13 @@ SSL/TSL is now available, by adding a Transport Layer to the parameters
 of `rabbithole.NewTLSClient`:
 ``` go
 transport := &http.Transport{TLSClientConfig: tlsConfig}
-rmqc, _ := rabbithole.NewTLSClient("https://127.0.0.1:15672", "guest", "guest", transport)
+rmqc, _ := NewTLSClient("https://127.0.0.1:15672", "guest", "guest", transport)
 ```
 However, RabbitMQ-Management does not have SSL/TLS enabled by default,
 so you must enable it.
 
 [API reference](http://godoc.org/github.com/michaelklishin/rabbit-hole) is available on [godoc.org](http://godoc.org).
 
-### Changing Transport Layer
-
-``` go
-var transport *http.Transport
-...
-rmqc.SetTransport(transport)
-```
 
 ### Getting Overview
 
@@ -260,7 +253,23 @@ resp, err := rmqc.DeleteBinding("/", BindingInfo{
 
 ### HTTPS Connections
 
-Added by GrimTheReaper Augest 7th, 2015
+``` go
+var tlsConfig *tls.Config
+
+transport := &http.Transport{TLSClientConfig: tlsConfig}
+
+rmqc, err := NewTLSClient("https://127.0.0.1:15671", "guest", "administrator", transport)
+```
+
+### Changing Transport Layer
+
+``` go
+var transport *http.Transport
+
+... 
+
+rmqc.SetTransport(transport)
+```
 
 
 ## Contributing
