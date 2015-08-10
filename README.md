@@ -256,9 +256,11 @@ resp, err := rmqc.DeleteBinding("/", BindingInfo{
 ``` go
 var tlsConfig *tls.Config
 
+...
+
 transport := &http.Transport{TLSClientConfig: tlsConfig}
 
-rmqc, err := NewTLSClient("https://127.0.0.1:15671", "guest", "administrator", transport)
+rmqc, err := NewTLSClient("https://127.0.0.1:15672", "guest", "guest", transport)
 ```
 
 ### Changing Transport Layer
