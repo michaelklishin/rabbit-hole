@@ -10,7 +10,7 @@ type UserInfo struct {
 	Name         string `json:"name"`
 	PasswordHash string `json:"password_hash"`
 	// Tags control permissions. Built-in tags: administrator, management, policymaker.
-	Tags         string `json:"tags"`
+	Tags string `json:"tags"`
 }
 
 // Settings used to create users. Tags must be comma-separated.
@@ -40,7 +40,7 @@ func (c *Client) ListUsers() (rec []UserInfo, err error) {
 		return []UserInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []UserInfo{}, err
 	}
 
@@ -58,7 +58,7 @@ func (c *Client) GetUser(username string) (rec *UserInfo, err error) {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 

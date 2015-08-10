@@ -50,7 +50,17 @@ should be instantiated with `rabbithole.NewClient`:
 rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 ```
 
+SSL/TSL is now available, by adding a Transport Layer to the parameters
+of `rabbithole.NewTLSClient`:
+``` go
+transport := &http.Transport{TLSClientConfig: tlsConfig}
+rmqc, _ := NewTLSClient("https://127.0.0.1:15672", "guest", "guest", transport)
+```
+However, RabbitMQ-Management does not have SSL/TLS enabled by default,
+so you must enable it.
+
 [API reference](http://godoc.org/github.com/michaelklishin/rabbit-hole) is available on [godoc.org](http://godoc.org).
+
 
 ### Getting Overview
 
@@ -217,24 +227,24 @@ bs, err := rmqc.ListBindings()
 bs, err := rmqc.ListBindingsIn("/")
 // => []BindingInfo, err
 
-// list bindings of a queue 
+// list bindings of a queue
 bs, err := rmqc.ListQueueBindings("/", "a.queue")
 // => []BindingInfo, err
 
 // declare a binding
 resp, err := rmqc.DeclareBinding("/", BindingInfo{
-	Source: "an.exchange", 
-	Destination: "a.queue", 
-	DestinationType: "queue", 
+	Source: "an.exchange",
+	Destination: "a.queue",
+	DestinationType: "queue",
 	RoutingKey: "#",
 })
 // => *http.Response, err
 
 // deletes individual binding
 resp, err := rmqc.DeleteBinding("/", BindingInfo{
-	Source: "an.exchange", 
-	Destination: "a.queue", 
-	DestinationType: "queue", 
+	Source: "an.exchange",
+	Destination: "a.queue",
+	DestinationType: "queue",
 	RoutingKey: "#",
 	PropertiesKey: "%23",
 })
@@ -243,8 +253,25 @@ resp, err := rmqc.DeleteBinding("/", BindingInfo{
 
 ### HTTPS Connections
 
-TBD
+``` go
+var tlsConfig *tls.Config
 
+...
+
+transport := &http.Transport{TLSClientConfig: tlsConfig}
+
+rmqc, err := NewTLSClient("https://127.0.0.1:15672", "guest", "guest", transport)
+```
+
+### Changing Transport Layer
+
+``` go
+var transport *http.Transport
+
+... 
+
+rmqc.SetTransport(transport)
+```
 
 
 ## Contributing
@@ -264,4 +291,3 @@ TBD
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/michaelklishin/rabbit-hole/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-

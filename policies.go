@@ -16,14 +16,14 @@ type NodeNames []string
 // Represents a configured policy.
 type Policy struct {
 	// Virtual host this policy is in.
-	Vhost      string           `json:"vhost"`
+	Vhost string `json:"vhost"`
 	// Regular expression pattern used to match queues and exchanges,
 	// , e.g. "^ha\..+"
-	Pattern    string           `json:"pattern"`
+	Pattern string `json:"pattern"`
 	// What this policy applies to: "queues", "exchanges", etc.
-	ApplyTo    string           `json:"apply-to"`
-	Name       string           `json:"name"`
-	Priority   int              `json:"priority"`
+	ApplyTo  string `json:"apply-to"`
+	Name     string `json:"name"`
+	Priority int    `json:"priority"`
 	// Additional arguments added to the entities (queues,
 	// exchanges or both) that match a policy
 	Definition PolicyDefinition `json:"definition"`
@@ -40,7 +40,7 @@ func (c *Client) ListPolicies() (rec []Policy, err error) {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 
@@ -58,7 +58,7 @@ func (c *Client) ListPoliciesIn(vhost string) (rec []Policy, err error) {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 
@@ -76,7 +76,7 @@ func (c *Client) GetPolicy(vhost, name string) (rec *Policy, err error) {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 

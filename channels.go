@@ -5,18 +5,18 @@ import "net/url"
 // Brief (very incomplete) connection information.
 type BriefConnectionDetails struct {
 	// Connection name
-	Name     string `json:"name"`
+	Name string `json:"name"`
 	// Client port
-	PeerPort Port   `json:"peer_port"`
+	PeerPort Port `json:"peer_port"`
 	// Client host
 	PeerHost string `json:"peer_host"`
 }
 
 type ChannelInfo struct {
 	// Channel number
-	Number int    `json:"number"`
+	Number int `json:"number"`
 	// Channel name
-	Name   string `json:"name"`
+	Name string `json:"name"`
 
 	// basic.qos (prefetch count) value used
 	PrefetchCount int `json:"prefetch_count"`
@@ -26,11 +26,11 @@ type ChannelInfo struct {
 	// Number of unacknowledged messages on this channel
 	UnacknowledgedMessageCount int `json:"messages_unacknowledged"`
 	// Number of messages on this channel unconfirmed to publishers
-	UnconfirmedMessageCount    int `json:"messages_unconfirmed"`
+	UnconfirmedMessageCount int `json:"messages_unconfirmed"`
 	// Number of messages on this channel uncommited to message store
-	UncommittedMessageCount    int `json:"messages_uncommitted"`
+	UncommittedMessageCount int `json:"messages_uncommitted"`
 	// Number of acks on this channel uncommited to message store
-	UncommittedAckCount        int `json:"acks_uncommitted"`
+	UncommittedAckCount int `json:"acks_uncommitted"`
 
 	// TODO(mk): custom deserializer to date/time?
 	IdleSince string `json:"idle_since"`
@@ -38,9 +38,9 @@ type ChannelInfo struct {
 	// True if this channel uses publisher confirms
 	UsesPublisherConfirms bool `json:"confirm"`
 	// True if this channel uses transactions
-	Transactional         bool `json:"transactional"`
+	Transactional bool `json:"transactional"`
 	// True if this channel is blocked via channel.flow
-	ClientFlowBlocked     bool `json:"client_flow_blocked"`
+	ClientFlowBlocked bool `json:"client_flow_blocked"`
 
 	User  string `json:"user"`
 	Vhost string `json:"vhost"`
@@ -60,7 +60,7 @@ func (c *Client) ListChannels() (rec []ChannelInfo, err error) {
 		return []ChannelInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []ChannelInfo{}, err
 	}
 
@@ -78,7 +78,7 @@ func (c *Client) GetChannel(name string) (rec *ChannelInfo, err error) {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 
