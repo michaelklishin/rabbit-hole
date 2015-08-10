@@ -9,7 +9,9 @@ services:
 
 before_script: ./bin/ci/before_build.sh
 script: make
-
+matrix:
+  allow_failures:
+    - go: tip
 notifications:
   email:
     - michael@rabbitmq.com
