@@ -85,7 +85,7 @@ func (c *Client) ListVhosts() (rec []VhostInfo, err error) {
 		return []VhostInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []VhostInfo{}, err
 	}
 
@@ -103,7 +103,7 @@ func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 

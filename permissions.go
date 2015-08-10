@@ -21,9 +21,9 @@ type PermissionInfo struct {
 	// Configuration permissions
 	Configure string `json:"configure"`
 	// Write permissions
-	Write     string `json:"write"`
+	Write string `json:"write"`
 	// Read permissions
-	Read      string `json:"read"`
+	Read string `json:"read"`
 }
 
 // Returns permissions for all users and virtual hosts.
@@ -33,7 +33,7 @@ func (c *Client) ListPermissions() (rec []PermissionInfo, err error) {
 		return []PermissionInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []PermissionInfo{}, err
 	}
 
@@ -51,7 +51,7 @@ func (c *Client) ListPermissionsOf(username string) (rec []PermissionInfo, err e
 		return []PermissionInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []PermissionInfo{}, err
 	}
 
@@ -69,7 +69,7 @@ func (c *Client) GetPermissionsIn(vhost, username string) (rec PermissionInfo, e
 		return PermissionInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return PermissionInfo{}, err
 	}
 

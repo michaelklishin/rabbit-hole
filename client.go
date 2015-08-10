@@ -14,8 +14,9 @@ type Client struct {
 	// Username to use. This RabbitMQ user must have the "management" tag.
 	Username string
 	// Password to use.
-	Password string
-	host     string
+	Password   string
+	host       string
+	transport  *http.Transport
 }
 
 func NewClient(uri string, username string, password string) (me *Client, err error) {
@@ -32,6 +33,29 @@ func NewClient(uri string, username string, password string) (me *Client, err er
 	}
 
 	return me, nil
+}
+
+//NewTLSClient Creates a Client with a Transport Layer; it is up to the developer to make that layer Secure.
+func NewTLSClient(uri string, username string, password string, transport *http.Transport) (me *Client, err error) {
+	u, err := url.Parse(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	me = &Client{
+		Endpoint:  uri,
+		host:      u.Host,
+		Username:  username,
+		Password:  password,
+		transport: transport,
+	}
+
+	return me, nil
+}
+
+//SetTransport changes the Transport Layer that the Client will use.
+func (c *Client) SetTransport(transport *http.Transport) {
+	c.transport = transport
 }
 
 func newGETRequest(client *Client, path string) (*http.Request, error) {
@@ -59,8 +83,12 @@ func newRequestWithBody(client *Client, method string, path string, body []byte)
 }
 
 func executeRequest(client *Client, req *http.Request) (res *http.Response, err error) {
-	httpc := &http.Client{}
-
+	var httpc *http.Client
+	if client.transport != nil {
+		httpc = &http.Client{Transport: client.transport}
+	} else {
+		httpc = &http.Client{}
+	}
 	res, err = httpc.Do(req)
 	if err != nil {
 		return nil, err
@@ -69,10 +97,14 @@ func executeRequest(client *Client, req *http.Request) (res *http.Response, err 
 	return res, nil
 }
 
-func executeAndParseRequest(req *http.Request, rec interface{}) (err error) {
-	client := &http.Client{}
-
-	res, err := client.Do(req)
+func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) (err error) {
+	var httpc *http.Client
+	if client.transport != nil {
+		httpc = &http.Client{Transport: client.transport}
+	} else {
+		httpc = &http.Client{}
+	}
+	res, err := httpc.Do(req)
 	if err != nil {
 		return err
 	}

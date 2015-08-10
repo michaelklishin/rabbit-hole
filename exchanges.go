@@ -43,7 +43,7 @@ func (c *Client) ListExchanges() (rec []ExchangeInfo, err error) {
 		return []ExchangeInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []ExchangeInfo{}, err
 	}
 
@@ -60,7 +60,7 @@ func (c *Client) ListExchangesIn(vhost string) (rec []ExchangeInfo, err error) {
 		return []ExchangeInfo{}, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []ExchangeInfo{}, err
 	}
 
@@ -167,7 +167,7 @@ func (c *Client) GetExchange(vhost, exchange string) (rec *DetailedExchangeInfo,
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(req, &rec); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 
