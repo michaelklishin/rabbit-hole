@@ -16,7 +16,6 @@ type Client struct {
 	// Password to use.
 	Password   string
 	host       string
-	httpclient http.Client
 	transport  *http.Transport
 }
 
