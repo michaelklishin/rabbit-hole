@@ -1,7 +1,6 @@
 package rabbithole
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 )
@@ -109,9 +108,7 @@ func (c *Client) GetConnection(name string) (rec *ConnectionInfo, err error) {
 	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
-	if req != nil {
-		fmt.Printf("Request: %v\n", req)
-	}
+
 	return rec, nil
 }
 
