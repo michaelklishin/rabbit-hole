@@ -1,6 +1,7 @@
 package rabbithole
 
 import (
+	"encoding/json"
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -52,6 +53,10 @@ func ensureNonZeroMessageRate(ch *amqp.Channel) {
 			nil)
 		ch.Publish("", q.Name, false, false, amqp.Publishing{Body: []byte("")})
 	}
+}
+
+type portTestStruct struct {
+	Port Port `json:"port"`
 }
 
 var _ = Describe("Rabbithole", func() {
@@ -124,6 +129,26 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(err).Should(BeNil())
 			Ω(m["amqp"]).Should(BeEquivalentTo(5672))
+		})
+	})
+
+	Context("Ports", func() {
+		It("parses an int from json", func() {
+			testCase := []byte("{\"port\": 1}")
+			parsed := portTestStruct{}
+			err := json.Unmarshal(testCase, &parsed)
+
+			Ω(err).Should(BeNil())
+			Ω(parsed.Port).Should(BeEquivalentTo(1))
+		})
+
+		It("parses an int encoded as a string from json", func() {
+			testCase := []byte("{\"port\": \"1\"}")
+			parsed := portTestStruct{}
+			err := json.Unmarshal(testCase, &parsed)
+
+			Ω(err).Should(BeNil())
+			Ω(parsed.Port).Should(BeEquivalentTo(1))
 		})
 	})
 
