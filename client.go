@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -108,12 +110,13 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close() // always close body
 
 	if isNotFound(res) {
+		// Read entire body to completion to re-use keep-alive connections.
+		io.Copy(ioutil.Discard, res.Body)
 		return errors.New("not found")
 	}
-
-	defer res.Body.Close()
 
 	err = json.NewDecoder(res.Body).Decode(&rec)
 	if err != nil {
