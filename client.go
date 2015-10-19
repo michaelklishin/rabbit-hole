@@ -16,9 +16,9 @@ type Client struct {
 	// Username to use. This RabbitMQ user must have the "management" tag.
 	Username string
 	// Password to use.
-	Password   string
-	host       string
-	transport  *http.Transport
+	Password  string
+	host      string
+	transport *http.Transport
 }
 
 func NewClient(uri string, username string, password string) (me *Client, err error) {
