@@ -3,11 +3,12 @@ package rabbithole
 import (
 	"encoding/json"
 	"errors"
+	"net/url"
+	"strings"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/streadway/amqp"
-	"net/url"
-	"strings"
 )
 
 // TODO: extract duplication between these
@@ -31,7 +32,7 @@ func FindUserByName(sl []UserInfo, name string) (u UserInfo) {
 	return u
 }
 
-func openConnection(vhost string) (*amqp.Connection) {
+func openConnection(vhost string) *amqp.Connection {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/" + url.QueryEscape(vhost))
 	Ω(err).Should(BeNil())
 
@@ -104,7 +105,7 @@ var _ = Describe("Rabbithole", func() {
 			n := xs[0].Name
 			rmqc.CloseConnection(n)
 
-			evt := <- closeEvents
+			evt := <-closeEvents
 			Ω(evt).ShouldNot(BeNil())
 			Ω(evt.Code).Should(Equal(320))
 			Ω(evt.Reason).Should(Equal("CONNECTION_FORCED - Closed via management plugin"))
@@ -247,7 +248,7 @@ var _ = Describe("Rabbithole", func() {
 
 			info := xs[0]
 			Ω(info.Name).ShouldNot(BeNil())
-			// Host should match IPv4 regex. (This is to handle the case where rabbit is in a container or vm)	
+			// Host should match IPv4 regex. (This is to handle the case where rabbit is in a container or vm)
 			Ω(info.Host).Should(MatchRegexp((`(?:(?:2(?:[0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])\.){3}(?:(?:2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9]))`)))
 			Ω(info.UsesTLS).Should(Equal(false))
 		})
@@ -475,7 +476,7 @@ var _ = Describe("Rabbithole", func() {
 			defer ch.Close()
 
 			_, err = ch.QueueDeclare(
-				"q3",    // name
+				"q3",  // name
 				false, // durable
 				false, // delete when usused
 				true,  // exclusive
@@ -701,12 +702,12 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			q, err := ch.QueueDeclare(
-					"",    // name
-					false, // durable
-					false, // delete when usused
-					true,  // exclusive
-					false,
-					nil)
+				"",    // name
+				false, // durable
+				false, // delete when usused
+				true,  // exclusive
+				false,
+				nil)
 			Ω(err).Should(BeNil())
 
 			bs, err := rmqc.ListQueueBindings("/", q.Name)
