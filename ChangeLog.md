@@ -5,7 +5,7 @@
 `rabbithole.NewTLSClient` is a new function which works
 much like `NewClient` but additionally accepts a transport.
 
-Contributed by @GrimTheReaper.
+Contributed by @[GrimTheReaper](https://github.com/GrimTheReaper).
 
 ### Federation Support
 
