@@ -248,8 +248,7 @@ var _ = Describe("Rabbithole", func() {
 
 			info := xs[0]
 			Ω(info.Name).ShouldNot(BeNil())
-			// Host should match IPv4 regex. (This is to handle the case where rabbit is in a container or vm)
-			Ω(info.Host).Should(MatchRegexp((`(?:(?:2(?:[0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])\.){3}(?:(?:2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9]))`)))
+			Ω(info.Host).ShouldNot(BeEmpty())
 			Ω(info.UsesTLS).Should(Equal(false))
 		})
 	})
