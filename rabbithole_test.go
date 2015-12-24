@@ -549,7 +549,7 @@ var _ = Describe("Rabbithole", func() {
 			info := UserSettings{Password: "s3krE7", Tags: "policymaker, management"}
 			resp, err := rmqc.PutUser("rabbithole", info)
 			Ω(err).Should(BeNil())
-			Ω(resp.Status).Should(Equal("204 No Content"))
+			Ω(resp.Status).Should(HavePrefix("20"))
 
 			u, err := rmqc.GetUser("rabbithole")
 			Ω(err).Should(BeNil())
@@ -571,7 +571,7 @@ var _ = Describe("Rabbithole", func() {
 
 			resp, err := rmqc.DeleteUser("rabbithole")
 			Ω(err).Should(BeNil())
-			Ω(resp.Status).Should(Equal("204 No Content"))
+			Ω(resp.Status).Should(HavePrefix("20"))
 
 			u2, err := rmqc.GetUser("rabbithole")
 			Ω(err).Should(Equal(errors.New("not found")))
@@ -1121,7 +1121,7 @@ var _ = Describe("Rabbithole", func() {
 
 			resp, err := rmqc.DeletePolicy("rabbit/hole", "woot")
 			Ω(err).Should(BeNil())
-			Ω(resp.Status).Should(Equal("204 No Content"))
+			Ω(resp.Status).Should(HavePrefix("20"))
 		})
 	})
 
@@ -1140,7 +1140,7 @@ var _ = Describe("Rabbithole", func() {
 
 			resp, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
 			Ω(err).Should(BeNil())
-			Ω(resp.Status).Should(Equal("204 No Content"))
+			Ω(resp.Status).Should(HavePrefix("20"))
 
 			_, err = rmqc.GetPolicy("rabbit/hole", "woot")
 			Ω(err).Should(BeNil())
@@ -1174,7 +1174,7 @@ var _ = Describe("Rabbithole", func() {
 			// update old Policy
 			resp, err := rmqc.PutPolicy("/", "woot2", new_policy)
 			Ω(err).Should(BeNil())
-			Ω(resp.Status).Should(Equal("204 No Content"))
+			Ω(resp.Status).Should(HavePrefix("20"))
 
 			// old policy should not exist already
 			_, err = rmqc.GetPolicy("rabbit/hole", "woot")
