@@ -7,7 +7,10 @@ all: test
 .PHONY: test
 
 test: install-dependencies
-	go test -v
+	ginkgo --race --slowSpecThreshold 10
+
+clean:
+	rm -rf pkg/*
 
 cover: install-dependencies install-cover
 	go test -v -test.coverprofile="$(COVER_FILE).prof"
@@ -22,3 +25,5 @@ install-dependencies:
 	go get github.com/onsi/ginkgo
 	go get github.com/onsi/gomega
 	go get github.com/streadway/amqp
+        # to get Ginkgo CLI
+	go install github.com/onsi/ginkgo/ginkgo
