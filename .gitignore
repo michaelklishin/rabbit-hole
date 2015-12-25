@@ -20,5 +20,6 @@ _cgo_export.*
 _testmain.go
 
 *.exe
+bin/*
 src/github.com
 src/code.google.com
