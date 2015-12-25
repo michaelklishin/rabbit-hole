@@ -1,6 +1,6 @@
 # Rabbit Hole, a RabbitMQ HTTP API Client for Go
 
-This library is a [RabbitMQ HTTP API](http://hg.rabbitmq.com/rabbitmq-management/raw-file/450b7ea22cfd/priv/www/api/index.html) client for the Go language.
+This library is a [RabbitMQ HTTP API](https://raw.githack.com/rabbitmq/rabbitmq-management/rabbitmq_v3_6_0/priv/www/api/index.html) client for the Go language.
 
 ## Supported Go Versions
 
