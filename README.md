@@ -4,21 +4,22 @@ This library is a [RabbitMQ HTTP API](http://hg.rabbitmq.com/rabbitmq-management
 
 ## Supported Go Versions
 
-Rabbit Hole requires Go 1.1+.
+Rabbit Hole requires Go 1.3+.
 
 
 ## Supported RabbitMQ Versions
 
  * RabbitMQ 3.x
- * RabbitMQ 2.x
 
 All versions require [RabbitMQ Management UI plugin](http://www.rabbitmq.com/management.html) to be installed and enabled.
 
 
 ## Project Maturity
 
-Rabbit Hole is a young project designed after a couple of other RabbitMQ HTTP API clients with stable APIs.
-However, breaking API changes are not out of the question.
+Rabbit Hole is a fairly mature library designed after a couple of
+other RabbitMQ HTTP API clients with stable APIs. Breaking
+API changes are not out of the question but not without a reasonable
+version bump.
 
 It is largely (80-90%) feature complete and decently documented.
 
