@@ -283,6 +283,10 @@ rmqc.SetTransport(transport)
 4. Push to the branch (`git push -u origin my-new-feature`)
 5. Create new Pull Request
 
+To clone dependencies and run tests, use `make`. It is also possible
+to use the brilliant [Ginkgo CLI runner](http://onsi.github.io/ginkgo/#the-ginkgo-cli) e.g.
+to only run a subset of tests.
+
 
 ## License & Copyright
 
