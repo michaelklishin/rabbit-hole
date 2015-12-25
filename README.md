@@ -16,10 +16,10 @@ All versions require [RabbitMQ Management UI plugin](http://www.rabbitmq.com/man
 
 ## Project Maturity
 
-Rabbit Hole is a fairly mature library designed after a couple of
-other RabbitMQ HTTP API clients with stable APIs. Breaking
-API changes are not out of the question but not without a reasonable
-version bump.
+Rabbit Hole is a fairly mature library (started in October 2013)
+designed after a couple of other RabbitMQ HTTP API clients with stable
+APIs. Breaking API changes are not out of the question but not without
+a reasonable version bump.
 
 It is largely (80-90%) feature complete and decently documented.
 
