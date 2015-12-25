@@ -275,6 +275,11 @@ rmqc.SetTransport(transport)
 ```
 
 
+## CI Status
+
+[![Build Status](https://travis-ci.org/michaelklishin/rabbit-hole.svg?branch=master)](https://travis-ci.org/michaelklishin/rabbit-hole)
+
+
 ## Contributing
 
 1. Fork it
