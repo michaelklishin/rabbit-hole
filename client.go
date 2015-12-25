@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -64,6 +62,8 @@ func newGETRequest(client *Client, path string) (*http.Request, error) {
 	s := client.Endpoint + "/api/" + path
 
 	req, err := http.NewRequest("GET", s, nil)
+
+	req.Close = true
 	req.SetBasicAuth(client.Username, client.Password)
 	// set Opaque to preserve percent-encoded path. MK.
 	req.URL.Opaque = "//" + client.host + "/api/" + path
@@ -75,6 +75,8 @@ func newRequestWithBody(client *Client, method string, path string, body []byte)
 	s := client.Endpoint + "/api/" + path
 
 	req, err := http.NewRequest(method, s, bytes.NewReader(body))
+
+	req.Close = true
 	req.SetBasicAuth(client.Username, client.Password)
 	// set Opaque to preserve percent-encoded path. MK.
 	req.URL.Opaque = "//" + client.host + "/api/" + path
@@ -92,6 +94,7 @@ func executeRequest(client *Client, req *http.Request) (res *http.Response, err 
 		httpc = &http.Client{}
 	}
 	res, err = httpc.Do(req)
+
 	if err != nil {
 		return nil, err
 	}
@@ -113,8 +116,6 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 	defer res.Body.Close() // always close body
 
 	if isNotFound(res) {
-		// Read entire body to completion to re-use keep-alive connections.
-		io.Copy(ioutil.Discard, res.Body)
 		return errors.New("not found")
 	}
 
