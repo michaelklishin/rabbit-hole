@@ -293,6 +293,3 @@ to only run a subset of tests.
 2-clause BSD license.
 
 (c) Michael S. Klishin, 2013-2015.
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/michaelklishin/rabbit-hole/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
