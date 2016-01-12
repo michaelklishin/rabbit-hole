@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/url"
 	"strings"
+	"time"
+	"fmt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -56,9 +58,19 @@ func ensureNonZeroMessageRate(ch *amqp.Channel) {
 	}
 }
 
+// Wait for the list of connections to reach the expected length
 func listConnectionsUntil(c *Client, i int){
 	xs, _ := c.ListConnections()
+	// Avoid infinity loops by breaking it after 30s
+	breakLoop := 0
 	for i != len(xs) {
+		if (breakLoop == 300) {
+			fmt.Printf("Stopping listConnectionsUntil loop: expected %v obtained %v", i, len(xs))
+			break
+		}
+		breakLoop += 1
+		// Wait between calls
+		time.Sleep(100 * time.Millisecond)
 		xs, _ = c.ListConnections()
 	}
 }
