@@ -56,6 +56,13 @@ func ensureNonZeroMessageRate(ch *amqp.Channel) {
 	}
 }
 
+func listConnectionsUntil(c *Client, i int){
+	xs, _ := c.ListConnections()
+	for i != len(xs) {
+		xs, _ = c.ListConnections()
+	}
+}
+
 type portTestStruct struct {
 	Port Port `json:"port"`
 }
@@ -94,6 +101,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("DELETE /api/connections/{name}", func() {
 		It("closes the connection", func() {
+			listConnectionsUntil(rmqc, 0)
 			conn := openConnection("/")
 
 			xs, err := rmqc.ListConnections()
