@@ -3,10 +3,10 @@ package rabbithole
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
-	"fmt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -59,7 +59,7 @@ func ensureNonZeroMessageRate(ch *amqp.Channel) {
 }
 
 // Wait for the list of connections to reach the expected length
-func listConnectionsUntil(c *Client, i int){
+func listConnectionsUntil(c *Client, i int) {
 	xs, _ := c.ListConnections()
 	// Avoid infinity loops by breaking it after 30s
 	breakLoop := 0
@@ -103,6 +103,9 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(res.Node).ShouldNot(BeNil())
 			Ω(res.StatisticsDBNode).ShouldNot(BeNil())
+			Ω(res.MessageStats).ShouldNot(BeNil())
+			Ω(res.MessageStats.DeliverGetDetails).ShouldNot(BeNil())
+			Ω(res.MessageStats.DeliverGetDetails.Rate).Should(BeNumerically("==", 0))
 
 			fanoutExchange := ExchangeType{Name: "fanout", Description: "AMQP fanout exchange, as per the AMQP specification", Enabled: true}
 			Ω(res.ExchangeTypes).Should(ContainElement(fanoutExchange))

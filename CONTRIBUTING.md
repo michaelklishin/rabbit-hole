@@ -10,6 +10,8 @@ The workflow is pretty standard:
 
 ## Running Tests
 
+Create a virtual host `rabbit/hole` and assign it guest permissions
+
 The project uses [Ginkgo](http://onsi.github.io/ginkgo/) and [Gomega](https://github.com/onsi/gomega)
 for the test suite.
 
