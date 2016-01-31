@@ -10,10 +10,10 @@ The workflow is pretty standard:
 
 ## Running Tests
 
-Create a virtual host `rabbit/hole` and assign it guest permissions
+First run `bin/ci/before_build.sh` that will create a vhost and user(s) needed
+by the test suite.
 
-The project uses [Ginkgo](http://onsi.github.io/ginkgo/) and [Gomega](https://github.com/onsi/gomega)
-for the test suite.
+The project uses [Ginkgo](http://onsi.github.io/ginkgo/) and [Gomega](https://github.com/onsi/gomega).
 
 To clone dependencies and run tests, use `make`. It is also possible
 to use the brilliant [Ginkgo CLI runner](http://onsi.github.io/ginkgo/#the-ginkgo-cli) e.g.
