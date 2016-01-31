@@ -1,6 +1,12 @@
 ## Changes Between 1.0.0 and 1.1.0 (unreleased)
 
-No changes yet.
+### More Complete Message Stats Information
+
+Message stats now include fields such as `deliver_get` and `redeliver`.
+
+GH issue: [#73](https://github.com/michaelklishin/rabbit-hole/pull/73).
+
+Contributed by Edward Wilde.
 
 
 ## 1.0 (first tagged release, Dec 25th, 2015)
