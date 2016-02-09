@@ -75,6 +75,10 @@ func listConnectionsUntil(c *Client, i int) {
 	}
 }
 
+func awaitEventPropagation() {
+	time.Sleep(150 * time.Millisecond)
+}
+
 type portTestStruct struct {
 	Port Port `json:"port"`
 }
@@ -197,18 +201,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(res.Name).ShouldNot(BeNil())
-			Ω(res.NodeType).Should(Equal("disc"))
-
-			Ω(res.FdUsed).Should(BeNumerically(">=", 0))
-			Ω(res.FdTotal).Should(BeNumerically(">", 64))
-
-			Ω(res.MemUsed).Should(BeNumerically(">", 10*1024*1024))
-			Ω(res.MemLimit).Should(BeNumerically(">", 64*1024*1024))
-
 			Ω(res.IsRunning).Should(Equal(true))
-
-			Ω(res.SocketsUsed).Should(BeNumerically(">=", 0))
-			Ω(res.SocketsTotal).Should(BeNumerically(">=", 1))
 
 		})
 	})
@@ -222,18 +215,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(res.Name).ShouldNot(BeNil())
-			Ω(res.NodeType).Should(Equal("disc"))
-
-			Ω(res.FdUsed).Should(BeNumerically(">=", 0))
-			Ω(res.FdTotal).Should(BeNumerically(">", 64))
-
-			Ω(res.MemUsed).Should(BeNumerically(">", 10*1024*1024))
-			Ω(res.MemLimit).Should(BeNumerically(">", 64*1024*1024))
-
 			Ω(res.IsRunning).Should(Equal(true))
-
-			Ω(res.SocketsUsed).Should(BeNumerically(">=", 0))
-			Ω(res.SocketsTotal).Should(BeNumerically(">=", 1))
 
 		})
 	})
@@ -265,6 +247,10 @@ var _ = Describe("Rabbithole", func() {
 				false,
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
 
 			xs, err := rmqc.ListConnections()
 			Ω(err).Should(BeNil())
@@ -311,6 +297,10 @@ var _ = Describe("Rabbithole", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
+			// give internal events a moment to be
+			// handled
+			time.Sleep(300 * time.Millisecond)
+
 			xs, err := rmqc.ListChannels()
 			Ω(err).Should(BeNil())
 
@@ -345,6 +335,10 @@ var _ = Describe("Rabbithole", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
+			// give internal events a moment to be
+			// handled
+			time.Sleep(300 * time.Millisecond)
+
 			xs, err := rmqc.ListConnections()
 			Ω(err).Should(BeNil())
 
@@ -371,6 +365,10 @@ var _ = Describe("Rabbithole", func() {
 				false,
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			time.Sleep(300 * time.Millisecond)
 
 			xs, err := rmqc.ListChannels()
 			Ω(err).Should(BeNil())
@@ -448,6 +446,10 @@ var _ = Describe("Rabbithole", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
 			qs, err := rmqc.ListQueues()
 			Ω(err).Should(BeNil())
 
@@ -476,6 +478,10 @@ var _ = Describe("Rabbithole", func() {
 				false,
 				nil)
 			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
 
 			qs, err := rmqc.ListQueuesIn("rabbit/hole")
 			Ω(err).Should(BeNil())
@@ -506,6 +512,10 @@ var _ = Describe("Rabbithole", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
 			q, err := rmqc.GetQueue("rabbit/hole", "q3")
 			Ω(err).Should(BeNil())
 
@@ -532,6 +542,10 @@ var _ = Describe("Rabbithole", func() {
 				false,
 				nil)
 			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
 
 			_, err = rmqc.GetQueue("rabbit/hole", q.Name)
 			Ω(err).Should(BeNil())
@@ -574,6 +588,10 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
 			u, err := rmqc.GetUser("rabbithole")
 			Ω(err).Should(BeNil())
 
@@ -595,6 +613,8 @@ var _ = Describe("Rabbithole", func() {
 			resp, err := rmqc.DeleteUser("rabbithole")
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
+
+			awaitEventPropagation()
 
 			u2, err := rmqc.GetUser("rabbithole")
 			Ω(err).Should(Equal(errors.New("not found")))
@@ -629,6 +649,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.PutVhost("rabbit/hole2", vs)
 			Ω(err).Should(BeNil())
 
+			awaitEventPropagation()
 			x, err := rmqc.GetVhost("rabbit/hole2")
 
 			Ω(x.Name).Should(BeEquivalentTo("rabbit/hole2"))
@@ -644,6 +665,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.PutVhost("rabbit/hole2", vs)
 			Ω(err).Should(BeNil())
 
+			awaitEventPropagation()
 			x, err := rmqc.GetVhost("rabbit/hole2")
 			Ω(x).ShouldNot(BeNil())
 
@@ -672,6 +694,7 @@ var _ = Describe("Rabbithole", func() {
 			err = ch.QueueBind(q.Name, "", "amq.topic", false, nil)
 			Ω(err).Should(BeNil())
 
+			awaitEventPropagation()
 			bs, err := rmqc.ListBindings()
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
@@ -704,6 +727,7 @@ var _ = Describe("Rabbithole", func() {
 			err = ch.QueueBind(q.Name, "", "amq.topic", false, nil)
 			Ω(err).Should(BeNil())
 
+			awaitEventPropagation()
 			bs, err := rmqc.ListBindingsIn("/")
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
@@ -732,6 +756,7 @@ var _ = Describe("Rabbithole", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
+			awaitEventPropagation()
 			bs, err := rmqc.ListQueueBindings("/", q.Name)
 			Ω(err).Should(BeNil())
 
@@ -768,6 +793,7 @@ var _ = Describe("Rabbithole", func() {
 			// Grab the Location data from the POST response {destination}/{propertiesKey}
 			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
 
+			awaitEventPropagation()
 			bs, err := rmqc.ListBindingsIn(vh)
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
@@ -807,6 +833,7 @@ var _ = Describe("Rabbithole", func() {
 			// Grab the Location data from the POST response {destination}/{propertiesKey}
 			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
 
+			awaitEventPropagation()
 			bs, err := rmqc.ListBindingsIn(vh)
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
@@ -842,11 +869,15 @@ var _ = Describe("Rabbithole", func() {
 
 			res, _ := rmqc.DeclareBinding(vh, info)
 
+			awaitEventPropagation()
+
 			// Grab the Location data from the POST response {destination}/{propertiesKey}
 			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
 			info.PropertiesKey = propertiesKey
 
 			rmqc.DeleteBinding(vh, info)
+			awaitEventPropagation()
+
 			bs, _ := rmqc.ListBindingsIn(vh)
 
 			Ω(bs).Should(HaveLen(1))
@@ -907,6 +938,7 @@ var _ = Describe("Rabbithole", func() {
 			permissions := Permissions{Configure: "log.*", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdatePermissionsIn("/", u, permissions)
 
+			awaitEventPropagation()
 			fetched, err := rmqc.GetPermissionsIn("/", u)
 			Ω(err).Should(BeNil())
 			Ω(fetched.Configure).Should(Equal(permissions.Configure))
@@ -924,7 +956,9 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
 			Ω(err).Should(BeNil())
 
+			awaitEventPropagation()
 			_, err = rmqc.ClearPermissionsIn("/", u)
+			awaitEventPropagation()
 			_, err = rmqc.GetPermissionsIn("/", u)
 			Ω(err).Should(Equal(errors.New("not found")))
 
@@ -940,6 +974,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.DeclareExchange(vh, xn, ExchangeSettings{Type: "fanout", Durable: false})
 			Ω(err).Should(BeNil())
 
+			awaitEventPropagation()
 			x, err := rmqc.GetExchange(vh, xn)
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal(xn))
@@ -961,6 +996,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			rmqc.DeleteExchange(vh, xn)
+			awaitEventPropagation()
 			x, err := rmqc.GetExchange(vh, xn)
 			Ω(x).Should(BeNil())
 			Ω(err).Should(Equal(errors.New("not found")))
@@ -975,6 +1011,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
 
+			awaitEventPropagation()
 			x, err := rmqc.GetQueue(vh, qn)
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal(qn))
@@ -994,7 +1031,9 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
 
+			awaitEventPropagation()
 			rmqc.DeleteQueue(vh, qn)
+			awaitEventPropagation()
 			x, err := rmqc.GetQueue(vh, qn)
 			Ω(x).Should(BeNil())
 			Ω(err).Should(Equal(errors.New("not found")))
@@ -1024,6 +1063,8 @@ var _ = Describe("Rabbithole", func() {
 
 				_, err = rmqc.PutPolicy("rabbit/hole", "woot2", policy2)
 				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
 
 				// test
 				pols, err := rmqc.ListPolicies()
@@ -1067,6 +1108,8 @@ var _ = Describe("Rabbithole", func() {
 				_, err = rmqc.PutPolicy("/", "woot2", policy2)
 				Ω(err).Should(BeNil())
 
+				awaitEventPropagation()
+
 				// test
 				pols, err := rmqc.ListPoliciesIn("rabbit/hole")
 				Ω(err).Should(BeNil())
@@ -1105,6 +1148,8 @@ var _ = Describe("Rabbithole", func() {
 				_, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
 				Ω(err).Should(BeNil())
 
+				awaitEventPropagation()
+
 				pol, err := rmqc.GetPolicy("rabbit/hole", "woot")
 				Ω(err).Should(BeNil())
 				Ω(pol.Vhost).Should(Equal("rabbit/hole"))
@@ -1141,6 +1186,7 @@ var _ = Describe("Rabbithole", func() {
 
 			_, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
 			Ω(err).Should(BeNil())
+			awaitEventPropagation()
 
 			resp, err := rmqc.DeletePolicy("rabbit/hole", "woot")
 			Ω(err).Should(BeNil())
@@ -1165,6 +1211,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
+			awaitEventPropagation()
 			_, err = rmqc.GetPolicy("rabbit/hole", "woot")
 			Ω(err).Should(BeNil())
 
@@ -1198,6 +1245,8 @@ var _ = Describe("Rabbithole", func() {
 			resp, err := rmqc.PutPolicy("/", "woot2", new_policy)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
+
+			awaitEventPropagation()
 
 			// old policy should not exist already
 			_, err = rmqc.GetPolicy("rabbit/hole", "woot")
