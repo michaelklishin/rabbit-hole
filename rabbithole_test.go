@@ -64,7 +64,7 @@ func listConnectionsUntil(c *Client, i int) {
 	// Avoid infinity loops by breaking it after 30s
 	breakLoop := 0
 	for i != len(xs) {
-		if (breakLoop == 300) {
+		if breakLoop == 300 {
 			fmt.Printf("Stopping listConnectionsUntil loop: expected %v obtained %v", i, len(xs))
 			break
 		}
@@ -108,6 +108,10 @@ var _ = Describe("Rabbithole", func() {
 			Ω(res.Node).ShouldNot(BeNil())
 			Ω(res.StatisticsDBNode).ShouldNot(BeNil())
 			Ω(res.MessageStats).ShouldNot(BeNil())
+			Ω(res.MessageStats.DeliverDetails).ShouldNot(BeNil())
+			Ω(res.MessageStats.DeliverDetails.Rate).Should(BeNumerically(">=", 0))
+			Ω(res.MessageStats.DeliverNoAckDetails).ShouldNot(BeNil())
+			Ω(res.MessageStats.DeliverNoAckDetails.Rate).Should(BeNumerically(">=", 0))
 			Ω(res.MessageStats.DeliverGetDetails).ShouldNot(BeNil())
 			Ω(res.MessageStats.DeliverGetDetails.Rate).Should(BeNumerically(">=", 0))
 
