@@ -69,9 +69,16 @@ type QueueInfo struct {
 	// Policy applied to this queue, if any
 	Policy string `json:"policy"`
 
+	// Total bytes of messages in this queues
+	MessagesBytes           int64 `json:"message_bytes"`
+	MessagesBytesPersistent int64 `json:"message_bytes_persistent"`
+	MessagesBytesRAM        int64 `json:"message_bytes_ram"`
+
 	// Total number of messages in this queue
-	Messages        int         `json:"messages"`
-	MessagesDetails RateDetails `json:"messages_details"`
+	Messages           int         `json:"messages"`
+	MessagesDetails    RateDetails `json:"messages_details"`
+	MessagesPersistent int         `json:"messages_persistent"`
+	MessagesRAM        int         `json:"messages_ram"`
 
 	// Number of messages ready to be delivered
 	MessagesReady        int         `json:"messages_ready"`
