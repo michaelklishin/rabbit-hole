@@ -80,7 +80,7 @@ type VhostInfo struct {
 
 // Returns a list of virtual hosts.
 func (c *Client) ListVhosts() (rec []VhostInfo, err error) {
-	req, err := newGETRequest(c, "vhosts/")
+	req, err := newGETRequest(c, "vhosts")
 	if err != nil {
 		return []VhostInfo{}, err
 	}
