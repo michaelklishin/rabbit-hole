@@ -1044,6 +1044,27 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("DELETE /queues/{vhost}/{queue}/contents", func() {
+		It("purges a queue", func() {
+			vh := "rabbit/hole"
+			qn := "temporary"
+
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			Ω(err).Should(BeNil())
+
+			awaitEventPropagation()
+			_, err = rmqc.PurgeQueue(vh, qn)
+			awaitEventPropagation()
+			Ω(err).Should(BeNil())
+			rmqc.DeleteQueue(vh, qn)
+			awaitEventPropagation()
+			x, err := rmqc.GetQueue(vh, qn)
+			awaitEventPropagation()
+			Ω(x).Should(BeNil())
+			Ω(err).Should(Equal(errors.New("not found")))
+		})
+	})
+
 	Context("GET /policies", func() {
 		Context("when policy exists", func() {
 			It("returns decoded response", func() {
