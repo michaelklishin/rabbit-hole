@@ -45,8 +45,14 @@ func openConnection(vhost string) *amqp.Connection {
 	return conn
 }
 
-func ensureNonZeroMessageRate(ch *amqp.Channel) {
-	for i := 0; i < 2000; i++ {
+func publishToVoid(ch *amqp.Channel) {
+	for i := 0; i < 5000; i++ {
+		ch.Publish("", "", false, false, amqp.Publishing{Body: []byte("")})
+	}
+}
+
+func publishToMultipleTemporaryQueues(ch *amqp.Channel) {
+	for i := 0; i < 500; i++ {
 		q, _ := ch.QueueDeclare(
 			"",    // name
 			false, // durable
@@ -54,8 +60,17 @@ func ensureNonZeroMessageRate(ch *amqp.Channel) {
 			true,  // exclusive
 			false,
 			nil)
-		ch.Publish("", q.Name, false, false, amqp.Publishing{Body: []byte("")})
+		for j := 0; j < 100; j++ {
+			ch.Publish("", q.Name, false, false, amqp.Publishing{Body: []byte("")})
+		}
 	}
+}
+
+func ensureNonZeroMessageRate(ch *amqp.Channel) {
+	publishToVoid(ch)
+	publishToMultipleTemporaryQueues(ch)
+	// wait for longer than default stats emission interval
+	time.Sleep(6 * time.Second)
 }
 
 // Wait for the list of connections to reach the expected length
@@ -100,8 +115,6 @@ var _ = Describe("Rabbithole", func() {
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
 
-			ensureNonZeroMessageRate(ch)
-
 			res, err := rmqc.Overview()
 			Ω(err).Should(BeNil())
 
@@ -117,6 +130,29 @@ var _ = Describe("Rabbithole", func() {
 
 			fanoutExchange := ExchangeType{Name: "fanout", Description: "AMQP fanout exchange, as per the AMQP specification", Enabled: true}
 			Ω(res.ExchangeTypes).Should(ContainElement(fanoutExchange))
+
+			ch.Close()
+		})
+	})
+
+	Context("GET /overview with non-zero rates", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+
+			ensureNonZeroMessageRate(ch)
+
+			res, err := rmqc.Overview()
+			Ω(err).Should(BeNil())
+
+			fmt.Printf("%+vs", res.MessageStats)
+
+			Ω(res.MessageStats).ShouldNot(BeNil())
+			Ω(res.MessageStats.PublishDetails).ShouldNot(BeNil())
+			Ω(res.MessageStats.PublishDetails.Rate).Should(BeNumerically(">=", 0.1))
 
 			ch.Close()
 		})
