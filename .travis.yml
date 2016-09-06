@@ -11,10 +11,6 @@ go:
   - 1.7
   - tip
 
-os:
-  - linux
-  - osx
-
 services:
   - rabbitmq
 
