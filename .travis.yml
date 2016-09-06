@@ -1,17 +1,27 @@
+sudo: required
+dist: trusty
+
 language: go
+
 go:
   - 1.3
   - 1.4
+  - 1.5
+  - 1.6
+  - 1.7
   - tip
 
 services:
   - rabbitmq
 
 before_script: ./bin/ci/before_build.sh
+
 script: make
+
 matrix:
   allow_failures:
     - go: tip
+
 notifications:
   email:
     - michael@rabbitmq.com
