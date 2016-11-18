@@ -126,7 +126,3 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 
 	return nil
 }
-
-func isNotFound(res *http.Response) bool {
-	return res.StatusCode == http.StatusNotFound
-}

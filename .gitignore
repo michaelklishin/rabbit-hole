@@ -23,3 +23,5 @@ _testmain.go
 bin/*
 src/github.com
 src/code.google.com
+.idea/
+rabbit-hole.iml
