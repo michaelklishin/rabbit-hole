@@ -115,8 +115,8 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 	}
 	defer res.Body.Close() // always close body
 
-	if isNotFound(res) {
-		return errors.New("not found")
+	if res.StatusCode != 200 {
+		return errors.New(res.Status)
 	}
 
 	err = json.NewDecoder(res.Body).Decode(&rec)
