@@ -76,7 +76,7 @@ func listConnectionsUntil(c *Client, i int) {
 }
 
 func awaitEventPropagation() {
-	time.Sleep(150 * time.Millisecond)
+	time.Sleep(1150 * time.Millisecond)
 }
 
 type portTestStruct struct {
@@ -127,6 +127,7 @@ var _ = Describe("Rabbithole", func() {
 			listConnectionsUntil(rmqc, 0)
 			conn := openConnection("/")
 
+			awaitEventPropagation()
 			xs, err := rmqc.ListConnections()
 			Ω(err).Should(BeNil())
 
@@ -303,7 +304,7 @@ var _ = Describe("Rabbithole", func() {
 
 			// give internal events a moment to be
 			// handled
-			time.Sleep(300 * time.Millisecond)
+			awaitEventPropagation()
 
 			xs, err := rmqc.ListChannels()
 			Ω(err).Should(BeNil())
@@ -341,7 +342,7 @@ var _ = Describe("Rabbithole", func() {
 
 			// give internal events a moment to be
 			// handled
-			time.Sleep(300 * time.Millisecond)
+			awaitEventPropagation()
 
 			xs, err := rmqc.ListConnections()
 			Ω(err).Should(BeNil())
@@ -372,7 +373,7 @@ var _ = Describe("Rabbithole", func() {
 
 			// give internal events a moment to be
 			// handled
-			time.Sleep(300 * time.Millisecond)
+			awaitEventPropagation()
 
 			xs, err := rmqc.ListChannels()
 			Ω(err).Should(BeNil())
