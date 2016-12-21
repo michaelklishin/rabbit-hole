@@ -72,7 +72,13 @@ func newGETRequest(client *Client, path string) (*http.Request, error) {
 }
 
 func newGETRequestWithParameters(client *Client, path string, qs url.Values) (*http.Request, error) {
-	return newGETRequest(client, path+"?"+qs.Encode())
+	s := client.Endpoint + "/api/" + path + "?" + qs.Encode()
+
+	req, err := http.NewRequest("GET", s, nil)
+	req.Close = true
+	req.SetBasicAuth(client.Username, client.Password)
+
+	return req, err
 }
 
 func newRequestWithBody(client *Client, method string, path string, body []byte) (*http.Request, error) {

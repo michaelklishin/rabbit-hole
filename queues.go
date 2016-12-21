@@ -180,11 +180,7 @@ func (c *Client) ListQueues() (rec []QueueInfo, err error) {
 	return rec, nil
 }
 
-func (c *Client) ListQueuesWithParameters() (rec []QueueInfo, err error) {
-	params := url.Values{}
-	params.Add("lengths_age", "1800")
-	params.Add("lengths_incr", "30")
-
+func (c *Client) ListQueuesWithParameters(params url.Values) (rec []QueueInfo, err error) {
 	req, err := newGETRequestWithParameters(c, "queues", params)
 	if err != nil {
 		return []QueueInfo{}, err

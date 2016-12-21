@@ -488,7 +488,11 @@ var _ = Describe("Rabbithole", func() {
 			// handled
 			awaitEventPropagation()
 
-			qs, err := rmqc.ListQueuesWithParameters()
+			params := url.Values{}
+			params.Add("lengths_age", "1800")
+			params.Add("lengths_incr", "30")
+
+			qs, err := rmqc.ListQueuesWithParameters(params)
 			Ω(err).Should(BeNil())
 
 			q := qs[0]
