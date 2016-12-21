@@ -23,9 +23,16 @@ func (p *Port) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// RateDetailSample single touple
+type RateDetailSample struct {
+	Sample    int64 `json:"sample"`
+	Timestamp int64 `json:"timestamp"`
+}
+
 // Rate of change of a numerical value
 type RateDetails struct {
-	Rate float32 `json:"rate"`
+	Rate    float32            `json:"rate"`
+	Samples []RateDetailSample `json:"samples"`
 }
 
 // RabbitMQ context (Erlang app) running on
