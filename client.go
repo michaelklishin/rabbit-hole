@@ -71,6 +71,10 @@ func newGETRequest(client *Client, path string) (*http.Request, error) {
 	return req, err
 }
 
+func newGETRequestWithParameters(client *Client, path string, qs url.Values) (*http.Request, error) {
+	return newGETRequest(client, path+"?"+qs.Encode())
+}
+
 func newRequestWithBody(client *Client, method string, path string, body []byte) (*http.Request, error) {
 	s := client.Endpoint + "/api/" + path
 
