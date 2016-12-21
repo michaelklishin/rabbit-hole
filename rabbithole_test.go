@@ -466,6 +466,40 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("GET /queues with arguments", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			_, err = ch.QueueDeclare(
+				"",    // name
+				false, // durable
+				false, // delete when usused
+				true,  // exclusive
+				false,
+				nil)
+			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			qs, err := rmqc.ListQueuesWithParameters()
+			Ω(err).Should(BeNil())
+
+			q := qs[0]
+			Ω(q.Name).ShouldNot(Equal(""))
+			Ω(q.Node).ShouldNot(BeNil())
+			Ω(q.Durable).ShouldNot(BeNil())
+			Ω(q.Status).ShouldNot(BeNil())
+			Ω(q.MessagesDetails.Samples[0]).ShouldNot(BeNil())
+		})
+	})
+
 	Context("GET /queues/{vhost}", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("rabbit/hole")

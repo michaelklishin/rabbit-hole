@@ -180,6 +180,23 @@ func (c *Client) ListQueues() (rec []QueueInfo, err error) {
 	return rec, nil
 }
 
+func (c *Client) ListQueuesWithParameters() (rec []QueueInfo, err error) {
+	params := url.Values{}
+	params.Add("lengths_age", "1800")
+	params.Add("lengths_incr", "30")
+
+	req, err := newGETRequestWithParameters(c, "queues", params)
+	if err != nil {
+		return []QueueInfo{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return []QueueInfo{}, err
+	}
+
+	return rec, nil
+}
+
 //
 // GET /api/queues/{vhost}
 //
