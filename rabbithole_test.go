@@ -50,7 +50,7 @@ func ensureNonZeroMessageRate(ch *amqp.Channel) {
 		q, _ := ch.QueueDeclare(
 			"",    // name
 			false, // durable
-			false, // delete when usused
+			false, // auto delete
 			true,  // exclusive
 			false,
 			nil)
@@ -445,7 +445,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err = ch.QueueDeclare(
 				"",    // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				true,  // exclusive
 				false,
 				nil)
@@ -478,7 +478,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err = ch.QueueDeclare(
 				"",    // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				true,  // exclusive
 				false,
 				nil)
@@ -516,7 +516,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err = ch.QueueDeclare(
 				"q2",  // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				true,  // exclusive
 				false,
 				nil)
@@ -549,7 +549,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err = ch.QueueDeclare(
 				"q3",  // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				true,  // exclusive
 				false,
 				nil)
@@ -580,7 +580,7 @@ var _ = Describe("Rabbithole", func() {
 			q, err := ch.QueueDeclare(
 				"",    // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				false, // exclusive
 				false,
 				nil)
@@ -793,7 +793,7 @@ var _ = Describe("Rabbithole", func() {
 			q, err := ch.QueueDeclare(
 				"",    // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				true,  // exclusive
 				false,
 				nil)
