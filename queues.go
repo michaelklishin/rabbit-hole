@@ -215,7 +215,7 @@ func (c *Client) ListQueuesIn(vhost string) (rec []QueueInfo, err error) {
 //
 
 func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err error) {
-	req, err := newGETRequest(c, "queues/"+url.QueryEscape(vhost)+"/"+queue)
+	req, err := newGETRequest(c, "queues/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(queue))
 
 	if err != nil {
 		return nil, err
@@ -232,7 +232,7 @@ func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err erro
 // GET /api/queues/{vhost}/{name}?{query}
 
 func (c *Client) GetQueueWithParameters(vhost, queue string, qs url.Values) (rec *DetailedQueueInfo, err error) {
-	req, err := newGETRequestWithParameters(c, "queues/"+url.QueryEscape(vhost)+"/"+queue, qs)
+	req, err := newGETRequestWithParameters(c, "queues/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(queue), qs)
 	if err != nil {
 		return nil, err
 	}
