@@ -47,18 +47,18 @@ type BrokerContext struct {
 
 // Basic published messages statistics
 type MessageStats struct {
-	Publish             int         `json:"publish"`
+	Publish             int64       `json:"publish"`
 	PublishDetails      RateDetails `json:"publish_details"`
-	Deliver             int         `json:"deliver"`
+	Deliver             int64       `json:"deliver"`
 	DeliverDetails      RateDetails `json:"deliver_details"`
-	DeliverNoAck        int         `json:"deliver_noack"`
+	DeliverNoAck        int64       `json:"deliver_noack"`
 	DeliverNoAckDetails RateDetails `json:"deliver_noack_details"`
-	DeliverGet          int         `json:"deliver_get"`
+	DeliverGet          int64       `json:"deliver_get"`
 	DeliverGetDetails   RateDetails `json:"deliver_get_details"`
-	Redeliver           int         `json:"redeliver"`
+	Redeliver           int64       `json:"redeliver"`
 	RedeliverDetails    RateDetails `json:"redeliver_details"`
-	Get                 int         `json:"get"`
+	Get                 int64       `json:"get"`
 	GetDetails          RateDetails `json:"get_details"`
-	GetNoAck            int         `json:"get_no_ack"`
+	GetNoAck            int64       `json:"get_no_ack"`
 	GetNoAckDetails     RateDetails `json:"get_no_ack_details"`
 }
