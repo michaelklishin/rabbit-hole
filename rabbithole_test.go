@@ -50,7 +50,7 @@ func ensureNonZeroMessageRate(ch *amqp.Channel) {
 		q, _ := ch.QueueDeclare(
 			"",    // name
 			false, // durable
-			false, // delete when usused
+			false, // auto delete
 			true,  // exclusive
 			false,
 			nil)
@@ -445,7 +445,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err = ch.QueueDeclare(
 				"",    // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				true,  // exclusive
 				false,
 				nil)
@@ -466,6 +466,44 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("GET /queues with arguments", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			_, err = ch.QueueDeclare(
+				"",    // name
+				false, // durable
+				false, // auto delete
+				true,  // exclusive
+				false,
+				nil)
+			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			params := url.Values{}
+			params.Add("lengths_age", "1800")
+			params.Add("lengths_incr", "30")
+
+			qs, err := rmqc.ListQueuesWithParameters(params)
+			Ω(err).Should(BeNil())
+
+			q := qs[0]
+			Ω(q.Name).ShouldNot(Equal(""))
+			Ω(q.Node).ShouldNot(BeNil())
+			Ω(q.Durable).ShouldNot(BeNil())
+			Ω(q.Status).ShouldNot(BeNil())
+			Ω(q.MessagesDetails.Samples[0]).ShouldNot(BeNil())
+		})
+	})
+
 	Context("GET /queues/{vhost}", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("rabbit/hole")
@@ -478,7 +516,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err = ch.QueueDeclare(
 				"q2",  // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				true,  // exclusive
 				false,
 				nil)
@@ -511,7 +549,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err = ch.QueueDeclare(
 				"q3",  // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				true,  // exclusive
 				false,
 				nil)
@@ -542,7 +580,7 @@ var _ = Describe("Rabbithole", func() {
 			q, err := ch.QueueDeclare(
 				"",    // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				false, // exclusive
 				false,
 				nil)
@@ -755,7 +793,7 @@ var _ = Describe("Rabbithole", func() {
 			q, err := ch.QueueDeclare(
 				"",    // name
 				false, // durable
-				false, // delete when usused
+				false, // auto delete
 				true,  // exclusive
 				false,
 				nil)
