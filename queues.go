@@ -3,7 +3,6 @@ package rabbithole
 import (
 	"encoding/json"
 	"net/http"
-	"net/url"
 )
 
 // Information about backing queue (queue storage engine).
@@ -185,7 +184,7 @@ func (c *Client) ListQueues() (rec []QueueInfo, err error) {
 //
 
 func (c *Client) ListQueuesIn(vhost string) (rec []QueueInfo, err error) {
-	req, err := newGETRequest(c, "queues/"+url.QueryEscape(vhost))
+	req, err := newGETRequest(c, "queues/" + PathEscape(vhost))
 	if err != nil {
 		return []QueueInfo{}, err
 	}
@@ -202,7 +201,7 @@ func (c *Client) ListQueuesIn(vhost string) (rec []QueueInfo, err error) {
 //
 
 func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err error) {
-	req, err := newGETRequest(c, "queues/"+url.QueryEscape(vhost)+"/"+queue)
+	req, err := newGETRequest(c, "queues/" + PathEscape(vhost) + "/" + PathEscape(queue))
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +232,7 @@ func (c *Client) DeclareQueue(vhost, queue string, info QueueSettings) (res *htt
 		return nil, err
 	}
 
-	req, err := newRequestWithBody(c, "PUT", "queues/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(queue), body)
+	req, err := newRequestWithBody(c, "PUT", "queues/" + PathEscape(vhost) + "/" + PathEscape(queue), body)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +250,7 @@ func (c *Client) DeclareQueue(vhost, queue string, info QueueSettings) (res *htt
 //
 
 func (c *Client) DeleteQueue(vhost, queue string) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "queues/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(queue), nil)
+	req, err := newRequestWithBody(c, "DELETE", "queues/" + PathEscape(vhost) + "/" + PathEscape(queue), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -269,7 +268,7 @@ func (c *Client) DeleteQueue(vhost, queue string) (res *http.Response, err error
 //
 
 func (c *Client) PurgeQueue(vhost, queue string) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "queues/"+url.QueryEscape(vhost)+"/"+url.QueryEscape(queue)+"/contents", nil)
+	req, err := newRequestWithBody(c, "DELETE", "queues/" + PathEscape(vhost) + "/" + PathEscape(queue) + "/contents", nil)
 	if err != nil {
 		return nil, err
 	}
