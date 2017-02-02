@@ -293,4 +293,4 @@ See [CONTRIBUTING.md](https://github.com/michaelklishin/rabbit-hole/blob/master/
 
 2-clause BSD license.
 
-(c) Michael S. Klishin, 2013-2016.
+(c) Michael S. Klishin, 2013-2017.
