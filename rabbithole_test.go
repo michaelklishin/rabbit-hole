@@ -92,6 +92,41 @@ var _ = Describe("Rabbithole", func() {
 		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 	})
 
+	Context("PUT /parameters/shovel/{vhost}/{name}", func() {
+		It("declares a shovel", func() {
+			vh := "rabbit/hole"
+			sn := "temporary"
+
+			shovelDefinition := ShovelDefinition{
+				SourceURI:         "amqp://sourceURI",
+				SourceQueue:       "mySourceQueue",
+				DestinationURI:    "amqp://destinationURI",
+				DestinationQueue:  "myDestQueue",
+				AddForwardHeaders: true,
+				AckMode:           "on-confirm",
+				DeleteAfter:       "never"}
+
+			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
+			Ω(err).Should(BeNil())
+
+			awaitEventPropagation()
+			x, err := rmqc.GetShovel(vh, sn)
+			Ω(err).Should(BeNil())
+			Ω(x.Name).Should(Equal(sn))
+			Ω(x.Vhost).Should(Equal(vh))
+			Ω(x.Component).Should(Equal("shovel"))
+			Ω(x.Definition.SourceURI).Should(Equal("amqp://sourceURI"))
+			Ω(x.Definition.SourceQueue).Should(Equal("mySourceQueue"))
+			Ω(x.Definition.DestinationURI).Should(Equal("amqp://destinationURI"))
+			Ω(x.Definition.DestinationQueue).Should(Equal("myDestQueue"))
+			Ω(x.Definition.AddForwardHeaders).Should(Equal(true))
+			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
+			Ω(x.Definition.DeleteAfter).Should(Equal("never"))
+
+			rmqc.DeleteShovel(vh, sn)
+		})
+	})
+
 	Context("GET /overview", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
