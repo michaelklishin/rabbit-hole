@@ -1,6 +1,7 @@
 #!/bin/sh
 
 ${RABBITHOLE_RABBITMQCTL:="sudo rabbitmqctl"}
+${RABBITHOLE_RABBITMQ_PLUGINS:="sudo rabbitmq-plugins"}
 
 # guest:guest has full access to /
 
@@ -14,3 +15,7 @@ $RABBITHOLE_RABBITMQCTL eval 'supervisor2:terminate_child(rabbit_mgmt_agent_sup_
 
 $RABBITHOLE_RABBITMQCTL add_vhost "rabbit/hole"
 $RABBITHOLE_RABBITMQCTL set_permissions -p "rabbit/hole" guest ".*" ".*" ".*"
+
+# Enable shovel plugin
+$RABBITHOLE_RABBITMQ_PLUGINS enable rabbitmq_shovel
+$RABBITHOLE_RABBITMQ_PLUGINS enable rabbitmq_shovel_management
