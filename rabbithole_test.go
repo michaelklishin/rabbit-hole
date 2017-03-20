@@ -630,7 +630,7 @@ var _ = Describe("Rabbithole", func() {
 			rmqc.DeleteQueue("rabbit/hole", q.Name)
 
 			qi2, err := rmqc.GetQueue("rabbit/hole", q.Name)
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "\"Not Found\"\n"}))
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 			Ω(qi2).Should(BeNil())
 		})
 	})
@@ -694,7 +694,7 @@ var _ = Describe("Rabbithole", func() {
 			awaitEventPropagation()
 
 			u2, err := rmqc.GetUser("rabbithole")
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "\"Not Found\"\n"}))
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 			Ω(u2).Should(BeNil())
 		})
 	})
@@ -1037,7 +1037,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err = rmqc.ClearPermissionsIn("/", u)
 			awaitEventPropagation()
 			_, err = rmqc.GetPermissionsIn("/", u)
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "\"Not Found\"\n"}))
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 
 			rmqc.DeleteUser(u)
 		})
@@ -1076,7 +1076,7 @@ var _ = Describe("Rabbithole", func() {
 			awaitEventPropagation()
 			x, err := rmqc.GetExchange(vh, xn)
 			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "\"Not Found\"\n"}))
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -1113,7 +1113,7 @@ var _ = Describe("Rabbithole", func() {
 			awaitEventPropagation()
 			x, err := rmqc.GetQueue(vh, qn)
 			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "\"Not Found\"\n"}))
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -1134,7 +1134,7 @@ var _ = Describe("Rabbithole", func() {
 			x, err := rmqc.GetQueue(vh, qn)
 			awaitEventPropagation()
 			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "\"Not Found\"\n"}))
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -1267,7 +1267,7 @@ var _ = Describe("Rabbithole", func() {
 		Context("when policy not found", func() {
 			It("returns decoded response", func() {
 				pol, err := rmqc.GetPolicy("rabbit/hole", "woot")
-				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "\"Not Found\"\n"}))
+				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 				Ω(pol).Should(BeNil())
 			})
 		})
@@ -1348,7 +1348,7 @@ var _ = Describe("Rabbithole", func() {
 
 			// old policy should not exist already
 			_, err = rmqc.GetPolicy("rabbit/hole", "woot")
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "\"Not Found\"\n"}))
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 
 			// but new (updated) policy is here
 			pol, err := rmqc.GetPolicy("/", "woot2")
