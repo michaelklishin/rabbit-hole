@@ -17,6 +17,8 @@ type FederationDefinition struct {
 	ReconnectDelay int    `json:"reconnect-delay"`
 	AckMode        string `json:"ack-mode,omitempty"`
 	TrustUserId    bool   `json:"trust-user-id"`
+	Exchange       string `json:"exchange"`
+	Queue          string `json:"queue"`
 }
 
 // Represents a configured Federation upstream.
