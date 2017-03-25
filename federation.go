@@ -15,7 +15,7 @@ type FederationDefinition struct {
 	MaxHops        int    `json:"max-hops"`
 	PrefetchCount  int    `json:"prefetch-count"`
 	ReconnectDelay int    `json:"reconnect-delay"`
-	AckMode        string `json:"ack-mode"`
+	AckMode        string `json:"ack-mode,omitempty"`
 	TrustUserId    bool   `json:"trust-user-id"`
 }
 
@@ -38,7 +38,7 @@ func (c *Client) PutFederationUpstream(vhost string, upstreamName string, fDef F
 		return nil, err
 	}
 
-	req, err := newRequestWithBody(c, "PUT", "parameters/federation-upstream/" + PathEscape(vhost) + "/" + PathEscape(upstreamName), body)
+	req, err := newRequestWithBody(c, "PUT", "parameters/federation-upstream/"+PathEscape(vhost)+"/"+PathEscape(upstreamName), body)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *Client) PutFederationUpstream(vhost string, upstreamName string, fDef F
 
 // Deletes a federation upstream.
 func (c *Client) DeleteFederationUpstream(vhost, upstreamName string) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "parameters/federation-upstream/" + PathEscape(vhost) + "/" + PathEscape(upstreamName), nil)
+	req, err := newRequestWithBody(c, "DELETE", "parameters/federation-upstream/"+PathEscape(vhost)+"/"+PathEscape(upstreamName), nil)
 	if err != nil {
 		return nil, err
 	}
