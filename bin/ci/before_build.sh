@@ -3,6 +3,10 @@
 CTL=${RABBITHOLE_RABBITMQCTL:="sudo rabbitmqctl"}
 PLUGINS=${RABBITHOLE_RABBITMQ_PLUGINS:="sudo rabbitmq-plugins"}
 
+$PLUGINS enable rabbitmq_management
+
+sleep 3
+
 # guest:guest has full access to /
 
 $CTL add_vhost /
