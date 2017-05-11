@@ -12,7 +12,9 @@ go:
 services:
   - rabbitmq
 
-before_script: ./bin/ci/before_build.sh
+before_script:
+  - ./bin/ci/install_on_debian.sh
+  - ./bin/ci/before_build.sh
 
 script: make
 
