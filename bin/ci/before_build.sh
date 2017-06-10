@@ -3,6 +3,9 @@
 CTL=${RABBITHOLE_RABBITMQCTL:="sudo rabbitmqctl"}
 PLUGINS=${RABBITHOLE_RABBITMQ_PLUGINS:="sudo rabbitmq-plugins"}
 
+echo "Will use rabbitmqctl at ${CTL}"
+echo "Will use rabbitmq-plugins at ${PLUGINS}"
+
 $PLUGINS enable rabbitmq_management
 
 sleep 3
