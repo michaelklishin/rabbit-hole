@@ -681,6 +681,23 @@ var _ = Describe("Rabbithole", func() {
 			Ω(u.PasswordHash).ShouldNot(BeNil())
 			Ω(u.Tags).Should(Equal("policymaker,management"))
 		})
+
+		It("updates the user with no password", func() {
+			info := UserSettings{Tags: "policymaker, management"}
+			resp, err := rmqc.PutUserWithoutPassword("rabbithole", info)
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(HavePrefix("20"))
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			u, err := rmqc.GetUser("rabbithole")
+			Ω(err).Should(BeNil())
+
+			Ω(u.PasswordHash).Should(BeEquivalentTo(""))
+			Ω(u.Tags).Should(Equal("policymaker,management"))
+		})
 	})
 
 	Context("DELETE /users/{name}", func() {
