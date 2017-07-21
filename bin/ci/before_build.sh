@@ -23,6 +23,9 @@ $CTL eval 'supervisor2:terminate_child(rabbit_mgmt_agent_sup_sup, rabbit_mgmt_ag
 $CTL add_vhost "rabbit/hole"
 $CTL set_permissions -p "rabbit/hole" guest ".*" ".*" ".*"
 
+# set cluster name
+$CTL set_cluster_name rabbitmq@localhost
+
 # Enable shovel plugin
 $PLUGINS enable rabbitmq_shovel
 $PLUGINS enable rabbitmq_shovel_management
