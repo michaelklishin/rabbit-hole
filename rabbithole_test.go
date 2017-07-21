@@ -265,6 +265,27 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("PUT /cluster-name", func() {
+		It("Set cluster name", func() {
+			previousClusterName, err := rmqc.GetClusterName()
+			Ω(err).Should(BeNil())
+			Ω(previousClusterName.Name).Should(Equal("rabbitmq@localhost"))
+			cnStr := "rabbitmq@rabbit-hole-test"
+			cn := ClusterName{Name: cnStr}
+			resp, err := rmqc.SetClusterName(cn)
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(Equal("204 No Content"))
+			awaitEventPropagation()
+			cn2, err := rmqc.GetClusterName()
+			Ω(err).Should(BeNil())
+			Ω(cn2.Name).Should(Equal(cnStr))
+			// Restore cluster name
+			rmqc.SetClusterName(*previousClusterName)
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(Equal("204 No Content"))
+		})
+	})
+
 	Context("GET /connections when there are active connections", func() {
 		It("returns decoded response", func() {
 			// this really should be tested with > 1 connection and channel. MK.
