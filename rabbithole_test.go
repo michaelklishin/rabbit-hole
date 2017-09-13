@@ -247,6 +247,7 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(res.Name).ShouldNot(BeNil())
 			Ω(res.IsRunning).Should(Equal(true))
+			Ω(res.Partitions).ShouldNot(BeNil())
 
 		})
 	})
@@ -261,6 +262,7 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(res.Name).ShouldNot(BeNil())
 			Ω(res.IsRunning).Should(Equal(true))
+			Ω(res.Partitions).ShouldNot(BeNil())
 
 		})
 	})
