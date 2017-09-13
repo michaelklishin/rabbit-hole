@@ -155,8 +155,8 @@ var _ = Describe("Rabbithole", func() {
 			Ω(res.MessageStats.DeliverGetDetails).ShouldNot(BeNil())
 			Ω(res.MessageStats.DeliverGetDetails.Rate).Should(BeNumerically(">=", 0))
 
-			fanoutExchange := ExchangeType{Name: "fanout", Description: "AMQP fanout exchange, as per the AMQP specification", Enabled: true}
-			Ω(res.ExchangeTypes).Should(ContainElement(fanoutExchange))
+			// there are at least 4 exchange types, the built-in ones
+			Ω(len(res.ExchangeTypes)).Should(BeNumerically(">=", 4))
 
 			ch.Close()
 		})
