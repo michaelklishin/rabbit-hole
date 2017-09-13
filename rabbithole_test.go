@@ -269,7 +269,6 @@ var _ = Describe("Rabbithole", func() {
 		It("Set cluster name", func() {
 			previousClusterName, err := rmqc.GetClusterName()
 			Ω(err).Should(BeNil())
-			Ω(previousClusterName.Name).Should(Equal("rabbitmq@localhost"))
 			cnStr := "rabbitmq@rabbit-hole-test"
 			cn := ClusterName{Name: cnStr}
 			resp, err := rmqc.SetClusterName(cn)
