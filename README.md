@@ -323,6 +323,7 @@ rmqc.SetTransport(transport)
 ## CI Status
 
 [![Build Status](https://travis-ci.org/michaelklishin/rabbit-hole.svg?branch=master)](https://travis-ci.org/michaelklishin/rabbit-hole)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmichaelklishin%2Frabbit-hole.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmichaelklishin%2Frabbit-hole?ref=badge_shield)
 
 
 ## Contributing
@@ -335,3 +336,6 @@ See [CONTRIBUTING.md](https://github.com/michaelklishin/rabbit-hole/blob/master/
 2-clause BSD license.
 
 (c) Michael S. Klishin, 2013-2017.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmichaelklishin%2Frabbit-hole.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmichaelklishin%2Frabbit-hole?ref=badge_large)
