@@ -5,6 +5,17 @@ import (
 	"net/http"
 )
 
+type Target string
+
+const (
+	SOURCE      Target = "source"
+	DESTINATION Target = "destination"
+)
+
+func (t Target) String() string {
+	return string(t)
+}
+
 //
 // GET /api/bindings
 //
@@ -95,6 +106,23 @@ func (c *Client) ListBindingsIn(vhost string) (rec []BindingInfo, err error) {
 // Returns all bindings of individual queue.
 func (c *Client) ListQueueBindings(vhost, queue string) (rec []BindingInfo, err error) {
 	req, err := newGETRequest(c, "queues/"+PathEscape(vhost)+"/"+PathEscape(queue)+"/bindings")
+	if err != nil {
+		return []BindingInfo{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return []BindingInfo{}, err
+	}
+
+	return rec, nil
+}
+
+//
+// GET /api/exchanges/{vhost}/{exchange}/bindings/{target}
+//
+// Returns all bindings having the exchange as source or destination as defined by the Target
+func (c *Client) ListExchangeBindings(vhost, exchange string, t Target) (rec []BindingInfo, err error) {
+	req, err := newGETRequest(c, "exchanges/"+PathEscape(vhost)+"/"+PathEscape(exchange)+"/bindings/"+t.String())
 	if err != nil {
 		return []BindingInfo{}, err
 	}
