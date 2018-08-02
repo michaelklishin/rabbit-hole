@@ -97,6 +97,16 @@ type QueueInfo struct {
 	BackingQueueStatus BackingQueueStatus `json:"backing_queue_status"`
 }
 
+type PagedQueueInfo struct {
+	Page          int         `json:"page"`
+	PageCount     int         `json:"page_count"`
+	PageSize      int         `json:"page_size"`
+	FilteredCount int         `json:"filtered_count"`
+	ItemCount     int         `json:"item_count"`
+	TotalCount    int         `json:"total_count"`
+	Items         []QueueInfo `json:"items"`
+}
+
 type DetailedQueueInfo QueueInfo
 
 //
@@ -191,6 +201,20 @@ func (c *Client) ListQueuesWithParameters(params url.Values) (rec []QueueInfo, e
 	}
 
 	return rec, nil
+}
+
+func (c *Client) PagedListQueuesWithParameters(params url.Values) (rec PagedQueueInfo, err error) {
+	req, err := newGETRequestWithParameters(c, "queues", params)
+	if err != nil {
+		return PagedQueueInfo{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return PagedQueueInfo{}, err
+	}
+
+	return rec, nil
+
 }
 
 //
