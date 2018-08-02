@@ -527,6 +527,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(q.Status).ShouldNot(BeNil())
 		})
 	})
+
 	Context("GET /queues with arguments", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
