@@ -528,7 +528,7 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
-	Context("GET /queues with arguments", func() {
+	Context("GET /queues paged with arguments", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
 			defer conn.Close()
@@ -551,18 +551,22 @@ var _ = Describe("Rabbithole", func() {
 			awaitEventPropagation()
 
 			params := url.Values{}
-			params.Add("lengths_age", "1800")
-			params.Add("lengths_incr", "30")
+			params.Add("page", "1")
 
-			qs, err := rmqc.ListQueuesWithParameters(params)
+			qs, err := rmqc.PagedListQueuesWithParameters(params)
 			Ω(err).Should(BeNil())
 
-			q := qs[0]
+			q := qs.Items[0]
 			Ω(q.Name).ShouldNot(Equal(""))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
 			Ω(q.Status).ShouldNot(BeNil())
-			Ω(q.MessagesDetails.Samples[0]).ShouldNot(BeNil())
+			Ω(qs.Page).Should(Equal(1))
+			Ω(qs.PageCount).Should(Equal(1))
+			Ω(qs.ItemCount).ShouldNot(BeNil())
+			Ω(qs.PageSize).Should(Equal(100))
+			Ω(qs.TotalCount).ShouldNot(BeNil())
+			Ω(qs.FilteredCount).ShouldNot(BeNil())
 		})
 	})
 
