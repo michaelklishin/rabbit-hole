@@ -14,11 +14,11 @@ type UserInfo struct {
 
 // Settings used to create users. Tags must be comma-separated.
 type UserSettings struct {
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 	// Tags control permissions. Administrator grants full
 	// permissions, management grants management UI and HTTP API
 	// access, policymaker grants policy management permissions.
-	Tags string `json:"tags,omitempty"`
+	Tags string `json:"tags"`
 
 	// *never* returned by RabbitMQ. Set by the client
 	// to create/update a user. MK.
