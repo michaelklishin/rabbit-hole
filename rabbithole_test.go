@@ -566,6 +566,48 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("GET /queues paged with arguments", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			_, err = ch.QueueDeclare(
+				"",    // name
+				false, // durable
+				false, // auto delete
+				true,  // exclusive
+				false,
+				nil)
+			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			params := url.Values{}
+			params.Add("page", "1")
+
+			qs, err := rmqc.PagedListQueuesWithParameters(params)
+			Ω(err).Should(BeNil())
+
+			q := qs.Items[0]
+			Ω(q.Name).ShouldNot(Equal(""))
+			Ω(q.Node).ShouldNot(BeNil())
+			Ω(q.Durable).ShouldNot(BeNil())
+			Ω(q.Status).ShouldNot(BeNil())
+			Ω(qs.Page).Should(Equal(1))
+			Ω(qs.PageCount).Should(Equal(1))
+			Ω(qs.ItemCount).ShouldNot(BeNil())
+			Ω(qs.PageSize).Should(Equal(100))
+			Ω(qs.TotalCount).ShouldNot(BeNil())
+			Ω(qs.FilteredCount).ShouldNot(BeNil())
+		})
+	})
+
 	Context("GET /queues/{vhost}", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("rabbit/hole")
