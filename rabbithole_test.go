@@ -1018,6 +1018,149 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("GET /bindings/{vhost}/e/{exchange}/q/{queue}", func() {
+		It("returns a list of bindings between the exchange and the queue", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+
+			vh := conn.Config.Vhost
+			x  := "test.bindings.x30"
+			q  := "test.bindings.q30"
+
+			err = ch.ExchangeDeclare(x, "topic", false, false, false, false, nil)
+			Ω(err).Should(BeNil())
+			_, err = ch.QueueDeclare(q, false, false, false, false, nil)
+			Ω(err).Should(BeNil())
+
+			err = ch.QueueBind(q, "#", x, false, nil)
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			bindings, err := rmqc.ListQueueBindingsBetween(vh, x, q)
+			Ω(err).Should(BeNil())
+
+			b := bindings[0]
+			Ω(b.Source).Should(Equal(x))
+			Ω(b.Destination).Should(Equal(q))
+			Ω(b.RoutingKey).Should(Equal("#"))
+			Ω(b.Vhost).Should(Equal("/"))
+
+			ch.ExchangeDelete(x, false, false)
+			ch.QueueDelete(q, false, false, false)
+			ch.Close()
+		})
+	})
+
+	Context("GET /bindings/{vhost}/e/{source}/e/{destination}", func() {
+		It("returns a list of E2E bindings between the exchanges", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+
+			vh := conn.Config.Vhost
+			sx := "test.bindings.exchanges.source"
+			dx := "test.bindings.exchanges.destination"
+
+			err = ch.ExchangeDeclare(sx, "topic", false, false, false, false, nil)
+			Ω(err).Should(BeNil())
+			err = ch.ExchangeDeclare(dx, "topic", false, false, false, false, nil)
+			Ω(err).Should(BeNil())
+
+			err = ch.ExchangeBind(dx, "#", sx, false, nil)
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			bindings, err := rmqc.ListExchangeBindingsBetween(vh, sx, dx)
+			Ω(err).Should(BeNil())
+
+			b := bindings[0]
+			Ω(b.Source).Should(Equal(sx))
+			Ω(b.Destination).Should(Equal(dx))
+			Ω(b.RoutingKey).Should(Equal("#"))
+			Ω(b.Vhost).Should(Equal("/"))
+
+			ch.ExchangeDelete(sx, false, false)
+			ch.ExchangeDelete(dx, false, false)
+			ch.Close()
+		})
+	})
+
+	Context("GET /exchanges/{vhost}/{exchange}/bindings/{vertex}", func() {
+		It("returns a list of E2E bindings where the exchange is the source", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+
+			vh := conn.Config.Vhost
+			sx := "test.bindings.exchanges.source"
+			dx := "test.bindings.exchanges.destination"
+
+			err = ch.ExchangeDeclare(sx, "topic", false, false, false, false, nil)
+			Ω(err).Should(BeNil())
+			err = ch.ExchangeDeclare(dx, "topic", false, false, false, false, nil)
+			Ω(err).Should(BeNil())
+
+			err = ch.ExchangeBind(dx, "#", sx, false, nil)
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			bindings, err := rmqc.ListExchangeBindingsWithSource(vh, sx)
+			Ω(err).Should(BeNil())
+
+			b := bindings[0]
+			Ω(b.Source).Should(Equal(sx))
+			Ω(b.Destination).Should(Equal(dx))
+			Ω(b.RoutingKey).Should(Equal("#"))
+			Ω(b.Vhost).Should(Equal("/"))
+
+			ch.ExchangeDelete(sx, false, false)
+			ch.ExchangeDelete(dx, false, false)
+			ch.Close()
+		})
+
+		It("returns a list of E2E bindings where the exchange is the destination", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+
+			vh := conn.Config.Vhost
+			sx := "test.bindings.exchanges.source"
+			dx := "test.bindings.exchanges.destination"
+
+			err = ch.ExchangeDeclare(sx, "topic", false, false, false, false, nil)
+			Ω(err).Should(BeNil())
+			err = ch.ExchangeDeclare(dx, "topic", false, false, false, false, nil)
+			Ω(err).Should(BeNil())
+
+			err = ch.ExchangeBind(dx, "#", sx, false, nil)
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			bindings, err := rmqc.ListExchangeBindingsWithDestination(vh, dx)
+			Ω(err).Should(BeNil())
+
+			b := bindings[0]
+			Ω(b.Source).Should(Equal(sx))
+			Ω(b.Destination).Should(Equal(dx))
+			Ω(b.RoutingKey).Should(Equal("#"))
+			Ω(b.Vhost).Should(Equal("/"))
+
+			ch.ExchangeDelete(sx, false, false)
+			ch.ExchangeDelete(dx, false, false)
+			ch.Close()
+		})
+	})
+
+
 	Context("POST /bindings/{vhost}/e/{source}/e/{destination}", func() {
 		It("declares a binding to an exchange", func() {
 			vh := "rabbit/hole"

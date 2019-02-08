@@ -5,15 +5,15 @@ import (
 	"net/http"
 )
 
-type Target string
+type BindingVertex string
 
 const (
-	SOURCE      Target = "source"
-	DESTINATION Target = "destination"
+	BindingSource      BindingVertex = "source"
+	BindingDestination BindingVertex = "destination"
 )
 
-func (t Target) String() string {
-	return string(t)
+func (v BindingVertex) String() string {
+	return string(v)
 }
 
 //
@@ -118,11 +118,62 @@ func (c *Client) ListQueueBindings(vhost, queue string) (rec []BindingInfo, err 
 }
 
 //
-// GET /api/exchanges/{vhost}/{exchange}/bindings/{target}
+// GET /api/exchanges/{vhost}/{exchange}/bindings/source
 //
+
+func (c *Client) ListExchangeBindingsWithSource(vhost, exchange string) (rec []BindingInfo, err error) {
+	return c.ListExchangeBindings(vhost, exchange, BindingSource)
+}
+
+//
+// GET /api/exchanges/{vhost}/{exchange}/bindings/destination
+//
+
+func (c *Client) ListExchangeBindingsWithDestination(vhost, exchange string) (rec []BindingInfo, err error) {
+	return c.ListExchangeBindings(vhost, exchange, BindingDestination)
+}
+
+//
+// GET /api/exchanges/{vhost}/{exchange}/bindings/{source-or-destination}
+//
+
 // Returns all bindings having the exchange as source or destination as defined by the Target
-func (c *Client) ListExchangeBindings(vhost, exchange string, t Target) (rec []BindingInfo, err error) {
-	req, err := newGETRequest(c, "exchanges/"+PathEscape(vhost)+"/"+PathEscape(exchange)+"/bindings/"+t.String())
+func (c *Client) ListExchangeBindings(vhost, exchange string, sourceOrDestination BindingVertex) (rec []BindingInfo, err error) {
+	req, err := newGETRequest(c, "exchanges/"+PathEscape(vhost)+"/"+PathEscape(exchange)+"/bindings/"+sourceOrDestination.String())
+	if err != nil {
+		return []BindingInfo{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return []BindingInfo{}, err
+	}
+
+	return rec, nil
+}
+
+//
+// GET /api/bindings/{vhost}/e/{source}/e/{destination}
+//
+
+func (c *Client) ListExchangeBindingsBetween(vhost, source string, destination string) (rec []BindingInfo, err error) {
+	req, err := newGETRequest(c, "bindings/"+PathEscape(vhost)+"/e/"+PathEscape(source)+"/e/"+destination)
+	if err != nil {
+		return []BindingInfo{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return []BindingInfo{}, err
+	}
+
+	return rec, nil
+}
+
+//
+// GET /api/bindings/{vhost}/e/{exchange}/q/{queue}
+//
+
+func (c *Client) ListQueueBindingsBetween(vhost, exchange string, queue string) (rec []BindingInfo, err error) {
+	req, err := newGETRequest(c, "bindings/"+PathEscape(vhost)+"/e/"+PathEscape(exchange)+"/q/"+queue)
 	if err != nil {
 		return []BindingInfo{}, err
 	}
