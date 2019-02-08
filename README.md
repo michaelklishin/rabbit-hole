@@ -241,6 +241,10 @@ bs, err := rmqc.ListBindingsIn("/")
 bs, err := rmqc.ListQueueBindings("/", "a.queue")
 // => []BindingInfo, err
 
+// list all bindings having the exchange as source or destination
+bs, err := rmqc.ListExchangeBindings("/", "a.exchange", SOURCE)
+// => []BindingInfo, err
+
 // declare a binding
 resp, err := rmqc.DeclareBinding("/", BindingInfo{
 	Source: "an.exchange",
