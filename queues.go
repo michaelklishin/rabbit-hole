@@ -95,8 +95,8 @@ type QueueInfo struct {
 	OwnerPidDetails OwnerPidDetails `json:"owner_pid_details"`
 
 	BackingQueueStatus BackingQueueStatus `json:"backing_queue_status"`
-	
-	ActiveConsumers int64 `json:"active_consumers"`	
+
+	ActiveConsumers int64 `json:"active_consumers"`
 }
 
 type PagedQueueInfo struct {

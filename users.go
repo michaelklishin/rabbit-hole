@@ -5,9 +5,21 @@ import (
 	"net/http"
 )
 
+type HashingAlgorithm string
+
+const (
+	HashingAlgorithmSHA256 HashingAlgorithm = "rabbit_password_hashing_sha256"
+	HashingAlgorithmSHA512 HashingAlgorithm = "rabbit_password_hashing_sha512"
+
+	// deprecated, provided to support responses that include users created
+	// before RabbitMQ 3.6 and other legacy scenarios. MK.
+	HashingAlgorithmMD5 HashingAlgorithm = "rabbit_password_hashing_md5"
+)
+
 type UserInfo struct {
-	Name         string `json:"name"`
-	PasswordHash string `json:"password_hash"`
+	Name             string `json:"name"`
+	PasswordHash     string `json:"password_hash"`
+	HashingAlgorithm string `json:"hashing_algorithm,omitempty"`
 	// Tags control permissions. Built-in tags: administrator, management, policymaker.
 	Tags string `json:"tags"`
 }
@@ -22,8 +34,9 @@ type UserSettings struct {
 
 	// *never* returned by RabbitMQ. Set by the client
 	// to create/update a user. MK.
-	Password     string `json:"password,omitempty"`
-	PasswordHash string `json:"password_hash,omitempty"`
+	Password         string `json:"password,omitempty"`
+	PasswordHash     string `json:"password_hash,omitempty"`
+	HashingAlgorithm string `json:"hashing_algorithm,omitempty"`
 }
 
 //

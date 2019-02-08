@@ -1,8 +1,11 @@
 package rabbithole
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/url"
 	"strings"
 	"time"
@@ -80,6 +83,25 @@ func awaitEventPropagation() {
 
 type portTestStruct struct {
 	Port Port `json:"port"`
+}
+
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func generateSalt(n int) string {
+	bs := make([]byte, n)
+	for i := range bs {
+		bs[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(bs)
+}
+
+// Produces a salted hash value expected by the HTTP API.
+// See https://www.rabbitmq.com/passwords.html#computing-password-hash
+// for details.
+func base64EncodedSaltedPasswordHash(password string) string {
+	salt := generateSalt(4)
+	hashed := sha256.Sum256([]byte(salt + password))
+	return base64.URLEncoding.EncodeToString([]byte(salt + string(hashed[:])))
 }
 
 var _ = Describe("Rabbithole", func() {
@@ -744,6 +766,28 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
 			Ω(u.Tags).Should(Equal("policymaker,management"))
+		})
+
+		It("updates the user with a password hash and hashing function", func() {
+			username := "rabbithole_hashed"
+			tags := "policymaker,management"
+			info := UserSettings{PasswordHash: base64EncodedSaltedPasswordHash("s3krE7"),
+				HashingAlgorithm: string(HashingAlgorithmSHA256),
+				Tags:             tags}
+			resp, err := rmqc.PutUser(username, info)
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(HavePrefix("20"))
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			u, err := rmqc.GetUser(username)
+			Ω(err).Should(BeNil())
+
+			Ω(u.PasswordHash).ShouldNot(BeNil())
+			Ω(u.PasswordHash).ShouldNot(BeEquivalentTo(""))
+			Ω(u.Tags).Should(Equal(tags))
 		})
 
 		It("updates the user with no password", func() {
