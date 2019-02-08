@@ -7,6 +7,10 @@ import (
 
 type HashingAlgorithm string
 
+func (algo HashingAlgorithm) String() string {
+	return string(algo)
+}
+
 const (
 	HashingAlgorithmSHA256 HashingAlgorithm = "rabbit_password_hashing_sha256"
 	HashingAlgorithmSHA512 HashingAlgorithm = "rabbit_password_hashing_sha512"
@@ -19,7 +23,7 @@ const (
 type UserInfo struct {
 	Name             string `json:"name"`
 	PasswordHash     string `json:"password_hash"`
-	HashingAlgorithm string `json:"hashing_algorithm,omitempty"`
+	HashingAlgorithm HashingAlgorithm `json:"hashing_algorithm,omitempty"`
 	// Tags control permissions. Built-in tags: administrator, management, policymaker.
 	Tags string `json:"tags"`
 }
@@ -36,7 +40,7 @@ type UserSettings struct {
 	// to create/update a user. MK.
 	Password         string `json:"password,omitempty"`
 	PasswordHash     string `json:"password_hash,omitempty"`
-	HashingAlgorithm string `json:"hashing_algorithm,omitempty"`
+	HashingAlgorithm HashingAlgorithm `json:"hashing_algorithm,omitempty"`
 }
 
 //

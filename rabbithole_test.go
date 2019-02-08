@@ -750,7 +750,7 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
-	Context("PUT /users/{name}", func() {
+	FContext("PUT /users/{name}", func() {
 		It("updates the user", func() {
 			info := UserSettings{Password: "s3krE7", Tags: "policymaker, management"}
 			resp, err := rmqc.PutUser("rabbithole", info)
@@ -772,7 +772,7 @@ var _ = Describe("Rabbithole", func() {
 			username := "rabbithole_hashed"
 			tags := "policymaker,management"
 			info := UserSettings{PasswordHash: base64EncodedSaltedPasswordHashSHA256("s3krE7"),
-				HashingAlgorithm: string(HashingAlgorithmSHA256),
+				HashingAlgorithm: HashingAlgorithmSHA256,
 				Tags:             tags}
 			resp, err := rmqc.PutUser(username, info)
 			Ω(err).Should(BeNil())
