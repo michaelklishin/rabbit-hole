@@ -750,7 +750,7 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
-	FContext("PUT /users/{name}", func() {
+	Context("PUT /users/{name}", func() {
 		It("updates the user", func() {
 			info := UserSettings{Password: "s3krE7", Tags: "policymaker, management"}
 			resp, err := rmqc.PutUser("rabbithole", info)
