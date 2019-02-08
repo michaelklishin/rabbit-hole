@@ -9,6 +9,8 @@ all: test
 test: install-dependencies
 	go test -race -v
 
+tests: test
+
 test_only:
 	go test -race -v
 
