@@ -15,7 +15,6 @@ import (
 	"github.com/streadway/amqp"
 )
 
-// TODO: extract duplication between these
 func FindQueueByName(sl []QueueInfo, name string) (q QueueInfo) {
 	for _, i := range sl {
 		if name == i.Name {
