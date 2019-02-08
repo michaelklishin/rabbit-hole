@@ -98,7 +98,7 @@ func generateSalt(n int) string {
 // Produces a salted hash value expected by the HTTP API.
 // See https://www.rabbitmq.com/passwords.html#computing-password-hash
 // for details.
-func base64EncodedSaltedPasswordHash(password string) string {
+func base64EncodedSaltedPasswordHashSHA256(password string) string {
 	salt := generateSalt(4)
 	hashed := sha256.Sum256([]byte(salt + password))
 	return base64.URLEncoding.EncodeToString([]byte(salt + string(hashed[:])))
@@ -771,7 +771,7 @@ var _ = Describe("Rabbithole", func() {
 		It("updates the user with a password hash and hashing function", func() {
 			username := "rabbithole_hashed"
 			tags := "policymaker,management"
-			info := UserSettings{PasswordHash: base64EncodedSaltedPasswordHash("s3krE7"),
+			info := UserSettings{PasswordHash: base64EncodedSaltedPasswordHashSHA256("s3krE7"),
 				HashingAlgorithm: string(HashingAlgorithmSHA256),
 				Tags:             tags}
 			resp, err := rmqc.PutUser(username, info)
