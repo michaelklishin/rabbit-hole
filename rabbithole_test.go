@@ -3,12 +3,12 @@ package rabbithole
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"strings"
-	"time"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/streadway/amqp"
+	"net/url"
+	"strings"
+	"time"
 )
 
 func FindQueueByName(sl []QueueInfo, name string) (q QueueInfo) {
@@ -79,8 +79,6 @@ func awaitEventPropagation() {
 type portTestStruct struct {
 	Port Port `json:"port"`
 }
-
-
 
 var _ = Describe("Rabbithole", func() {
 	var (
