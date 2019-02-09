@@ -21,8 +21,8 @@ const (
 )
 
 type UserInfo struct {
-	Name             string `json:"name"`
-	PasswordHash     string `json:"password_hash"`
+	Name             string           `json:"name"`
+	PasswordHash     string           `json:"password_hash"`
 	HashingAlgorithm HashingAlgorithm `json:"hashing_algorithm,omitempty"`
 	// Tags control permissions. Built-in tags: administrator, management, policymaker.
 	Tags string `json:"tags"`
@@ -38,8 +38,8 @@ type UserSettings struct {
 
 	// *never* returned by RabbitMQ. Set by the client
 	// to create/update a user. MK.
-	Password         string `json:"password,omitempty"`
-	PasswordHash     string `json:"password_hash,omitempty"`
+	Password         string           `json:"password,omitempty"`
+	PasswordHash     string           `json:"password_hash,omitempty"`
 	HashingAlgorithm HashingAlgorithm `json:"hashing_algorithm,omitempty"`
 }
 

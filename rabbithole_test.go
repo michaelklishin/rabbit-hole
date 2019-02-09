@@ -1026,8 +1026,8 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			vh := conn.Config.Vhost
-			x  := "test.bindings.x30"
-			q  := "test.bindings.q30"
+			x := "test.bindings.x30"
+			q := "test.bindings.q30"
 
 			err = ch.ExchangeDeclare(x, "topic", false, false, false, false, nil)
 			Ω(err).Should(BeNil())
@@ -1158,7 +1158,6 @@ var _ = Describe("Rabbithole", func() {
 			ch.Close()
 		})
 	})
-
 
 	Context("POST /bindings/{vhost}/e/{source}/e/{destination}", func() {
 		It("declares a binding to an exchange", func() {
