@@ -154,7 +154,7 @@ resp, err := rmqc.DeleteUser("my.user")
 // => *http.Response, err
 ```
 
-```
+``` go
 // creates or updates individual user with a SHA256 password hash
 hash := SaltedPasswordHashSHA256("password-s3krE7")
 resp, err := rmqc.PutUser("my.user", UserSettings{
