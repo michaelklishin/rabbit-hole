@@ -24,6 +24,12 @@ a reasonable version bump.
 It is largely (80-90%) feature complete and decently documented.
 
 
+## Change Log
+
+If upgrading from an earlier release, please consult with
+the [change log](https://github.com/michaelklishin/rabbit-hole/blob/master/ChangeLog.md).
+
+
 ## Installation
 
 ```
