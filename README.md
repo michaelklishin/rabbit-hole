@@ -341,7 +341,7 @@ rmqc, err := NewTLSClient("https://127.0.0.1:15672", "guest", "guest", transport
 ### Changing Transport Layer
 
 ``` go
-var transport *http.Transport
+var transport http.RoundTripper
 
 ...
 
