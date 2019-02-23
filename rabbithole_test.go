@@ -1292,6 +1292,99 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("GET /topic-permissions", func() {
+		It("returns decoded response", func() {
+			u := "temporary"
+
+			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
+			Ω(err).Should(BeNil())
+
+			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
+			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
+
+			awaitEventPropagation()
+
+			xs, err := rmqc.ListTopicPermissions()
+			Ω(err).Should(BeNil())
+
+			x := xs[0]
+			Ω(x.User).ShouldNot(BeNil())
+			Ω(x.Vhost).ShouldNot(BeNil())
+
+			Ω(x.Exchange).ShouldNot(BeNil())
+			Ω(x.Write).ShouldNot(BeNil())
+			Ω(x.Read).ShouldNot(BeNil())
+
+			rmqc.DeleteUser(u)
+		})
+	})
+
+	Context("GET /users/{name}/topic-permissions", func() {
+		It("returns decoded response", func() {
+			u := "temporary"
+
+			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
+			Ω(err).Should(BeNil())
+
+			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
+			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
+
+			awaitEventPropagation()
+
+			xs, err := rmqc.ListTopicPermissionsOf("temporary")
+			Ω(err).Should(BeNil())
+
+			x := xs[0]
+			Ω(x.User).ShouldNot(BeNil())
+			Ω(x.Vhost).ShouldNot(BeNil())
+
+			Ω(x.Exchange).ShouldNot(BeNil())
+			Ω(x.Write).ShouldNot(BeNil())
+			Ω(x.Read).ShouldNot(BeNil())
+
+			rmqc.DeleteUser(u)
+		})
+	})
+
+	Context("PUT /topic-permissions/{vhost}/{user}", func() {
+		It("updates topic permissions", func() {
+			u := "temporary"
+
+			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
+			Ω(err).Should(BeNil())
+
+			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
+			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
+
+			awaitEventPropagation()
+			fetched, err := rmqc.GetTopicPermissionsIn("/", u)
+			Ω(err).Should(BeNil())
+			x := fetched[0]
+			Ω(x.Exchange).Should(Equal(permissions.Exchange))
+			Ω(x.Write).Should(Equal(permissions.Write))
+			Ω(x.Read).Should(Equal(permissions.Read))
+
+			rmqc.DeleteUser(u)
+		})
+	})
+
+	Context("DELETE /topic-permissions/{vhost}/{user}", func() {
+		It("clears topic permissions", func() {
+			u := "temporary"
+
+			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
+			Ω(err).Should(BeNil())
+
+			awaitEventPropagation()
+			_, err = rmqc.ClearTopicPermissionsIn("/", u)
+			awaitEventPropagation()
+			_, err = rmqc.GetTopicPermissionsIn("/", u)
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+
+			rmqc.DeleteUser(u)
+		})
+	})
+
 	Context("PUT /exchanges/{vhost}/{exchange}", func() {
 		It("declares an exchange", func() {
 			vh := "rabbit/hole"
