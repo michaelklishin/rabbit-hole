@@ -24,7 +24,7 @@ type TopicPermissionInfo struct {
 	Read string `json:"read"`
 }
 
-// Returns topic-permissions for all users and virtual hosts.
+// ListTopicPermissions returns topic-permissions for all users and virtual hosts.
 func (c *Client) ListTopicPermissions() (rec []TopicPermissionInfo, err error) {
 	req, err := newGETRequest(c, "topic-permissions/")
 	if err != nil {
@@ -42,7 +42,7 @@ func (c *Client) ListTopicPermissions() (rec []TopicPermissionInfo, err error) {
 // GET /api/users/{user}/topic-permissions
 //
 
-// Returns topic-permissions of a specific user.
+// ListTopicPermissionsOf returns topic-permissions of a specific user.
 func (c *Client) ListTopicPermissionsOf(username string) (rec []TopicPermissionInfo, err error) {
 	req, err := newGETRequest(c, "users/"+PathEscape(username)+"/topic-permissions")
 	if err != nil {
@@ -60,7 +60,7 @@ func (c *Client) ListTopicPermissionsOf(username string) (rec []TopicPermissionI
 // GET /api/topic-permissions/{vhost}/{user}
 //
 
-// Returns topic-permissions of user in virtual host.
+// GetTopicPermissionsIn returns topic-permissions of user in virtual host.
 func (c *Client) GetTopicPermissionsIn(vhost, username string) (rec []TopicPermissionInfo, err error) {
 	req, err := newGETRequest(c, "topic-permissions/"+PathEscape(vhost)+"/"+PathEscape(username))
 	if err != nil {
@@ -108,7 +108,7 @@ func (c *Client) UpdateTopicPermissionsIn(vhost, username string, TopicPermissio
 // DELETE /api/topic-permissions/{vhost}/{user}
 //
 
-// Clears (deletes) topic-permissions of user in virtual host.
+// ClearTopicPermissionsIn clears (deletes) topic-permissions of user in virtual host.
 func (c *Client) ClearTopicPermissionsIn(vhost, username string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "topic-permissions/"+PathEscape(vhost)+"/"+PathEscape(username), nil)
 	if err != nil {
