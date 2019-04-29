@@ -4,7 +4,7 @@ This library is a [RabbitMQ HTTP API](https://raw.githack.com/rabbitmq/rabbitmq-
 
 ## Supported Go Versions
 
-Rabbit Hole supports 3 most recent Go releases.
+Rabbit Hole supports the last 2 stable Go versions, as well as the version in development (a.k.a. master).
 
 
 ## Supported RabbitMQ Versions
