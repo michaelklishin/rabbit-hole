@@ -21,3 +21,10 @@ cover:
 ginkgo:
 	command -v ginkgo || go install github.com/onsi/ginkgo/ginkgo
 	ginkgo -race -v
+
+.PHONY: docker
+docker:
+	docker run --rm \
+	  --interactive --tty --entrypoint /bin/bash \
+	  --volume $(CURDIR):/usr/src/app --workdir /usr/src/app \
+	  golang:1.12
