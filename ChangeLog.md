@@ -1,6 +1,22 @@
-## Changes Between 1.5.0 and 1.6.0 (unreleased)
+## Changes Between 1.5.0 and 2.0.0 (unreleased)
 
-No changes yet.
+### Go 1.9 and 1.10 Support Dropped
+
+This library now only supports Go 1.11 and 1.12 (two most recent minor GA releases).
+
+### http.Transport Replaced by http.RoundTripper
+
+HTTP client configuration now uses `http.RoundTripper`.
+
+GitHub issue: [#123](https://github.com/michaelklishin/rabbit-hole/pull/123).
+
+Contributed by Radek Simko.
+
+### Go Modules Support
+
+GitHub issues: [#124](https://github.com/michaelklishin/rabbit-hole/pull/124), [#128](https://github.com/michaelklishin/rabbit-hole/pull/128).
+
+Contributed by Radek Simko and Gerhard Lazu.
 
 
 ## Changes Between 1.4.0 and 1.5.0 (February 13th, 2019)
