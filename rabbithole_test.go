@@ -152,6 +152,8 @@ var _ = Describe("Rabbithole", func() {
 			Ω(res.MessageStats.DeliverNoAckDetails.Rate).Should(BeNumerically(">=", 0))
 			Ω(res.MessageStats.DeliverGetDetails).ShouldNot(BeNil())
 			Ω(res.MessageStats.DeliverGetDetails.Rate).Should(BeNumerically(">=", 0))
+			Ω(res.MessageStats.ReturnUnroutable).ShouldNot(BeNil())
+			Ω(res.MessageStats.ReturnUnroutableDetails.Rate).Should(BeNumerically(">=", 0))
 
 			// there are at least 4 exchange types, the built-in ones
 			Ω(len(res.ExchangeTypes)).Should(BeNumerically(">=", 4))
