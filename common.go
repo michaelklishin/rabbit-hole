@@ -65,4 +65,6 @@ type MessageStats struct {
 	AckDetails              RateDetails `json:"ack_details"`
 	ReturnUnroutable        int64       `json:"return_unroutable"`
 	ReturnUnroutableDetails RateDetails `json:"return_unroutable_details"`
+	DropUnroutable          int64       `json:"drop_unroutable"`
+	DropUnroutableDetails   RateDetails `json:"drop_unroutable_details"`
 }
