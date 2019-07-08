@@ -57,7 +57,7 @@ type QueueInfo struct {
 	// RabbitMQ node that hosts master for this queue
 	Node string `json:"node"`
 	// Queue status
-	Status string `json:"status"`
+	Status string `json:"state"`
 
 	// Total amount of RAM used by this queue
 	Memory int64 `json:"memory"`

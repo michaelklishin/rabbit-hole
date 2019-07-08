@@ -522,7 +522,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(q.Name).ShouldNot(Equal(""))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
-			Ω(q.Status).ShouldNot(BeNil())
+			Ω(q.Status).ShouldNot(BeEmpty())
 		})
 	})
 
@@ -559,7 +559,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(q.Name).ShouldNot(Equal(""))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
-			Ω(q.Status).ShouldNot(BeNil())
+			Ω(q.Status).ShouldNot(BeEmpty())
 			Ω(q.MessagesDetails.Samples[0]).ShouldNot(BeNil())
 		})
 	})
@@ -596,7 +596,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(q.Name).ShouldNot(Equal(""))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
-			Ω(q.Status).ShouldNot(BeNil())
+			Ω(q.Status).ShouldNot(BeEmpty())
 			Ω(qs.Page).Should(Equal(1))
 			Ω(qs.PageCount).Should(Equal(1))
 			Ω(qs.ItemCount).ShouldNot(BeNil())
@@ -635,7 +635,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(q.Name).Should(Equal("q2"))
 			Ω(q.Vhost).Should(Equal("rabbit/hole"))
 			Ω(q.Durable).Should(Equal(false))
-			Ω(q.Status).ShouldNot(BeNil())
+			Ω(q.Status).ShouldNot(BeEmpty())
 		})
 	})
 
@@ -666,7 +666,7 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(q.Vhost).Should(Equal("rabbit/hole"))
 			Ω(q.Durable).Should(Equal(false))
-			Ω(q.Status).ShouldNot(BeNil())
+			Ω(q.Status).ShouldNot(BeEmpty())
 		})
 	})
 
