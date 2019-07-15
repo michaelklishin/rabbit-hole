@@ -150,7 +150,7 @@ func (c *Client) ListExchangeBindingsBetween(vhost, source string, destination s
 //
 
 func (c *Client) ListQueueBindingsBetween(vhost, exchange string, queue string) (rec []BindingInfo, err error) {
-	return c.listBindingsVia("bindings/" + PathEscape(vhost) + "/e/" + PathEscape(exchange) + "/q/" + queue)
+	return c.listBindingsVia("bindings/" + PathEscape(vhost) + "/e/" + PathEscape(exchange) + "/q/" + PathEscape(queue))
 }
 
 //

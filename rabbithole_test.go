@@ -1006,7 +1006,7 @@ var _ = Describe("Rabbithole", func() {
 
 			vh := conn.Config.Vhost
 			x := "test.bindings.x30"
-			q := "test.bindings.q30"
+			q := "test.bindings.q|30"
 
 			err = ch.ExchangeDeclare(x, "topic", false, false, false, false, nil)
 			Ω(err).Should(BeNil())
