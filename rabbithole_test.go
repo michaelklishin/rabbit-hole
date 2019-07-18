@@ -1685,7 +1685,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			// create new Policy
-			new_policy := Policy{
+			newPolicy := Policy{
 				Pattern: "\\d+",
 				ApplyTo: "all",
 				Definition: PolicyDefinition{
@@ -1697,7 +1697,7 @@ var _ = Describe("Rabbithole", func() {
 			}
 
 			// update old Policy
-			resp, err := rmqc.PutPolicy("/", "woot2", new_policy)
+			resp, err := rmqc.PutPolicy("/", "woot2", newPolicy)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 

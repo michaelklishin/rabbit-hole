@@ -6,7 +6,8 @@ import (
 	"net/url"
 )
 
-// Information about backing queue (queue storage engine).
+// BackingQueueStatus exposes backing queue (queue storage engine) metrics.
+// They can change in a future version of RabbitMQ.
 type BackingQueueStatus struct {
 	Q1 int `json:"q1"`
 	Q2 int `json:"q2"`
@@ -36,12 +37,14 @@ type BackingQueueStatus struct {
 	AverageAckEgressRate float32 `json:"avg_ack_egress_rate"`
 }
 
+// OwnerPidDetails describes an exclusive queue owner (connection).
 type OwnerPidDetails struct {
 	Name     string `json:"name"`
 	PeerPort Port   `json:"peer_port"`
 	PeerHost string `json:"peer_host"`
 }
 
+// QueueInfo represents a queue, its properties and key metrics.
 type QueueInfo struct {
 	// Queue name
 	Name string `json:"name"`
@@ -99,6 +102,7 @@ type QueueInfo struct {
 	ActiveConsumers int64 `json:"active_consumers"`
 }
 
+// PagedQueueInfo is additional context returned for paginated requests.
 type PagedQueueInfo struct {
 	Page          int         `json:"page"`
 	PageCount     int         `json:"page_count"`
@@ -109,6 +113,7 @@ type PagedQueueInfo struct {
 	Items         []QueueInfo `json:"items"`
 }
 
+// DetailedQueueInfo is an alias for QueueInfo
 type DetailedQueueInfo QueueInfo
 
 //
@@ -179,6 +184,8 @@ type DetailedQueueInfo QueueInfo
 //   }
 // ]
 
+// ListQueues lists all queues in the cluster. This only includes queues in the
+// virtual hosts accessible to the user.
 func (c *Client) ListQueues() (rec []QueueInfo, err error) {
 	req, err := newGETRequest(c, "queues")
 	if err != nil {
@@ -192,6 +199,7 @@ func (c *Client) ListQueues() (rec []QueueInfo, err error) {
 	return rec, nil
 }
 
+// ListQueuesWithParameters lists queues with a list of query string values.
 func (c *Client) ListQueuesWithParameters(params url.Values) (rec []QueueInfo, err error) {
 	req, err := newGETRequestWithParameters(c, "queues", params)
 	if err != nil {
@@ -205,6 +213,7 @@ func (c *Client) ListQueuesWithParameters(params url.Values) (rec []QueueInfo, e
 	return rec, nil
 }
 
+// PagedListQueuesWithParameters lists queues with pagination.
 func (c *Client) PagedListQueuesWithParameters(params url.Values) (rec PagedQueueInfo, err error) {
 	req, err := newGETRequestWithParameters(c, "queues", params)
 	if err != nil {
@@ -223,6 +232,7 @@ func (c *Client) PagedListQueuesWithParameters(params url.Values) (rec PagedQueu
 // GET /api/queues/{vhost}
 //
 
+// ListQueuesIn lists all queues in a virtual host.
 func (c *Client) ListQueuesIn(vhost string) (rec []QueueInfo, err error) {
 	req, err := newGETRequest(c, "queues/"+url.PathEscape(vhost))
 	if err != nil {
@@ -240,6 +250,7 @@ func (c *Client) ListQueuesIn(vhost string) (rec []QueueInfo, err error) {
 // GET /api/queues/{vhost}/{name}
 //
 
+// GetQueue returns information about a queue.
 func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err error) {
 	req, err := newGETRequest(c, "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue))
 
@@ -257,6 +268,8 @@ func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err erro
 //
 // GET /api/queues/{vhost}/{name}?{query}
 
+// GetQueueWithParameters returns information about a queue. Compared to the regular GetQueue function,
+// this one accepts additional query string values.
 func (c *Client) GetQueueWithParameters(vhost, queue string, qs url.Values) (rec *DetailedQueueInfo, err error) {
 	req, err := newGETRequestWithParameters(c, "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue), qs)
 	if err != nil {
@@ -274,6 +287,7 @@ func (c *Client) GetQueueWithParameters(vhost, queue string, qs url.Values) (rec
 // PUT /api/exchanges/{vhost}/{exchange}
 //
 
+// QueueSettings represents queue properties. Use it to declare a queue.
 type QueueSettings struct {
 	Type       string                 `json:"type"`
 	Durable    bool                   `json:"durable"`
@@ -281,6 +295,7 @@ type QueueSettings struct {
 	Arguments  map[string]interface{} `json:"arguments,omitempty"`
 }
 
+// DeclareQueue declares a queue.
 func (c *Client) DeclareQueue(vhost, queue string, info QueueSettings) (res *http.Response, err error) {
 	if info.Arguments == nil {
 		info.Arguments = make(map[string]interface{})
@@ -306,6 +321,7 @@ func (c *Client) DeclareQueue(vhost, queue string, info QueueSettings) (res *htt
 // DELETE /api/queues/{vhost}/{name}
 //
 
+// DeleteQueue deletes a queue.
 func (c *Client) DeleteQueue(vhost, queue string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue), nil)
 	if err != nil {
@@ -323,6 +339,7 @@ func (c *Client) DeleteQueue(vhost, queue string) (res *http.Response, err error
 // DELETE /api/queues/{vhost}/{name}/contents
 //
 
+// PurgeQueue purges a queue (deletes all messages ready for delivery in it).
 func (c *Client) PurgeQueue(vhost, queue string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue)+"/contents", nil)
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"net/url"
 )
 
-// Brief (very incomplete) connection information.
+// BriefConnectionDetails represents a brief (very incomplete) subset of connection information.
 type BriefConnectionDetails struct {
 	// Connection name
 	Name string `json:"name"`
@@ -14,6 +14,7 @@ type BriefConnectionDetails struct {
 	PeerHost string `json:"peer_host"`
 }
 
+// ChannelInfo represents an AMQP 0-9-1 channel.
 type ChannelInfo struct {
 	// Channel number
 	Number int `json:"number"`

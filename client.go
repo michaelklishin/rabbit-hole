@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Client for interaction with RabbitMQ HTTP API.
 type Client struct {
 	// URI of a RabbitMQ node to use, not including the path, e.g. http://127.0.0.1:15672.
 	Endpoint string
@@ -21,6 +22,7 @@ type Client struct {
 	timeout   time.Duration
 }
 
+// NewClient instantiates a client.
 func NewClient(uri string, username string, password string) (me *Client, err error) {
 	u, err := url.Parse(uri)
 	if err != nil {
@@ -37,7 +39,7 @@ func NewClient(uri string, username string, password string) (me *Client, err er
 	return me, nil
 }
 
-// Creates a client with a transport; it is up to the developer to make that layer secure.
+// NewTLSClient instantiates a client with a transport; it is up to the developer to make that layer secure.
 func NewTLSClient(uri string, username string, password string, transport http.RoundTripper) (me *Client, err error) {
 	u, err := url.Parse(uri)
 	if err != nil {
@@ -55,7 +57,7 @@ func NewTLSClient(uri string, username string, password string, transport http.R
 	return me, nil
 }
 
-//SetTransport changes the Transport Layer that the Client will use.
+// SetTransport changes the Transport Layer that the Client will use.
 func (c *Client) SetTransport(transport http.RoundTripper) {
 	c.transport = transport
 }

@@ -49,6 +49,7 @@ import (
 //   }
 // ]
 
+// VhostInfo represents a virtual host, its properties and key metrics.
 type VhostInfo struct {
 	// Virtual host name
 	Name string `json:"name"`
@@ -114,13 +115,13 @@ func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
 // PUT /api/vhosts/{name}
 //
 
-// Settings used to create or modify virtual hosts.
+// VhostSettings are properties used to create or modify virtual hosts.
 type VhostSettings struct {
 	// True if tracing should be enabled.
 	Tracing bool `json:"tracing"`
 }
 
-// Creates or updates a virtual host.
+// PutVhost creates or updates a virtual host.
 func (c *Client) PutVhost(vhostname string, settings VhostSettings) (res *http.Response, err error) {
 	body, err := json.Marshal(settings)
 	if err != nil {
@@ -143,7 +144,7 @@ func (c *Client) PutVhost(vhostname string, settings VhostSettings) (res *http.R
 // DELETE /api/vhosts/{name}
 //
 
-// Deletes a virtual host.
+// DeleteVhost deletes a virtual host.
 func (c *Client) DeleteVhost(vhostname string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "vhosts/"+url.PathEscape(vhostname), nil)
 	if err != nil {

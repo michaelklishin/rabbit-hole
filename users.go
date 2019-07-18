@@ -10,6 +10,8 @@ import (
 	"net/url"
 )
 
+// HashingAlgorithm represents a hashing algorithm used
+// by RabbitMQ's an internal authentication backend.
 type HashingAlgorithm string
 
 func (algo HashingAlgorithm) String() string {
@@ -17,14 +19,19 @@ func (algo HashingAlgorithm) String() string {
 }
 
 const (
+	// HashingAlgorithmSHA256 sets password hashing algorithm to SHA-256.
 	HashingAlgorithmSHA256 HashingAlgorithm = "rabbit_password_hashing_sha256"
+	// HashingAlgorithmSHA512 sets password hashing algorithm to SHA-512.
 	HashingAlgorithmSHA512 HashingAlgorithm = "rabbit_password_hashing_sha512"
 
-	// deprecated, provided to support responses that include users created
-	// before RabbitMQ 3.6 and other legacy scenarios. MK.
+	// HashingAlgorithmMD5 provided to support responses that include users created
+	// before RabbitMQ 3.6 and other legacy scenarios. This algorithm is
+	// deprecated.
 	HashingAlgorithmMD5 HashingAlgorithm = "rabbit_password_hashing_md5"
 )
 
+// UserInfo represents a user record. Only relevant when internal authentication
+// backend is used.
 type UserInfo struct {
 	Name             string           `json:"name"`
 	PasswordHash     string           `json:"password_hash"`
@@ -33,7 +40,8 @@ type UserInfo struct {
 	Tags string `json:"tags"`
 }
 
-// Settings used to create users. Tags must be comma-separated.
+// UserSettings represents properties of a user. Used to create users.
+// Tags must be comma-separated.
 type UserSettings struct {
 	Name string `json:"name"`
 	// Tags control permissions. Administrator grants full
@@ -91,7 +99,7 @@ func (c *Client) GetUser(username string) (rec *UserInfo, err error) {
 // PUT /api/users/{name}
 //
 
-// Updates information about individual user.
+// PutUser updates information about an individual user.
 func (c *Client) PutUser(username string, info UserSettings) (res *http.Response, err error) {
 	body, err := json.Marshal(info)
 	if err != nil {
@@ -110,6 +118,9 @@ func (c *Client) PutUser(username string, info UserSettings) (res *http.Response
 	return res, nil
 }
 
+// PutUserWithoutPassword creates a passwordless user. Such users can only authenticate
+// using an X.509 certificate or another authentication mechanism (or backend) that does not
+// use passwords..
 func (c *Client) PutUserWithoutPassword(username string, info UserSettings) (res *http.Response, err error) {
 	body, err := json.Marshal(UserInfo{Tags: info.Tags})
 	if err != nil {
@@ -132,7 +143,7 @@ func (c *Client) PutUserWithoutPassword(username string, info UserSettings) (res
 // DELETE /api/users/{name}
 //
 
-// Deletes user.
+// DeleteUser deletes a user by name.
 func (c *Client) DeleteUser(username string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "users/"+url.PathEscape(username), nil)
 	if err != nil {
@@ -152,6 +163,10 @@ func (c *Client) DeleteUser(username string) (res *http.Response, err error) {
 
 const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+// GenerateSalt generates a password salt. Used to compute password hashes
+// when creating or updating user information.
+// See https://www.rabbitmq.com/passwords.html#computing-password-hash
+// for details.
 func GenerateSalt(n int) string {
 	bs := make([]byte, n)
 	for i := range bs {
@@ -160,13 +175,17 @@ func GenerateSalt(n int) string {
 	return string(bs)
 }
 
+// SaltedPasswordHashSHA256 is used to compute SHA-256 password hashes
+// when creating or updating user information.
+// See https://www.rabbitmq.com/passwords.html#computing-password-hash
+// for details.
 func SaltedPasswordHashSHA256(password string) (string, string) {
 	salt := GenerateSalt(4)
 	hashed := sha256.Sum256([]byte(salt + password))
 	return salt, string(hashed[:])
 }
 
-// Produces a salted hash value expected by the HTTP API.
+// Base64EncodedSaltedPasswordHashSHA256 produces a salted hash value expected by the HTTP API.
 // See https://www.rabbitmq.com/passwords.html#computing-password-hash
 // for details.
 func Base64EncodedSaltedPasswordHashSHA256(password string) string {
@@ -174,12 +193,19 @@ func Base64EncodedSaltedPasswordHashSHA256(password string) string {
 	return base64.URLEncoding.EncodeToString([]byte(salt + saltedHash))
 }
 
+// SaltedPasswordHashSHA512 is used to compute SHA-512 password hashes
+// when creating or updating user information.
+// See https://www.rabbitmq.com/passwords.html#computing-password-hash
+// for details.
 func SaltedPasswordHashSHA512(password string) (string, string) {
 	salt := GenerateSalt(4)
 	hashed := sha512.Sum512([]byte(salt + password))
 	return salt, string(hashed[:])
 }
 
+// Base64EncodedSaltedPasswordHashSHA512 produces a salted hash value expected by the HTTP API.
+// See https://www.rabbitmq.com/passwords.html#computing-password-hash
+// for details.
 func Base64EncodedSaltedPasswordHashSHA512(password string) string {
 	salt, saltedHash := SaltedPasswordHashSHA512(password)
 	return base64.URLEncoding.EncodeToString([]byte(salt + saltedHash))

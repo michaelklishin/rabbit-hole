@@ -10,9 +10,7 @@ import (
 // GET /api/topic-permissions
 //
 
-// Example response:
-//
-// [{"user":"guest","vhost":"/","exchange":".*","write":".*","read":".*"}]
+// TopicPermissionInfo represents a user's permissions on a topic.
 type TopicPermissionInfo struct {
 	User  string `json:"user"`
 	Vhost string `json:"vhost"`
@@ -79,13 +77,14 @@ func (c *Client) GetTopicPermissionsIn(vhost, username string) (rec []TopicPermi
 // PUT /api/topic-permissions/{vhost}/{user}
 //
 
+// TopicPermissions represents a user's permissions on a topic.
 type TopicPermissions struct {
 	Exchange string `json:"exchange"`
 	Write    string `json:"write"`
 	Read     string `json:"read"`
 }
 
-// Updates topic-permissions of user in virtual host.
+// UpdateTopicPermissionsIn updates topic-permissions of user in virtual host.
 func (c *Client) UpdateTopicPermissionsIn(vhost, username string, TopicPermissions TopicPermissions) (res *http.Response, err error) {
 	body, err := json.Marshal(TopicPermissions)
 	if err != nil {

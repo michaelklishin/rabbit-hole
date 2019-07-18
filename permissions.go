@@ -10,10 +10,7 @@ import (
 // GET /api/permissions
 //
 
-// Example response:
-//
-// [{"user":"guest","vhost":"/","configure":".*","write":".*","read":".*"}]
-
+// PermissionInfo represents a user's permission in a virtual host.
 type PermissionInfo struct {
 	User  string `json:"user"`
 	Vhost string `json:"vhost"`
@@ -80,13 +77,15 @@ func (c *Client) GetPermissionsIn(vhost, username string) (rec PermissionInfo, e
 // PUT /api/permissions/{vhost}/{user}
 //
 
+// Permissions represents permissions of a user in a virtual host. Use this type to set
+// permissions of the user.
 type Permissions struct {
 	Configure string `json:"configure"`
 	Write     string `json:"write"`
 	Read      string `json:"read"`
 }
 
-// Updates permissions of user in virtual host.
+// UpdatePermissionsIn sets permissions of a user in a virtual host.
 func (c *Client) UpdatePermissionsIn(vhost, username string, permissions Permissions) (res *http.Response, err error) {
 	body, err := json.Marshal(permissions)
 	if err != nil {
