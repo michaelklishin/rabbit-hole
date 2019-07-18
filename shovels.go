@@ -113,8 +113,7 @@ func (c *Client) DeclareShovel(vhost, shovel string, info ShovelDefinition) (res
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -132,8 +131,7 @@ func (c *Client) DeleteShovel(vhost, shovel string) (res *http.Response, err err
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

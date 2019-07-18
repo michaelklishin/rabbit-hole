@@ -118,16 +118,14 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 
 	if res.StatusCode >= http.StatusBadRequest {
 		rme := ErrorResponse{}
-		err = json.NewDecoder(res.Body).Decode(&rme)
-		if err != nil {
+		if err = json.NewDecoder(res.Body).Decode(&rme); err != nil {
 			return fmt.Errorf("Error %d from RabbitMQ: %s", res.StatusCode, err)
 		}
 		rme.StatusCode = res.StatusCode
 		return rme
 	}
 
-	err = json.NewDecoder(res.Body).Decode(&rec)
-	if err != nil {
+	if err = json.NewDecoder(res.Body).Decode(&rec); err != nil {
 		return err
 	}
 

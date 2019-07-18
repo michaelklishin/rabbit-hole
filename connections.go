@@ -122,8 +122,7 @@ func (c *Client) CloseConnection(name string) (res *http.Response, err error) {
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

@@ -99,8 +99,7 @@ func (c *Client) PutPolicy(vhost string, name string, policy Policy) (res *http.
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -118,8 +117,7 @@ func (c *Client) DeletePolicy(vhost, name string) (res *http.Response, err error
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

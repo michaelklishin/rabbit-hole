@@ -98,8 +98,7 @@ func (c *Client) UpdatePermissionsIn(vhost, username string, permissions Permiss
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -117,8 +116,7 @@ func (c *Client) ClearPermissionsIn(vhost, username string) (res *http.Response,
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

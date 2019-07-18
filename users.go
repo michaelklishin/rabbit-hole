@@ -103,8 +103,7 @@ func (c *Client) PutUser(username string, info UserSettings) (res *http.Response
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -122,8 +121,7 @@ func (c *Client) PutUserWithoutPassword(username string, info UserSettings) (res
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -141,8 +139,7 @@ func (c *Client) DeleteUser(username string) (res *http.Response, err error) {
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

@@ -132,8 +132,7 @@ func (c *Client) PutVhost(vhostname string, settings VhostSettings) (res *http.R
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -151,8 +150,7 @@ func (c *Client) DeleteVhost(vhostname string) (res *http.Response, err error) {
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

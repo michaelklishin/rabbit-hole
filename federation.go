@@ -46,8 +46,7 @@ func (c *Client) PutFederationUpstream(vhost string, upstreamName string, fDef F
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -65,8 +64,7 @@ func (c *Client) DeleteFederationUpstream(vhost, upstreamName string) (res *http
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

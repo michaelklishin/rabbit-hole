@@ -295,8 +295,7 @@ func (c *Client) DeclareQueue(vhost, queue string, info QueueSettings) (res *htt
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -313,8 +312,7 @@ func (c *Client) DeleteQueue(vhost, queue string) (res *http.Response, err error
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -331,8 +329,7 @@ func (c *Client) PurgeQueue(vhost, queue string) (res *http.Response, err error)
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

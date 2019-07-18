@@ -193,8 +193,7 @@ func (c *Client) DeclareExchange(vhost, exchange string, info ExchangeSettings) 
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -211,8 +210,7 @@ func (c *Client) DeleteExchange(vhost, exchange string) (res *http.Response, err
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

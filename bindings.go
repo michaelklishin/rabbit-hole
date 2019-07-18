@@ -178,8 +178,7 @@ func (c *Client) DeclareBinding(vhost string, info BindingInfo) (res *http.Respo
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -199,8 +198,7 @@ func (c *Client) DeleteBinding(vhost string, info BindingInfo) (res *http.Respon
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 

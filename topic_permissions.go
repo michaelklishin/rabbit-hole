@@ -97,8 +97,7 @@ func (c *Client) UpdateTopicPermissionsIn(vhost, username string, TopicPermissio
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
@@ -116,8 +115,7 @@ func (c *Client) ClearTopicPermissionsIn(vhost, username string) (res *http.Resp
 		return nil, err
 	}
 
-	res, err = executeRequest(c, req)
-	if err != nil {
+	if res, err = executeRequest(c, req); err != nil {
 		return nil, err
 	}
 
