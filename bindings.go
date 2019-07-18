@@ -143,7 +143,7 @@ func (c *Client) ListExchangeBindings(vhost, exchange string, sourceOrDestinatio
 //
 
 func (c *Client) ListExchangeBindingsBetween(vhost, source string, destination string) (rec []BindingInfo, err error) {
-	return c.listBindingsVia("bindings/" + url.PathEscape(vhost) + "/e/" + url.PathEscape(source) + "/e/" + destination)
+	return c.listBindingsVia("bindings/" + url.PathEscape(vhost) + "/e/" + url.PathEscape(source) + "/e/" + url.PathEscape(destination))
 }
 
 //
