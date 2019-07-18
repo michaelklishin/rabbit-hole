@@ -123,6 +123,8 @@ func (c *Client) ListQueueBindings(vhost, queue string) (rec []BindingInfo, err 
 // GET /api/exchanges/{vhost}/{exchange}/bindings/source
 //
 
+// ListExchangeBindingsWithSource returns exchange-to-exchange (E2E) bindings where
+// the given exchange is the source.
 func (c *Client) ListExchangeBindingsWithSource(vhost, exchange string) (rec []BindingInfo, err error) {
 	return c.ListExchangeBindings(vhost, exchange, BindingSource)
 }
@@ -131,6 +133,8 @@ func (c *Client) ListExchangeBindingsWithSource(vhost, exchange string) (rec []B
 // GET /api/exchanges/{vhost}/{exchange}/bindings/destination
 //
 
+// ListExchangeBindingsWithDestination returns exchange-to-exchange (E2E) bindings where
+// the given exchange is the destination.
 func (c *Client) ListExchangeBindingsWithDestination(vhost, exchange string) (rec []BindingInfo, err error) {
 	return c.ListExchangeBindings(vhost, exchange, BindingDestination)
 }
@@ -148,6 +152,7 @@ func (c *Client) ListExchangeBindings(vhost, exchange string, sourceOrDestinatio
 // GET /api/bindings/{vhost}/e/{source}/e/{destination}
 //
 
+// ListExchangeBindingsBetween returns a set of bindings between two exchanges.
 func (c *Client) ListExchangeBindingsBetween(vhost, source string, destination string) (rec []BindingInfo, err error) {
 	return c.listBindingsVia("bindings/" + url.PathEscape(vhost) + "/e/" + url.PathEscape(source) + "/e/" + url.PathEscape(destination))
 }
@@ -156,6 +161,7 @@ func (c *Client) ListExchangeBindingsBetween(vhost, source string, destination s
 // GET /api/bindings/{vhost}/e/{exchange}/q/{queue}
 //
 
+// ListQueueBindingsBetween returns a set of bindings between an exchange and a queue.
 func (c *Client) ListQueueBindingsBetween(vhost, exchange string, queue string) (rec []BindingInfo, err error) {
 	return c.listBindingsVia("bindings/" + url.PathEscape(vhost) + "/e/" + url.PathEscape(exchange) + "/q/" + url.PathEscape(queue))
 }
@@ -195,12 +201,11 @@ func (c *Client) newBindingPath(vhost string, info BindingInfo) string {
 		return "bindings/" + url.PathEscape(vhost) +
 			"/e/" + url.PathEscape(info.Source) +
 			"/q/" + url.PathEscape(info.Destination)
-	} else {
-		// /api/bindings/{vhost}/e/{source}/e/{destination}
-		return "bindings/" + url.PathEscape(vhost) +
-			"/e/" + url.PathEscape(info.Source) +
-			"/e/" + url.PathEscape(info.Destination)
 	}
+	// /api/bindings/{vhost}/e/{source}/e/{destination}
+	return "bindings/" + url.PathEscape(vhost) +
+		"/e/" + url.PathEscape(info.Source) +
+		"/e/" + url.PathEscape(info.Destination)
 }
 
 //
