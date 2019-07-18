@@ -3,12 +3,13 @@ package rabbithole
 import (
 	"encoding/json"
 	"fmt"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	"github.com/streadway/amqp"
 	"net/url"
 	"strings"
 	"time"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"github.com/streadway/amqp"
 )
 
 func FindQueueByName(sl []QueueInfo, name string) (q QueueInfo) {
@@ -65,7 +66,7 @@ func listConnectionsUntil(c *Client, i int) {
 			fmt.Printf("Stopping listConnectionsUntil loop: expected %v obtained %v", i, len(xs))
 			break
 		}
-		breakLoop += 1
+		breakLoop++
 		// Wait between calls
 		time.Sleep(100 * time.Millisecond)
 		xs, _ = c.ListConnections()
@@ -125,7 +126,7 @@ var _ = Describe("Rabbithole", func() {
 
 			rmqc.DeleteShovel(vh, sn)
 			awaitEventPropagation()
-			x, err = rmqc.GetShovel(vh, sn)
+			x, _ = rmqc.GetShovel(vh, sn)
 			Ω(x).Should(BeNil())
 		})
 	})
@@ -255,6 +256,7 @@ var _ = Describe("Rabbithole", func() {
 	Context("GET /nodes/{name}", func() {
 		It("returns decoded response", func() {
 			xs, err := rmqc.ListNodes()
+			Ω(err).Should(BeNil())
 			n := xs[0]
 			res, err := rmqc.GetNode(n.Name)
 
@@ -837,6 +839,7 @@ var _ = Describe("Rabbithole", func() {
 
 			awaitEventPropagation()
 			x, err := rmqc.GetVhost("rabbit/hole2")
+			Ω(err).Should(BeNil())
 
 			Ω(x.Name).Should(BeEquivalentTo("rabbit/hole2"))
 			Ω(x.Tracing).Should(Equal(false))
@@ -853,10 +856,11 @@ var _ = Describe("Rabbithole", func() {
 
 			awaitEventPropagation()
 			x, err := rmqc.GetVhost("rabbit/hole2")
+			Ω(err).Should(BeNil())
 			Ω(x).ShouldNot(BeNil())
 
 			rmqc.DeleteVhost("rabbit/hole2")
-			x2, err := rmqc.GetVhost("rabbit/hole2")
+			x2, _ := rmqc.GetVhost("rabbit/hole2")
 			Ω(x2).Should(BeNil())
 		})
 	})
@@ -957,11 +961,12 @@ var _ = Describe("Rabbithole", func() {
 	})
 
 	Context("POST /bindings/{vhost}/e/{source}/q/{destination}", func() {
-		It("declares a binding to a queue", func() {
+		It("adds a binding to a queue", func() {
 			vh := "rabbit/hole"
 			qn := "test.bindings.post.queue"
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{})
+			Ω(err).Should(BeNil())
 
 			info := BindingInfo{
 				Source:          "amq.topic",
@@ -980,7 +985,7 @@ var _ = Describe("Rabbithole", func() {
 			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
 
 			awaitEventPropagation()
-			bs, err := rmqc.ListBindingsIn(vh)
+			bs, err := rmqc.ListQueueBindings(vh, qn)
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
 
@@ -1139,11 +1144,12 @@ var _ = Describe("Rabbithole", func() {
 	})
 
 	Context("POST /bindings/{vhost}/e/{source}/e/{destination}", func() {
-		It("declares a binding to an exchange", func() {
+		It("adds a binding to an exchange", func() {
 			vh := "rabbit/hole"
 			xn := "test.bindings.post.exchange"
 
 			_, err := rmqc.DeclareExchange(vh, xn, ExchangeSettings{Type: "topic"})
+			Ω(err).Should(BeNil())
 
 			info := BindingInfo{
 				Source:          "amq.topic",
@@ -1162,11 +1168,11 @@ var _ = Describe("Rabbithole", func() {
 			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
 
 			awaitEventPropagation()
-			bs, err := rmqc.ListBindingsIn(vh)
+			bs, err := rmqc.ListExchangeBindingsBetween(vh, "amq.topic", xn)
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
 
-			b := bs[1]
+			b := bs[0]
 			Ω(b.Source).Should(Equal(info.Source))
 			Ω(b.Vhost).Should(Equal(vh))
 			Ω(b.Destination).Should(Equal(info.Destination))
@@ -1183,6 +1189,7 @@ var _ = Describe("Rabbithole", func() {
 			vh := "rabbit/hole"
 			xn := "test.bindings.post.exchange"
 
+			rmqc.DeleteExchange(vh, xn)
 			rmqc.DeclareExchange(vh, xn, ExchangeSettings{Type: "topic"})
 
 			info := BindingInfo{
@@ -1206,9 +1213,9 @@ var _ = Describe("Rabbithole", func() {
 			rmqc.DeleteBinding(vh, info)
 			awaitEventPropagation()
 
-			bs, _ := rmqc.ListBindingsIn(vh)
+			bs, _ := rmqc.ListExchangeBindingsWithDestination(vh, xn)
 
-			Ω(bs).Should(HaveLen(1))
+			Ω(bs).Should(BeEmpty())
 		})
 	})
 
@@ -1265,6 +1272,7 @@ var _ = Describe("Rabbithole", func() {
 
 			permissions := Permissions{Configure: "log.*", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdatePermissionsIn("/", u, permissions)
+			Ω(err).Should(BeNil())
 
 			awaitEventPropagation()
 			fetched, err := rmqc.GetPermissionsIn("/", u)
@@ -1286,6 +1294,7 @@ var _ = Describe("Rabbithole", func() {
 
 			awaitEventPropagation()
 			_, err = rmqc.ClearPermissionsIn("/", u)
+			Ω(err).Should(BeNil())
 			awaitEventPropagation()
 			_, err = rmqc.GetPermissionsIn("/", u)
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
@@ -1303,6 +1312,7 @@ var _ = Describe("Rabbithole", func() {
 
 			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
+			Ω(err).Should(BeNil())
 
 			awaitEventPropagation()
 
@@ -1330,6 +1340,7 @@ var _ = Describe("Rabbithole", func() {
 
 			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
+			Ω(err).Should(BeNil())
 
 			awaitEventPropagation()
 
@@ -1357,6 +1368,7 @@ var _ = Describe("Rabbithole", func() {
 
 			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
+			Ω(err).Should(BeNil())
 
 			awaitEventPropagation()
 			fetched, err := rmqc.GetTopicPermissionsIn("/", u)
@@ -1379,6 +1391,7 @@ var _ = Describe("Rabbithole", func() {
 
 			awaitEventPropagation()
 			_, err = rmqc.ClearTopicPermissionsIn("/", u)
+			Ω(err).Should(BeNil())
 			awaitEventPropagation()
 			_, err = rmqc.GetTopicPermissionsIn("/", u)
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))

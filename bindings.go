@@ -6,10 +6,15 @@ import (
 	"net/url"
 )
 
+// BindingVertex represents one end (vertex) of a binding,
+// a source or destination. This is primarily relevant for
+// exchange-to-exchange bindings (E2Es).
 type BindingVertex string
 
 const (
-	BindingSource      BindingVertex = "source"
+	// BindingSource indicates the source vertex of a binding
+	BindingSource BindingVertex = "source"
+	// BindingDestination indicates the source vertex of a binding
 	BindingDestination BindingVertex = "destination"
 )
 
@@ -37,6 +42,7 @@ func (v BindingVertex) String() string {
 //   }
 // ]
 
+// BindingInfo represents details of a binding.
 type BindingInfo struct {
 	// Binding source (exchange name)
 	Source string `json:"source"`
@@ -158,7 +164,7 @@ func (c *Client) ListQueueBindingsBetween(vhost, exchange string, queue string) 
 // POST /api/bindings/{vhost}/e/{source}/{destination_type}/{destination}
 //
 
-// DeclareBinding updates information about a binding between a source and a target
+// DeclareBinding adds a new binding
 func (c *Client) DeclareBinding(vhost string, info BindingInfo) (res *http.Response, err error) {
 	info.Vhost = vhost
 
@@ -170,9 +176,7 @@ func (c *Client) DeclareBinding(vhost string, info BindingInfo) (res *http.Respo
 		return nil, err
 	}
 
-	req, err := newRequestWithBody(c, "POST", "bindings/"+url.PathEscape(vhost)+
-		"/e/"+url.PathEscape(info.Source)+"/"+url.PathEscape(string(info.DestinationType[0]))+
-		"/"+url.PathEscape(info.Destination), body)
+	req, err := newRequestWithBody(c, "POST", c.newBindingPath(vhost, info), body)
 
 	if err != nil {
 		return nil, err
@@ -183,6 +187,20 @@ func (c *Client) DeclareBinding(vhost string, info BindingInfo) (res *http.Respo
 	}
 
 	return res, nil
+}
+
+func (c *Client) newBindingPath(vhost string, info BindingInfo) string {
+	if info.DestinationType == "queue" {
+		// /api/bindings/{vhost}/e/{exchange}/q/{queue}
+		return "bindings/" + url.PathEscape(vhost) +
+			"/e/" + url.PathEscape(info.Source) +
+			"/q/" + url.PathEscape(info.Destination)
+	} else {
+		// /api/bindings/{vhost}/e/{source}/e/{destination}
+		return "bindings/" + url.PathEscape(vhost) +
+			"/e/" + url.PathEscape(info.Source) +
+			"/e/" + url.PathEscape(info.Destination)
+	}
 }
 
 //
