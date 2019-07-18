@@ -3,6 +3,7 @@ package rabbithole
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 )
 
 // Policy definition: additional arguments
@@ -52,7 +53,7 @@ func (c *Client) ListPolicies() (rec []Policy, err error) {
 
 // ListPoliciesIn returns policies in a specific virtual host.
 func (c *Client) ListPoliciesIn(vhost string) (rec []Policy, err error) {
-	req, err := newGETRequest(c, "policies/"+PathEscape(vhost))
+	req, err := newGETRequest(c, "policies/"+url.PathEscape(vhost))
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (c *Client) ListPoliciesIn(vhost string) (rec []Policy, err error) {
 
 // GetPolicy returns individual policy in virtual host.
 func (c *Client) GetPolicy(vhost, name string) (rec *Policy, err error) {
-	req, err := newGETRequest(c, "policies/"+PathEscape(vhost)+"/"+PathEscape(name))
+	req, err := newGETRequest(c, "policies/"+url.PathEscape(vhost)+"/"+url.PathEscape(name))
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +94,7 @@ func (c *Client) PutPolicy(vhost string, name string, policy Policy) (res *http.
 		return nil, err
 	}
 
-	req, err := newRequestWithBody(c, "PUT", "policies/"+PathEscape(vhost)+"/"+PathEscape(name), body)
+	req, err := newRequestWithBody(c, "PUT", "policies/"+url.PathEscape(vhost)+"/"+url.PathEscape(name), body)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +113,7 @@ func (c *Client) PutPolicy(vhost string, name string, policy Policy) (res *http.
 
 // Deletes a policy.
 func (c *Client) DeletePolicy(vhost, name string) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "policies/"+PathEscape(vhost)+"/"+PathEscape(name), nil)
+	req, err := newRequestWithBody(c, "DELETE", "policies/"+url.PathEscape(vhost)+"/"+url.PathEscape(name), nil)
 	if err != nil {
 		return nil, err
 	}

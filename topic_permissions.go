@@ -3,6 +3,7 @@ package rabbithole
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 )
 
 //
@@ -44,7 +45,7 @@ func (c *Client) ListTopicPermissions() (rec []TopicPermissionInfo, err error) {
 
 // ListTopicPermissionsOf returns topic-permissions of a specific user.
 func (c *Client) ListTopicPermissionsOf(username string) (rec []TopicPermissionInfo, err error) {
-	req, err := newGETRequest(c, "users/"+PathEscape(username)+"/topic-permissions")
+	req, err := newGETRequest(c, "users/"+url.PathEscape(username)+"/topic-permissions")
 	if err != nil {
 		return []TopicPermissionInfo{}, err
 	}
@@ -62,7 +63,7 @@ func (c *Client) ListTopicPermissionsOf(username string) (rec []TopicPermissionI
 
 // GetTopicPermissionsIn returns topic-permissions of user in virtual host.
 func (c *Client) GetTopicPermissionsIn(vhost, username string) (rec []TopicPermissionInfo, err error) {
-	req, err := newGETRequest(c, "topic-permissions/"+PathEscape(vhost)+"/"+PathEscape(username))
+	req, err := newGETRequest(c, "topic-permissions/"+url.PathEscape(vhost)+"/"+url.PathEscape(username))
 	if err != nil {
 		return []TopicPermissionInfo{}, err
 	}
@@ -91,7 +92,7 @@ func (c *Client) UpdateTopicPermissionsIn(vhost, username string, TopicPermissio
 		return nil, err
 	}
 
-	req, err := newRequestWithBody(c, "PUT", "topic-permissions/"+PathEscape(vhost)+"/"+PathEscape(username), body)
+	req, err := newRequestWithBody(c, "PUT", "topic-permissions/"+url.PathEscape(vhost)+"/"+url.PathEscape(username), body)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +111,7 @@ func (c *Client) UpdateTopicPermissionsIn(vhost, username string, TopicPermissio
 
 // ClearTopicPermissionsIn clears (deletes) topic-permissions of user in virtual host.
 func (c *Client) ClearTopicPermissionsIn(vhost, username string) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "topic-permissions/"+PathEscape(vhost)+"/"+PathEscape(username), nil)
+	req, err := newRequestWithBody(c, "DELETE", "topic-permissions/"+url.PathEscape(vhost)+"/"+url.PathEscape(username), nil)
 	if err != nil {
 		return nil, err
 	}

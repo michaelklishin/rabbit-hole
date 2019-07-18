@@ -1,5 +1,9 @@
 package rabbithole
 
+import (
+	"net/url"
+)
+
 type OsPid string
 
 type NameDescriptionEnabled struct {
@@ -287,7 +291,7 @@ func (c *Client) ListNodes() (rec []NodeInfo, err error) {
 // }
 
 func (c *Client) GetNode(name string) (rec *NodeInfo, err error) {
-	req, err := newGETRequest(c, "nodes/"+PathEscape(name))
+	req, err := newGETRequest(c, "nodes/"+url.PathEscape(name))
 	if err != nil {
 		return nil, err
 	}

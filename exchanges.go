@@ -3,6 +3,7 @@ package rabbithole
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 )
 
 //
@@ -54,7 +55,7 @@ func (c *Client) ListExchanges() (rec []ExchangeInfo, err error) {
 //
 
 func (c *Client) ListExchangesIn(vhost string) (rec []ExchangeInfo, err error) {
-	req, err := newGETRequest(c, "exchanges/"+PathEscape(vhost))
+	req, err := newGETRequest(c, "exchanges/"+url.PathEscape(vhost))
 	if err != nil {
 		return []ExchangeInfo{}, err
 	}
@@ -162,7 +163,7 @@ type DetailedExchangeInfo struct {
 }
 
 func (c *Client) GetExchange(vhost, exchange string) (rec *DetailedExchangeInfo, err error) {
-	req, err := newGETRequest(c, "exchanges/"+PathEscape(vhost)+"/"+PathEscape(exchange))
+	req, err := newGETRequest(c, "exchanges/"+url.PathEscape(vhost)+"/"+url.PathEscape(exchange))
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +188,7 @@ func (c *Client) DeclareExchange(vhost, exchange string, info ExchangeSettings) 
 		return nil, err
 	}
 
-	req, err := newRequestWithBody(c, "PUT", "exchanges/"+PathEscape(vhost)+"/"+PathEscape(exchange), body)
+	req, err := newRequestWithBody(c, "PUT", "exchanges/"+url.PathEscape(vhost)+"/"+url.PathEscape(exchange), body)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +206,7 @@ func (c *Client) DeclareExchange(vhost, exchange string, info ExchangeSettings) 
 //
 
 func (c *Client) DeleteExchange(vhost, exchange string) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "exchanges/"+PathEscape(vhost)+"/"+PathEscape(exchange), nil)
+	req, err := newRequestWithBody(c, "DELETE", "exchanges/"+url.PathEscape(vhost)+"/"+url.PathEscape(exchange), nil)
 	if err != nil {
 		return nil, err
 	}
