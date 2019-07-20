@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-// Provides information about connection to a RabbitMQ node.
+// ConnectionInfo provides information about connection to a RabbitMQ node.
 type ConnectionInfo struct {
 	// Connection name
 	Name string `json:"name"`
@@ -82,6 +82,7 @@ type ConnectionInfo struct {
 // GET /api/connections
 //
 
+// ListConnections returns a list of client connections to target node.
 func (c *Client) ListConnections() (rec []ConnectionInfo, err error) {
 	req, err := newGETRequest(c, "connections")
 	if err != nil {
@@ -99,6 +100,7 @@ func (c *Client) ListConnections() (rec []ConnectionInfo, err error) {
 // GET /api/connections/{name}
 //
 
+// GetConnection retrieves information about a connection.
 func (c *Client) GetConnection(name string) (rec *ConnectionInfo, err error) {
 	req, err := newGETRequest(c, "connections/"+url.PathEscape(name))
 	if err != nil {
@@ -116,6 +118,7 @@ func (c *Client) GetConnection(name string) (rec *ConnectionInfo, err error) {
 // DELETE /api/connections/{name}
 //
 
+// CloseConnection closes a connection.
 func (c *Client) CloseConnection(name string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "connections/"+url.PathEscape(name), nil)
 	if err != nil {

@@ -6,14 +6,15 @@ import (
 	"net/url"
 )
 
-// Policy definition: additional arguments
+// PolicyDefinition is a map of additional arguments
 // added to the entities (queues, exchanges or both)
 // that match a policy.
 type PolicyDefinition map[string]interface{}
 
+// NodeNames is a list of node names.
 type NodeNames []string
 
-// Represents a configured policy.
+// Policy represents a configured policy.
 type Policy struct {
 	// Virtual host this policy is in.
 	Vhost string `json:"vhost"`
@@ -87,7 +88,7 @@ func (c *Client) GetPolicy(vhost, name string) (rec *Policy, err error) {
 // PUT /api/policies/{vhost}/{name}
 //
 
-// Updates a policy.
+// PutPolicy creates or updates a policy.
 func (c *Client) PutPolicy(vhost string, name string, policy Policy) (res *http.Response, err error) {
 	body, err := json.Marshal(policy)
 	if err != nil {
@@ -110,7 +111,7 @@ func (c *Client) PutPolicy(vhost string, name string, policy Policy) (res *http.
 // DELETE /api/policies/{vhost}/{name}
 //
 
-// Deletes a policy.
+// DeletePolicy deletes a policy.
 func (c *Client) DeletePolicy(vhost, name string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "policies/"+url.PathEscape(vhost)+"/"+url.PathEscape(name), nil)
 	if err != nil {
