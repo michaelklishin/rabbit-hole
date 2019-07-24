@@ -33,26 +33,26 @@ type ConsumerInfo struct {
 func (c *Client) ListConsumers() (rec []ConsumerInfo, err error) {
 	req, err := newGETRequest(c, "consumers")
 	if err != nil {
-		return []ConsumerInfo{}, err
+		return
 	}
 
 	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return []ConsumerInfo{}, err
+		return
 	}
 
-	return rec, nil
+	return
 }
 
 // ListConsumersIn lists all consumers in a virtual host.
 func (c *Client) ListConsumersIn(vhost string) (rec []ConsumerInfo, err error) {
 	req, err := newGETRequest(c, "consumers/"+url.PathEscape(vhost))
 	if err != nil {
-		return []ConsumerInfo{}, err
+		return
 	}
 
 	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return []ConsumerInfo{}, err
+		return
 	}
 
-	return rec, nil
+	return
 }
