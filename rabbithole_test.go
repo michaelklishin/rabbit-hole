@@ -747,6 +747,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(c.Queue.Name).ShouldNot(Equal(""))
 			Ω(c.ConsumerTag).ShouldNot(Equal(""))
 			Ω(c.Exclusive).ShouldNot(BeNil())
+			Ω(c.AcknowledgementMode).Should(Equal(ManualAcknowledgement))
 		})
 	})
 
@@ -771,7 +772,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err = ch.Consume(
 				"", // queue
 				"", // consumer
-				false, // auto ack
+				true, // auto ack
 				false, // exclusive
 				false, // no local
 				false, // no wait
@@ -790,6 +791,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(c.Queue.Name).ShouldNot(Equal(""))
 			Ω(c.ConsumerTag).ShouldNot(Equal(""))
 			Ω(c.Exclusive).ShouldNot(BeNil())
+			Ω(c.AcknowledgementMode).Should(Equal(AutomaticAcknowledgment))
 		})
 	})
 

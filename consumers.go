@@ -4,6 +4,13 @@ import (
 	"net/url"
 )
 
+type AcknowledgementMode bool
+
+const (
+	ManualAcknowledgement   AcknowledgementMode = true
+	AutomaticAcknowledgment AcknowledgementMode = false
+)
+
 type BriefQueueInfo struct {
 	Name  string `json:"name"`
 	Vhost string `json:"vhost"`
@@ -20,13 +27,13 @@ type BriefChannelDetail struct {
 }
 
 type ConsumerInfo struct {
-	Arguments      map[string]interface{} `json:"arguments"`
-	AckRequired    bool                   `json:"ack_required"`
-	ChannelDetails BriefChannelDetail     `json:"channel_details"`
-	ConsumerTag    string                 `json:"consumer_tag"`
-	Exclusive      bool                   `json:"exclusive"`
-	PrefetchCount  int                    `json:"prefetch_count"`
-	Queue          BriefQueueInfo         `json:"queue"`
+	Arguments           map[string]interface{} `json:"arguments"`
+	AcknowledgementMode AcknowledgementMode    `json:"ack_required"`
+	ChannelDetails      BriefChannelDetail     `json:"channel_details"`
+	ConsumerTag         string                 `json:"consumer_tag"`
+	Exclusive           bool                   `json:"exclusive"`
+	PrefetchCount       int                    `json:"prefetch_count"`
+	Queue               BriefQueueInfo         `json:"queue"`
 }
 
 // ListConsumers lists all consumers in the cluster.
