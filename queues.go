@@ -37,6 +37,17 @@ type BackingQueueStatus struct {
 	AverageAckEgressRate float32 `json:"avg_ack_egress_rate"`
 }
 
+// OwnerPidDetails cannot be decoded as RMQ sends it as `[]` sometimes.
+// I suspect this means RMQ uses proplists internally instead of maps.
+func (p OwnerPidDetails) UnmarshalJSON(b []byte) error {
+	var l []interface{}
+	if err := json.Unmarshal(b, &l); err == nil && len(l) == 0 {
+		return nil
+	}
+	var o OwnerPidDetails
+	return json.Unmarshal(b, &o)
+}
+
 // OwnerPidDetails describes an exclusive queue owner (connection).
 type OwnerPidDetails struct {
 	Name     string `json:"name"`
