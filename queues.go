@@ -106,7 +106,7 @@ type QueueInfo struct {
 
 	MessageStats MessageStats `json:"message_stats"`
 
-	OwnerPidDetails OwnerPidDetails `json:"owner_pid_details"`
+	// OwnerPidDetails OwnerPidDetails `json:"owner_pid_details"`
 
 	BackingQueueStatus BackingQueueStatus `json:"backing_queue_status"`
 
