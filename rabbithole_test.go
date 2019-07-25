@@ -707,6 +707,94 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("GET /consumers", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			_, err = ch.QueueDeclare(
+				"",    // name
+				false, // durable
+				false, // auto delete
+				true,  // exclusive
+				false,
+				nil)
+			Ω(err).Should(BeNil())
+
+			_, err = ch.Consume(
+				"", // queue
+				"", // consumer
+				false, // auto ack
+				false, // exclusive
+				false, // no local
+				false, // no wait
+				amqp.Table{})
+			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			cs, err := rmqc.ListConsumers()
+			Ω(err).Should(BeNil())
+
+			Ω(len(cs)).Should(Equal(1))
+			c := cs[0]
+			Ω(c.Queue.Name).ShouldNot(Equal(""))
+			Ω(c.ConsumerTag).ShouldNot(Equal(""))
+			Ω(c.Exclusive).ShouldNot(BeNil())
+			Ω(c.AcknowledgementMode).Should(Equal(ManualAcknowledgement))
+		})
+	})
+
+	Context("GET /consumers/{vhost}", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("rabbit/hole")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			_, err = ch.QueueDeclare(
+				"",    // name
+				false, // durable
+				false, // auto delete
+				true,  // exclusive
+				false,
+				nil)
+			Ω(err).Should(BeNil())
+
+			_, err = ch.Consume(
+				"", // queue
+				"", // consumer
+				true, // auto ack
+				false, // exclusive
+				false, // no local
+				false, // no wait
+				amqp.Table{})
+			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			cs, err := rmqc.ListConsumers()
+			Ω(err).Should(BeNil())
+
+			Ω(len(cs)).Should(Equal(1))
+			c := cs[0]
+			Ω(c.Queue.Name).ShouldNot(Equal(""))
+			Ω(c.ConsumerTag).ShouldNot(Equal(""))
+			Ω(c.Exclusive).ShouldNot(BeNil())
+			Ω(c.AcknowledgementMode).Should(Equal(AutomaticAcknowledgment))
+		})
+	})
+
 	Context("GET /users", func() {
 		It("returns decoded response", func() {
 			xs, err := rmqc.ListUsers()
