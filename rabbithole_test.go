@@ -726,8 +726,8 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			_, err = ch.Consume(
-				"", // queue
-				"", // consumer
+				"",    // queue
+				"",    // consumer
 				false, // auto ack
 				false, // exclusive
 				false, // no local
@@ -770,9 +770,9 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			_, err = ch.Consume(
-				"", // queue
-				"", // consumer
-				true, // auto ack
+				"",    // queue
+				"",    // consumer
+				true,  // auto ack
 				false, // exclusive
 				false, // no local
 				false, // no wait
@@ -1580,6 +1580,38 @@ var _ = Describe("Rabbithole", func() {
 			awaitEventPropagation()
 			Ω(x).Should(BeNil())
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+		})
+	})
+
+	Context("POST /queues/{vhost}/{queue}/actions", func() {
+		It("synchronises queue", func() {
+			vh := "rabbit/hole"
+			qn := "temporary"
+
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			// it would be better to test this in a cluster configuration
+			x, err := rmqc.SyncQueue(vh, qn)
+			Ω(err).Should(BeNil())
+			Ω(x.StatusCode).Should(Equal(204))
+			rmqc.DeleteQueue(vh, qn)
+		})
+
+		It("cancels queue synchronisation", func() {
+			vh := "rabbit/hole"
+			qn := "temporary"
+
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			// it would be better to test this in a cluster configuration
+			x, err := rmqc.CancelSyncQueue(vh, qn)
+			Ω(err).Should(BeNil())
+			Ω(x.StatusCode).Should(Equal(204))
+			rmqc.DeleteQueue(vh, qn)
 		})
 	})
 
