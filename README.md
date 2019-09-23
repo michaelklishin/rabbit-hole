@@ -245,6 +245,14 @@ resp, err := rmqc.DeleteQueue("/", "a.queue")
 // purges all messages in queue
 resp, err := rmqc.PurgeQueue("/", "a.queue")
 // => *http.Response, err
+
+// synchronises all messages in queue with the rest of mirrors in the cluster
+resp, err := rmqc.SyncQueue("/", "a.queue")
+// => *http.Response, err
+
+// cancels queue synchronisation process
+resp, err := rmqc.CancelSyncQueue("/", "a.queue")
+// => *http.Response, err
 ```
 
 

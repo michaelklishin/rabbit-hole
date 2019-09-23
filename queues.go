@@ -352,3 +352,39 @@ func (c *Client) PurgeQueue(vhost, queue string) (res *http.Response, err error)
 
 	return res, nil
 }
+
+// queueAction represents an action that can be performed on a queue (sync/cancel_sync)
+type queueAction struct {
+	Action string `json:"action"`
+}
+
+// SyncQueue synchronises queue contents with the mirrors remaining in the cluster.
+func (c *Client) SyncQueue(vhost, queue string) (res *http.Response, err error) {
+	return c.sendQueueAction(vhost, queue, queueAction{"sync"})
+}
+
+// CancelSyncQueue cancels queue synchronisation process.
+func (c *Client) CancelSyncQueue(vhost, queue string) (res *http.Response, err error) {
+	return c.sendQueueAction(vhost, queue, queueAction{"cancel_sync"})
+}
+
+//
+// POST /api/queues/{vhost}/{name}/actions
+//
+func (c *Client) sendQueueAction(vhost string, queue string, action queueAction) (res *http.Response, err error) {
+	body, err := json.Marshal(action)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestWithBody(c, "POST", "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue)+"/actions", body)
+	if err != nil {
+		return nil, err
+	}
+
+	if res, err = executeRequest(c, req); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
