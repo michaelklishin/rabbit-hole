@@ -76,6 +76,9 @@ type ConnectionInfo struct {
 	RecvOctDetails RateDetails `json:"recv_oct_details"`
 	// Egress data rate
 	SendOctDetails RateDetails `json:"send_oct_details"`
+
+	// Connection timestamp
+	ConnectedAt uint64 `json:"connected_at,omitempty"`
 }
 
 //
