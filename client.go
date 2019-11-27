@@ -3,6 +3,7 @@ package rabbithole
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -108,7 +109,13 @@ func executeRequest(client *Client, req *http.Request) (res *http.Response, err 
 	if client.transport != nil {
 		httpc.Transport = client.transport
 	}
-	return httpc.Do(req)
+	resp, err := httpc.Do(req)
+
+	if resp.StatusCode == 401 {
+		return nil, errors.New("Error: API responded with a 401 Unauthorized")
+	}
+
+	return resp, err
 }
 
 func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) (err error) {
