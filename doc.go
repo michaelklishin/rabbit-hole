@@ -195,6 +195,10 @@ Managing Topic Permissions
         resp, err := rmqc.ClearTopicPermissionsIn("/", "my.user")
         // => *http.Response, err
 
+        // revokes single permissions in vhost
+        resp, err := rmqc.DeleteTopicPermissionsIn("/", "my.user", "exchange")
+        // => *http.Response, err
+
 Operations on cluster name
         // Get cluster name
         cn, err := rmqc.GetClusterName()

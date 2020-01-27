@@ -120,3 +120,17 @@ func (c *Client) ClearTopicPermissionsIn(vhost, username string) (res *http.Resp
 
 	return res, nil
 }
+
+// DeleteTopicPermissionsIn delete topic-permissions of exchange for user in virtual host.
+func (c *Client) DeleteTopicPermissionsIn(vhost, username string, exchange string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "topic-permissions/"+url.PathEscape(vhost)+"/"+url.PathEscape(username)+"/"+url.PathEscape(exchange), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if res, err = executeRequest(c, req); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
