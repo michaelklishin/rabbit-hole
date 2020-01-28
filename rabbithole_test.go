@@ -1508,7 +1508,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			awaitEventPropagation()
-			xs, err := rmqc.ListTopicPermissions()
+			xs, err := rmqc.ListTopicPermissionsOf(u)
 			Ω(err).Should(BeNil())
 
 			Ω(len(xs)).Should(BeEquivalentTo(1))
