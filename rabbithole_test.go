@@ -1488,6 +1488,35 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("DELETE /topic-permissions/{vhost}/{user}/{exchange}", func() {
+		It("deletes one topic permissions", func() {
+			u := "temporary"
+
+			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
+			Ω(err).Should(BeNil())
+
+			awaitEventPropagation()
+			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
+			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
+			Ω(err).Should(BeNil())
+			permissions = TopicPermissions{Exchange: "foobar", Write: "log.*", Read: "log.*"}
+			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
+			Ω(err).Should(BeNil())
+
+			awaitEventPropagation()
+			_, err = rmqc.DeleteTopicPermissionsIn("/", u, "foobar")
+			Ω(err).Should(BeNil())
+
+			awaitEventPropagation()
+			xs, err := rmqc.ListTopicPermissionsOf(u)
+			Ω(err).Should(BeNil())
+
+			Ω(len(xs)).Should(BeEquivalentTo(1))
+
+			rmqc.DeleteUser(u)
+		})
+	})
+
 	Context("PUT /exchanges/{vhost}/{exchange}", func() {
 		It("declares an exchange", func() {
 			vh := "rabbit/hole"
