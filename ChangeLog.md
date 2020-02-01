@@ -1,6 +1,35 @@
-## Changes Between 2.0.0 and 2.1.0 (in development)
+## Changes Between 2.1.0 and 2.2.0 (in development)
 
-No changes yet
+No changes yet.
+
+
+## Changes Between 2.0.0 and 2.1.0 (Feb 1st, 2020)
+
+### Corrects Package Version
+
+See [Semantic Go Module Import Versioning](https://github.com/golang/go/wiki/Modules#semantic-import-versioning) for details
+
+GitHub issue: [#146](https://github.com/michaelklishin/rabbit-hole/issues/146)
+
+### New Endpoint, `DELETE /topic-permissions/{vhost}/{user}/{exchange}`
+
+Contributed by Barnaby Shearer.
+
+GitHub issues: [#147](https://github.com/michaelklishin/rabbit-hole/pull/147)
+
+### Exposed Client Connection Time Field
+
+Available in RabbitMQ 3.7 and later versions.
+
+Contributed by @kgrieco.
+
+GitHub issue: [#144](https://github.com/michaelklishin/rabbit-hole/pull/144)
+
+### Authentication Failures Now Return a Reasonable Error
+
+Contributed by @mazamats.
+
+GitHub issues: [#145](https://github.com/michaelklishin/rabbit-hole/pull/145), [#112](https://github.com/michaelklishin/rabbit-hole/issues/112)
 
 
 ## Changes Between 1.5.0 and 2.0.0 (October 8th, 2019)
