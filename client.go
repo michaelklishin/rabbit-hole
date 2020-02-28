@@ -110,6 +110,9 @@ func executeRequest(client *Client, req *http.Request) (res *http.Response, err 
 		httpc.Transport = client.transport
 	}
 	resp, err := httpc.Do(req)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode == 401 {
 		return nil, errors.New("Error: API responded with a 401 Unauthorized")
