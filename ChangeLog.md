@@ -1,6 +1,10 @@
 ## Changes Between 2.1.0 and 2.2.0 (in development)
 
-No changes yet.
+### Fixed a null Pointer in HTTP Response Handling
+
+Contributed by @justabaka.
+
+GitHub issue: [#148](https://github.com/michaelklishin/rabbit-hole/pull/148)
 
 
 ## Changes Between 2.0.0 and 2.1.0 (Feb 1st, 2020)
