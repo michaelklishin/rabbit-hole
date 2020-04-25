@@ -134,6 +134,93 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("PUT /api/parameters/federation-upstream/{vhost}/{upstream}", func() {
+		Context("when the upstream does not exist", func() {
+			It("creates the upstream", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				fd := FederationDefinition{
+					Uri:            "amqp://127.0.0.1/%2f",
+					PrefetchCount:  500,
+					ReconnectDelay: 5,
+					AckMode:        "on-publish",
+					TrustUserId:    false,
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				fu, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
+				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
+				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
+				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
+				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
+
+				_, err = rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+			})
+		})
+
+		Context("when the upstream exists", func() {
+			It("updates the upstream", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				// create the initial upstream
+				fd := FederationDefinition{
+					Uri:            "amqp://127.0.0.1/%2f",
+					PrefetchCount:  1000,
+					ReconnectDelay: 1,
+					AckMode:        "on-confirm",
+					TrustUserId:    false,
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				fu, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
+				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
+				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
+				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
+				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
+
+				// update the upstream
+				fd2 := FederationDefinition{
+					Uri:            "amqp://127.0.0.1/%2f",
+					PrefetchCount:  500,
+					ReconnectDelay: 10,
+					AckMode:        "no-ack",
+					TrustUserId:    true,
+				}
+
+				_, err = rmqc.PutFederationUpstream(vh, name, fd2)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				fu2, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(fu2.Definition.Uri).Should(Equal(fd2.Uri))
+				Ω(fu2.Definition.PrefetchCount).Should(Equal(fd2.PrefetchCount))
+				Ω(fu2.Definition.ReconnectDelay).Should(Equal(fd2.ReconnectDelay))
+				Ω(fu2.Definition.AckMode).Should(Equal(fd2.AckMode))
+				Ω(fu2.Definition.TrustUserId).Should(Equal(fd2.TrustUserId))
+
+				_, err = rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+			})
+		})
+	})
+
 	Context("PUT /parameters/shovel/{vhost}/{name}", func() {
 		It("declares a shovel", func() {
 			vh := "rabbit/hole"
