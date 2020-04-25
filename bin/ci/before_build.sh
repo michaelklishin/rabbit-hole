@@ -29,3 +29,6 @@ $CTL set_cluster_name rabbitmq@localhost
 # Enable shovel plugin
 $PLUGINS enable rabbitmq_shovel
 $PLUGINS enable rabbitmq_shovel_management
+
+$PLUGINS enable rabbitmq_federation
+$PLUGINS enable rabbitmq_federation_management

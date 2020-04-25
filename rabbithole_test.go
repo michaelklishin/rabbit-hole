@@ -90,6 +90,50 @@ var _ = Describe("Rabbithole", func() {
 		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 	})
 
+	Context("GET /api/parameters/federation-upstream/{vhost}/{upstream}", func() {
+		Context("when the upstream does not exist", func() {
+			It("returns a 404 error response", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				fu, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				Ω(fu).Should(BeNil())
+			})
+		})
+
+		Context("when the upstream exists", func() {
+			It("returns the upstream", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				fd := FederationDefinition{
+					Uri:            "amqp://127.0.0.1/%2f",
+					PrefetchCount:  1000,
+					ReconnectDelay: 1,
+					AckMode:        "on-confirm",
+					TrustUserId:    false,
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				fu, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
+				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
+				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
+				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
+				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
+
+				_, err = rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+			})
+		})
+	})
+
 	Context("PUT /parameters/shovel/{vhost}/{name}", func() {
 		It("declares a shovel", func() {
 			vh := "rabbit/hole"
