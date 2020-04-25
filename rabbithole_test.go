@@ -92,7 +92,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("GET /api/parameters/federation-upstream/{vhost}/{upstream}", func() {
 		Context("when the upstream does not exist", func() {
-			It("returns a 404 error response", func() {
+			It("returns a 404 error", func() {
 				vh := "rabbit/hole"
 				name := "temporary"
 
@@ -217,6 +217,41 @@ var _ = Describe("Rabbithole", func() {
 
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
+			})
+		})
+	})
+
+	Context("DELETE /api/parameters/federation-upstream/{vhost}/{name}", func() {
+		Context("when the upstream does not exist", func() {
+			It("returns a 404 error response", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				// this is NOT an error, but a HTTP 404 response
+				resp, err := rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(resp.StatusCode).Should(Equal(404))
+				Ω(resp.Status).Should(Equal("404 Not Found"))
+			})
+		})
+
+		Context("when the upstream exists", func() {
+			It("deletes the upstream", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				fd := FederationDefinition{
+					Uri: "amqp://127.0.0.1/%2f",
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				resp, err := rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(resp.Status).Should(HavePrefix("20"))
 			})
 		})
 	})
