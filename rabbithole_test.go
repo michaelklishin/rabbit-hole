@@ -90,335 +90,6 @@ var _ = Describe("Rabbithole", func() {
 		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 	})
 
-	Context("GET /api/parameters/federation-upstream", func() {
-		Context("when there are no upstreams", func() {
-			It("returns an empty response", func() {
-				list, err := rmqc.ListFederationUpstreams()
-				Ω(err).Should(BeNil())
-				Ω(list).Should(BeEmpty())
-			})
-		})
-
-		Context("when there are upstreams", func() {
-			It("returns the list of upstreams", func() {
-				fd1 := FederationDefinition{
-					Uri: "amqp://server-name/%2f",
-				}
-				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", fd1)
-				Ω(err).Should(BeNil())
-
-				fd2 := FederationDefinition{
-					Uri: "amqp://example.com/%2f",
-				}
-				_, err = rmqc.PutFederationUpstream("/", "upstream2", fd2)
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				list, err := rmqc.ListFederationUpstreams()
-				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(2))
-
-				_, err = rmqc.DeleteFederationUpstream("rabbit/hole", "upstream1")
-				Ω(err).Should(BeNil())
-
-				_, err = rmqc.DeleteFederationUpstream("/", "upstream2")
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				list, err = rmqc.ListFederationUpstreams()
-				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(0))
-			})
-		})
-	})
-
-	Context("GET /api/parameters/federation-upstream/{vhost}", func() {
-		Context("when there are no upstreams", func() {
-			It("returns an empty response", func() {
-				list, err := rmqc.ListFederationUpstreamsIn("rabbit/hole")
-				Ω(err).Should(BeNil())
-				Ω(list).Should(BeEmpty())
-			})
-		})
-
-		Context("when there are upstreams", func() {
-			It("returns the list of upstreams", func() {
-				vh := "rabbit/hole"
-
-				fd1 := FederationDefinition{
-					Uri: "amqp://server-name/%2f",
-				}
-
-				_, err := rmqc.PutFederationUpstream(vh, "upstream1", fd1)
-				Ω(err).Should(BeNil())
-
-				fd2 := FederationDefinition{
-					Uri: "amqp://example.com/%2f",
-				}
-
-				_, err = rmqc.PutFederationUpstream(vh, "upstream2", fd2)
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				list, err := rmqc.ListFederationUpstreamsIn(vh)
-				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(2))
-
-				// delete upstream1
-				_, err = rmqc.DeleteFederationUpstream(vh, "upstream1")
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				list, err = rmqc.ListFederationUpstreamsIn(vh)
-				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(1))
-
-				// delete upstream2
-				_, err = rmqc.DeleteFederationUpstream(vh, "upstream2")
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				list, err = rmqc.ListFederationUpstreamsIn(vh)
-				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(0))
-			})
-		})
-	})
-
-	Context("GET /api/parameters/federation-upstream/{vhost}/{upstream}", func() {
-		Context("when the upstream does not exist", func() {
-			It("returns a 404 error", func() {
-				vh := "rabbit/hole"
-				name := "temporary"
-
-				fu, err := rmqc.GetFederationUpstream(vh, name)
-				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
-				Ω(fu).Should(BeNil())
-			})
-		})
-
-		Context("when the upstream exists", func() {
-			It("returns the upstream", func() {
-				vh := "rabbit/hole"
-				name := "temporary"
-
-				fd := FederationDefinition{
-					Uri:            "amqp://127.0.0.1/%2f",
-					PrefetchCount:  1000,
-					ReconnectDelay: 1,
-					AckMode:        "on-confirm",
-					TrustUserId:    false,
-				}
-
-				_, err := rmqc.PutFederationUpstream(vh, name, fd)
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				fu, err := rmqc.GetFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-				Ω(fu.Vhost).Should(Equal(vh))
-				Ω(fu.Name).Should(Equal(name))
-				Ω(fu.Component).Should(Equal("federation-upstream"))
-				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
-				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
-				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
-				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
-				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
-
-				_, err = rmqc.DeleteFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-			})
-		})
-	})
-
-	Context("PUT /api/parameters/federation-upstream/{vhost}/{upstream}", func() {
-		Context("when the upstream does not exist", func() {
-			It("creates the upstream", func() {
-				vh := "rabbit/hole"
-				name := "temporary"
-
-				fd := FederationDefinition{
-					Uri:            "amqp://127.0.0.1/%2f",
-					PrefetchCount:  500,
-					ReconnectDelay: 5,
-					AckMode:        "on-publish",
-					TrustUserId:    false,
-				}
-
-				_, err := rmqc.PutFederationUpstream(vh, name, fd)
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				fu, err := rmqc.GetFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-				Ω(fu.Vhost).Should(Equal(vh))
-				Ω(fu.Name).Should(Equal(name))
-				Ω(fu.Component).Should(Equal("federation-upstream"))
-				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
-				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
-				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
-				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
-				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
-
-				_, err = rmqc.DeleteFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-			})
-		})
-
-		Context("when the upstream exists", func() {
-			It("updates the upstream", func() {
-				vh := "rabbit/hole"
-				name := "temporary"
-
-				// create the upstream
-				fd := FederationDefinition{
-					Uri:            "amqp://127.0.0.1/%2f",
-					PrefetchCount:  1000,
-					ReconnectDelay: 1,
-					AckMode:        "on-confirm",
-					TrustUserId:    false,
-				}
-
-				_, err := rmqc.PutFederationUpstream(vh, name, fd)
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				fu, err := rmqc.GetFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-				Ω(fu.Vhost).Should(Equal(vh))
-				Ω(fu.Name).Should(Equal(name))
-				Ω(fu.Component).Should(Equal("federation-upstream"))
-				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
-				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
-				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
-				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
-				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
-
-				// update the upstream
-				fd2 := FederationDefinition{
-					Uri:            "amqp://127.0.0.1/%2f",
-					PrefetchCount:  500,
-					ReconnectDelay: 10,
-					AckMode:        "no-ack",
-					TrustUserId:    true,
-				}
-
-				_, err = rmqc.PutFederationUpstream(vh, name, fd2)
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				fu2, err := rmqc.GetFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-				Ω(fu2.Vhost).Should(Equal(vh))
-				Ω(fu2.Name).Should(Equal(name))
-				Ω(fu2.Component).Should(Equal("federation-upstream"))
-				Ω(fu2.Definition.Uri).Should(Equal(fd2.Uri))
-				Ω(fu2.Definition.PrefetchCount).Should(Equal(fd2.PrefetchCount))
-				Ω(fu2.Definition.ReconnectDelay).Should(Equal(fd2.ReconnectDelay))
-				Ω(fu2.Definition.AckMode).Should(Equal(fd2.AckMode))
-				Ω(fu2.Definition.TrustUserId).Should(Equal(fd2.TrustUserId))
-
-				_, err = rmqc.DeleteFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-			})
-		})
-
-		Context("when the upstream definition is bad", func() {
-			It("returns a 400 error response", func() {
-				// this is NOT an err, but a HTTP 400 response
-				resp, err := rmqc.PutFederationUpstream("rabbit/hole", "error", FederationDefinition{})
-				Ω(err).Should(BeNil())
-				Ω(resp.StatusCode).Should(Equal(400))
-				Ω(resp.Status).Should(Equal("400 Bad Request"))
-			})
-		})
-	})
-
-	Context("DELETE /api/parameters/federation-upstream/{vhost}/{name}", func() {
-		Context("when the upstream does not exist", func() {
-			It("returns a 404 error response", func() {
-				vh := "rabbit/hole"
-				name := "temporary"
-
-				// this is NOT an err, but a HTTP 404 response
-				resp, err := rmqc.DeleteFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-				Ω(resp.StatusCode).Should(Equal(404))
-				Ω(resp.Status).Should(Equal("404 Not Found"))
-			})
-		})
-
-		Context("when the upstream exists", func() {
-			It("deletes the upstream", func() {
-				vh := "rabbit/hole"
-				name := "temporary"
-
-				fd := FederationDefinition{
-					Uri: "amqp://127.0.0.1/%2f",
-				}
-
-				_, err := rmqc.PutFederationUpstream(vh, name, fd)
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				resp, err := rmqc.DeleteFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-				Ω(resp.Status).Should(HavePrefix("20"))
-			})
-		})
-	})
-
-	Context("PUT /parameters/shovel/{vhost}/{name}", func() {
-		It("declares a shovel", func() {
-			vh := "rabbit/hole"
-			sn := "temporary"
-
-			ssu := "amqp://127.0.0.1/%2f"
-			sdu := "amqp://127.0.0.1/%2f"
-
-			shovelDefinition := ShovelDefinition{
-				SourceURI:         ssu,
-				SourceQueue:       "mySourceQueue",
-				DestinationURI:    sdu,
-				DestinationQueue:  "myDestQueue",
-				AddForwardHeaders: true,
-				AckMode:           "on-confirm",
-				DeleteAfter:       "never"}
-
-			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
-			Ω(err).Should(BeNil())
-
-			awaitEventPropagation()
-			x, err := rmqc.GetShovel(vh, sn)
-			Ω(err).Should(BeNil())
-			Ω(x.Name).Should(Equal(sn))
-			Ω(x.Vhost).Should(Equal(vh))
-			Ω(x.Component).Should(Equal("shovel"))
-			Ω(x.Definition.SourceURI).Should(Equal(ssu))
-			Ω(x.Definition.SourceQueue).Should(Equal("mySourceQueue"))
-			Ω(x.Definition.DestinationURI).Should(Equal(sdu))
-			Ω(x.Definition.DestinationQueue).Should(Equal("myDestQueue"))
-			Ω(x.Definition.AddForwardHeaders).Should(Equal(true))
-			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
-			Ω(x.Definition.DeleteAfter).Should(Equal("never"))
-
-			rmqc.DeleteShovel(vh, sn)
-			awaitEventPropagation()
-			x, _ = rmqc.GetShovel(vh, sn)
-			Ω(x).Should(BeNil())
-		})
-	})
-
 	Context("GET /overview", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
@@ -2163,6 +1834,335 @@ var _ = Describe("Rabbithole", func() {
 			// cleanup
 			_, err = rmqc.DeletePolicy("/", "woot2")
 			Ω(err).Should(BeNil())
+		})
+	})
+
+	Context("GET /api/parameters/federation-upstream", func() {
+		Context("when there are no upstreams", func() {
+			It("returns an empty response", func() {
+				list, err := rmqc.ListFederationUpstreams()
+				Ω(err).Should(BeNil())
+				Ω(list).Should(BeEmpty())
+			})
+		})
+
+		Context("when there are upstreams", func() {
+			It("returns the list of upstreams", func() {
+				fd1 := FederationDefinition{
+					Uri: "amqp://server-name/%2f",
+				}
+				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", fd1)
+				Ω(err).Should(BeNil())
+
+				fd2 := FederationDefinition{
+					Uri: "amqp://example.com/%2f",
+				}
+				_, err = rmqc.PutFederationUpstream("/", "upstream2", fd2)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err := rmqc.ListFederationUpstreams()
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(2))
+
+				_, err = rmqc.DeleteFederationUpstream("rabbit/hole", "upstream1")
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.DeleteFederationUpstream("/", "upstream2")
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err = rmqc.ListFederationUpstreams()
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(0))
+			})
+		})
+	})
+
+	Context("GET /api/parameters/federation-upstream/{vhost}", func() {
+		Context("when there are no upstreams", func() {
+			It("returns an empty response", func() {
+				list, err := rmqc.ListFederationUpstreamsIn("rabbit/hole")
+				Ω(err).Should(BeNil())
+				Ω(list).Should(BeEmpty())
+			})
+		})
+
+		Context("when there are upstreams", func() {
+			It("returns the list of upstreams", func() {
+				vh := "rabbit/hole"
+
+				fd1 := FederationDefinition{
+					Uri: "amqp://server-name/%2f",
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, "upstream1", fd1)
+				Ω(err).Should(BeNil())
+
+				fd2 := FederationDefinition{
+					Uri: "amqp://example.com/%2f",
+				}
+
+				_, err = rmqc.PutFederationUpstream(vh, "upstream2", fd2)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err := rmqc.ListFederationUpstreamsIn(vh)
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(2))
+
+				// delete upstream1
+				_, err = rmqc.DeleteFederationUpstream(vh, "upstream1")
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err = rmqc.ListFederationUpstreamsIn(vh)
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(1))
+
+				// delete upstream2
+				_, err = rmqc.DeleteFederationUpstream(vh, "upstream2")
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err = rmqc.ListFederationUpstreamsIn(vh)
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(0))
+			})
+		})
+	})
+
+	Context("GET /api/parameters/federation-upstream/{vhost}/{upstream}", func() {
+		Context("when the upstream does not exist", func() {
+			It("returns a 404 error", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				fu, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				Ω(fu).Should(BeNil())
+			})
+		})
+
+		Context("when the upstream exists", func() {
+			It("returns the upstream", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				fd := FederationDefinition{
+					Uri:            "amqp://127.0.0.1/%2f",
+					PrefetchCount:  1000,
+					ReconnectDelay: 1,
+					AckMode:        "on-confirm",
+					TrustUserId:    false,
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				fu, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(fu.Vhost).Should(Equal(vh))
+				Ω(fu.Name).Should(Equal(name))
+				Ω(fu.Component).Should(Equal("federation-upstream"))
+				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
+				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
+				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
+				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
+				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
+
+				_, err = rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+			})
+		})
+	})
+
+	Context("PUT /api/parameters/federation-upstream/{vhost}/{upstream}", func() {
+		Context("when the upstream does not exist", func() {
+			It("creates the upstream", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				fd := FederationDefinition{
+					Uri:            "amqp://127.0.0.1/%2f",
+					PrefetchCount:  500,
+					ReconnectDelay: 5,
+					AckMode:        "on-publish",
+					TrustUserId:    false,
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				fu, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(fu.Vhost).Should(Equal(vh))
+				Ω(fu.Name).Should(Equal(name))
+				Ω(fu.Component).Should(Equal("federation-upstream"))
+				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
+				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
+				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
+				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
+				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
+
+				_, err = rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+			})
+		})
+
+		Context("when the upstream exists", func() {
+			It("updates the upstream", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				// create the upstream
+				fd := FederationDefinition{
+					Uri:            "amqp://127.0.0.1/%2f",
+					PrefetchCount:  1000,
+					ReconnectDelay: 1,
+					AckMode:        "on-confirm",
+					TrustUserId:    false,
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				fu, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(fu.Vhost).Should(Equal(vh))
+				Ω(fu.Name).Should(Equal(name))
+				Ω(fu.Component).Should(Equal("federation-upstream"))
+				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
+				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
+				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
+				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
+				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
+
+				// update the upstream
+				fd2 := FederationDefinition{
+					Uri:            "amqp://127.0.0.1/%2f",
+					PrefetchCount:  500,
+					ReconnectDelay: 10,
+					AckMode:        "no-ack",
+					TrustUserId:    true,
+				}
+
+				_, err = rmqc.PutFederationUpstream(vh, name, fd2)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				fu2, err := rmqc.GetFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(fu2.Vhost).Should(Equal(vh))
+				Ω(fu2.Name).Should(Equal(name))
+				Ω(fu2.Component).Should(Equal("federation-upstream"))
+				Ω(fu2.Definition.Uri).Should(Equal(fd2.Uri))
+				Ω(fu2.Definition.PrefetchCount).Should(Equal(fd2.PrefetchCount))
+				Ω(fu2.Definition.ReconnectDelay).Should(Equal(fd2.ReconnectDelay))
+				Ω(fu2.Definition.AckMode).Should(Equal(fd2.AckMode))
+				Ω(fu2.Definition.TrustUserId).Should(Equal(fd2.TrustUserId))
+
+				_, err = rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+			})
+		})
+
+		Context("when the upstream definition is bad", func() {
+			It("returns a 400 error response", func() {
+				// this is NOT an err, but a HTTP 400 response
+				resp, err := rmqc.PutFederationUpstream("rabbit/hole", "error", FederationDefinition{})
+				Ω(err).Should(BeNil())
+				Ω(resp.StatusCode).Should(Equal(400))
+				Ω(resp.Status).Should(Equal("400 Bad Request"))
+			})
+		})
+	})
+
+	Context("DELETE /api/parameters/federation-upstream/{vhost}/{name}", func() {
+		Context("when the upstream does not exist", func() {
+			It("returns a 404 error response", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				// this is NOT an err, but a HTTP 404 response
+				resp, err := rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(resp.StatusCode).Should(Equal(404))
+				Ω(resp.Status).Should(Equal("404 Not Found"))
+			})
+		})
+
+		Context("when the upstream exists", func() {
+			It("deletes the upstream", func() {
+				vh := "rabbit/hole"
+				name := "temporary"
+
+				fd := FederationDefinition{
+					Uri: "amqp://127.0.0.1/%2f",
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				resp, err := rmqc.DeleteFederationUpstream(vh, name)
+				Ω(err).Should(BeNil())
+				Ω(resp.Status).Should(HavePrefix("20"))
+			})
+		})
+	})
+
+	Context("PUT /parameters/shovel/{vhost}/{name}", func() {
+		It("declares a shovel", func() {
+			vh := "rabbit/hole"
+			sn := "temporary"
+
+			ssu := "amqp://127.0.0.1/%2f"
+			sdu := "amqp://127.0.0.1/%2f"
+
+			shovelDefinition := ShovelDefinition{
+				SourceURI:         ssu,
+				SourceQueue:       "mySourceQueue",
+				DestinationURI:    sdu,
+				DestinationQueue:  "myDestQueue",
+				AddForwardHeaders: true,
+				AckMode:           "on-confirm",
+				DeleteAfter:       "never"}
+
+			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
+			Ω(err).Should(BeNil())
+
+			awaitEventPropagation()
+			x, err := rmqc.GetShovel(vh, sn)
+			Ω(err).Should(BeNil())
+			Ω(x.Name).Should(Equal(sn))
+			Ω(x.Vhost).Should(Equal(vh))
+			Ω(x.Component).Should(Equal("shovel"))
+			Ω(x.Definition.SourceURI).Should(Equal(ssu))
+			Ω(x.Definition.SourceQueue).Should(Equal("mySourceQueue"))
+			Ω(x.Definition.DestinationURI).Should(Equal(sdu))
+			Ω(x.Definition.DestinationQueue).Should(Equal("myDestQueue"))
+			Ω(x.Definition.AddForwardHeaders).Should(Equal(true))
+			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
+			Ω(x.Definition.DeleteAfter).Should(Equal("never"))
+
+			rmqc.DeleteShovel(vh, sn)
+			awaitEventPropagation()
+			x, _ = rmqc.GetShovel(vh, sn)
+			Ω(x).Should(BeNil())
 		})
 	})
 })
