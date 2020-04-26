@@ -333,6 +333,16 @@ var _ = Describe("Rabbithole", func() {
 				Ω(err).Should(BeNil())
 			})
 		})
+
+		Context("when the upstream definition is bad", func() {
+			It("returns a 400 error response", func() {
+				// this is NOT an err, but a HTTP 400 response
+				resp, err := rmqc.PutFederationUpstream("rabbit/hole", "error", FederationDefinition{})
+				Ω(err).Should(BeNil())
+				Ω(resp.StatusCode).Should(Equal(400))
+				Ω(resp.Status).Should(Equal("400 Bad Request"))
+			})
+		})
 	})
 
 	Context("DELETE /api/parameters/federation-upstream/{vhost}/{name}", func() {
@@ -341,7 +351,7 @@ var _ = Describe("Rabbithole", func() {
 				vh := "rabbit/hole"
 				name := "temporary"
 
-				// this is NOT an error, but a HTTP 404 response
+				// this is NOT an err, but a HTTP 404 response
 				resp, err := rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
 				Ω(resp.StatusCode).Should(Equal(404))
