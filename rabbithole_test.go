@@ -137,9 +137,7 @@ var _ = Describe("Rabbithole", func() {
 	Context("GET /api/parameters/federation-upstream/{vhost}", func() {
 		Context("when there are no upstreams", func() {
 			It("returns an empty response", func() {
-				vh := "rabbit/hole"
-
-				list, err := rmqc.ListFederationUpstreamsIn(vh)
+				list, err := rmqc.ListFederationUpstreamsIn("rabbit/hole")
 				Ω(err).Should(BeNil())
 				Ω(list).Should(BeEmpty())
 			})
@@ -279,7 +277,7 @@ var _ = Describe("Rabbithole", func() {
 				vh := "rabbit/hole"
 				name := "temporary"
 
-				// create the initial upstream
+				// create the upstream
 				fd := FederationDefinition{
 					Uri:            "amqp://127.0.0.1/%2f",
 					PrefetchCount:  1000,
