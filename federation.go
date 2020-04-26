@@ -28,6 +28,42 @@ type FederationUpstream struct {
 }
 
 //
+// GET /api/parameters/federation-upstream
+//
+
+// ListFederationUpstreams returns all federation upstreams
+func (c *Client) ListFederationUpstreams() (rec []FederationUpstream, err error) {
+	req, err := newGETRequest(c, "parameters/federation-upstream")
+	if err != nil {
+		return []FederationUpstream{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return []FederationUpstream{}, err
+	}
+
+	return rec, nil
+}
+
+//
+// GET /api/parameters/federation-upstream/{vhost}
+//
+
+// ListFederationUpstreamsIn returns all federation upstreams in a vhost
+func (c *Client) ListFederationUpstreamsIn(vhost string) (rec []FederationUpstream, err error) {
+	req, err := newGETRequest(c, "parameters/federation-upstream/"+url.PathEscape(vhost))
+	if err != nil {
+		return []FederationUpstream{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return []FederationUpstream{}, err
+	}
+
+	return rec, nil
+}
+
+//
 // GET /api/parameters/federation-upstream/{vhost}/{upstream}
 //
 

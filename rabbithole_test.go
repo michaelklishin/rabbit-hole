@@ -90,6 +90,108 @@ var _ = Describe("Rabbithole", func() {
 		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 	})
 
+	Context("GET /api/parameters/federation-upstream", func() {
+		Context("when there are no upstreams", func() {
+			It("returns an empty response", func() {
+				list, err := rmqc.ListFederationUpstreams()
+				Ω(err).Should(BeNil())
+				Ω(list).Should(BeEmpty())
+			})
+		})
+
+		Context("when there are upstreams", func() {
+			It("returns the list of upstreams", func() {
+				fd1 := FederationDefinition{
+					Uri: "amqp://server-name/%2f",
+				}
+				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", fd1)
+				Ω(err).Should(BeNil())
+
+				fd2 := FederationDefinition{
+					Uri: "amqp://example.com/%2f",
+				}
+				_, err = rmqc.PutFederationUpstream("/", "upstream2", fd2)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err := rmqc.ListFederationUpstreams()
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(2))
+
+				_, err = rmqc.DeleteFederationUpstream("rabbit/hole", "upstream1")
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.DeleteFederationUpstream("/", "upstream2")
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err = rmqc.ListFederationUpstreams()
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(0))
+			})
+		})
+	})
+
+	Context("GET /api/parameters/federation-upstream/{vhost}", func() {
+		Context("when there are no upstreams", func() {
+			It("returns an empty response", func() {
+				vh := "rabbit/hole"
+
+				list, err := rmqc.ListFederationUpstreamsIn(vh)
+				Ω(err).Should(BeNil())
+				Ω(list).Should(BeEmpty())
+			})
+		})
+
+		Context("when there are upstreams", func() {
+			It("returns the list of upstreams", func() {
+				vh := "rabbit/hole"
+
+				fd1 := FederationDefinition{
+					Uri: "amqp://server-name/%2f",
+				}
+
+				_, err := rmqc.PutFederationUpstream(vh, "upstream1", fd1)
+				Ω(err).Should(BeNil())
+
+				fd2 := FederationDefinition{
+					Uri: "amqp://example.com/%2f",
+				}
+
+				_, err = rmqc.PutFederationUpstream(vh, "upstream2", fd2)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err := rmqc.ListFederationUpstreamsIn(vh)
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(2))
+
+				// delete upstream1
+				_, err = rmqc.DeleteFederationUpstream(vh, "upstream1")
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err = rmqc.ListFederationUpstreamsIn(vh)
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(1))
+
+				// delete upstream2
+				_, err = rmqc.DeleteFederationUpstream(vh, "upstream2")
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err = rmqc.ListFederationUpstreamsIn(vh)
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(0))
+			})
+		})
+	})
+
 	Context("GET /api/parameters/federation-upstream/{vhost}/{upstream}", func() {
 		Context("when the upstream does not exist", func() {
 			It("returns a 404 error", func() {
