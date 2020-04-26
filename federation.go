@@ -24,6 +24,14 @@ type FederationDefinition struct {
 
 // Represents a configured Federation upstream.
 type FederationUpstream struct {
+	Name       string               `json:"name"`
+	Vhost      string               `json:"vhost"`
+	Component  string               `json:"component"`
+	Definition FederationDefinition `json:"value"`
+}
+
+// FederationDefinitionDTO provides a data transfer object for a FederationDefinition.
+type FederationDefinitionDTO struct {
 	Definition FederationDefinition `json:"value"`
 }
 
@@ -88,10 +96,11 @@ func (c *Client) GetFederationUpstream(vhost, upstreamName string) (rec *Federat
 
 // Updates a federation upstream
 func (c *Client) PutFederationUpstream(vhost string, upstreamName string, fDef FederationDefinition) (res *http.Response, err error) {
-	fedUp := FederationUpstream{
+	fedDTO := FederationDefinitionDTO{
 		Definition: fDef,
 	}
-	body, err := json.Marshal(fedUp)
+
+	body, err := json.Marshal(fedDTO)
 	if err != nil {
 		return nil, err
 	}

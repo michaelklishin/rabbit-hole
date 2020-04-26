@@ -224,6 +224,9 @@ var _ = Describe("Rabbithole", func() {
 
 				fu, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
+				Ω(fu.Vhost).Should(Equal(vh))
+				Ω(fu.Name).Should(Equal(name))
+				Ω(fu.Component).Should(Equal("federation-upstream"))
 				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
 				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
 				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
@@ -257,6 +260,9 @@ var _ = Describe("Rabbithole", func() {
 
 				fu, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
+				Ω(fu.Vhost).Should(Equal(vh))
+				Ω(fu.Name).Should(Equal(name))
+				Ω(fu.Component).Should(Equal("federation-upstream"))
 				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
 				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
 				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
@@ -289,6 +295,9 @@ var _ = Describe("Rabbithole", func() {
 
 				fu, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
+				Ω(fu.Vhost).Should(Equal(vh))
+				Ω(fu.Name).Should(Equal(name))
+				Ω(fu.Component).Should(Equal("federation-upstream"))
 				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
 				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
 				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
@@ -311,6 +320,9 @@ var _ = Describe("Rabbithole", func() {
 
 				fu2, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
+				Ω(fu2.Vhost).Should(Equal(vh))
+				Ω(fu2.Name).Should(Equal(name))
+				Ω(fu2.Component).Should(Equal("federation-upstream"))
 				Ω(fu2.Definition.Uri).Should(Equal(fd2.Uri))
 				Ω(fu2.Definition.PrefetchCount).Should(Equal(fd2.PrefetchCount))
 				Ω(fu2.Definition.ReconnectDelay).Should(Equal(fd2.ReconnectDelay))
