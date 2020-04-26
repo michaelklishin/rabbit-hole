@@ -25,3 +25,7 @@ call %RABBITHOLE_RABBITMQCTL% set_permissions -p "rabbit/hole" guest ".*" ".*" "
 REM Enable shovel plugin
 call %RABBITHOLE_RABBITMQ_PLUGINS% enable rabbitmq_shovel
 call %RABBITHOLE_RABBITMQ_PLUGINS% enable rabbitmq_shovel_management
+
+REM Enable shovel plugin
+call %RABBITHOLE_RABBITMQ_PLUGINS% enable rabbitmq_federation
+call %RABBITHOLE_RABBITMQ_PLUGINS% enable rabbitmq_federation_management
