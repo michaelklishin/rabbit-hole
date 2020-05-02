@@ -199,6 +199,30 @@ Managing Topic Permissions
         resp, err := rmqc.DeleteTopicPermissionsIn("/", "my.user", "exchange")
         // => *http.Response, err
 
+Managing Federation Upstreams
+
+        // list all upstreams
+        ups, err := rmqc.ListFederationUpstreams()
+        // => []FederationUpstream, error
+
+        // list upstreams in a vhost
+        ups, err := rmqc.ListFederationUpstreamsIn("/")
+        // => []FederationUpstream, error
+
+        // information about an upstream
+        up, err := rmqc.GetFederationUpstream("/", "upstream-name")
+        // => *FederationUpstream, error
+
+        // declare an upstream
+        resp, err := rmqc.PutFederationUpstream("/", "upstream-name", FederationDefinition{
+          Uri: "amqp://server-name",
+        })
+        // => *http.Response, error
+
+        // delete an upstream
+        resp, err := rmqc.DeleteFederationUpstream("/", "upstream-name")
+        // => *http.Response, error
+
 Operations on cluster name
         // Get cluster name
         cn, err := rmqc.GetClusterName()
