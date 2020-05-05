@@ -2165,4 +2165,46 @@ var _ = Describe("Rabbithole", func() {
 			Ω(x).Should(BeNil())
 		})
 	})
+
+	Context("PUT /api/parameters/{component}/{vhost}/{name}", func() {
+		Context("when the parameter does not exist", func() {
+			It("creates the parameter", func() {
+				component := "federation-upstream"
+				vhost := "rabbit/hole"
+				name := "temporary"
+
+				pv := RuntimeParameterValue{
+					"uri":             "amqp://server-name",
+					"prefetch-count":  500,
+					"reconnect-delay": 5,
+					"ack-mode":        "on-confirm",
+					"trust-user-id":   false,
+				}
+
+				_, err := rmqc.PutRuntimeParameter(component, vhost, name, pv)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				p, err := rmqc.GetRuntimeParameter(component, vhost, name)
+
+				Ω(err).Should(BeNil())
+				Ω(p.Component).Should(Equal("federation-upstream"))
+				Ω(p.Vhost).Should(Equal(vhost))
+				Ω(p.Name).Should(Equal(name))
+
+				// could use deep reflect or a better assertion here.
+				Ω(p.Value["uri"]).Should(Equal(pv["uri"]))
+
+				Ω(int(p.Value["prefetch-count"].(float64))).Should(Equal(pv["prefetch-count"]))
+				Ω(int(p.Value["reconnect-delay"].(float64))).Should(Equal(pv["reconnect-delay"]))
+
+				Ω(p.Value["ack-mode"]).Should(Equal(pv["ack-mode"]))
+				Ω(p.Value["trust-user-id"]).Should(Equal(pv["trust-user-id"]))
+
+				_, err = rmqc.DeleteRuntimeParameter(component, vhost, name)
+				Ω(err).Should(BeNil())
+			})
+		})
+	})
 })
