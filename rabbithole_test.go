@@ -1848,16 +1848,16 @@ var _ = Describe("Rabbithole", func() {
 
 		Context("when there are upstreams", func() {
 			It("returns the list of upstreams", func() {
-				fd1 := FederationDefinition{
+				def1 := FederationDefinition{
 					Uri: "amqp://server-name/%2f",
 				}
-				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", fd1)
+				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", def1)
 				Ω(err).Should(BeNil())
 
-				fd2 := FederationDefinition{
+				def2 := FederationDefinition{
 					Uri: "amqp://example.com/%2f",
 				}
-				_, err = rmqc.PutFederationUpstream("/", "upstream2", fd2)
+				_, err = rmqc.PutFederationUpstream("/", "upstream2", def2)
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
@@ -1894,18 +1894,18 @@ var _ = Describe("Rabbithole", func() {
 			It("returns the list of upstreams", func() {
 				vh := "rabbit/hole"
 
-				fd1 := FederationDefinition{
+				def1 := FederationDefinition{
 					Uri: "amqp://server-name/%2f",
 				}
 
-				_, err := rmqc.PutFederationUpstream(vh, "upstream1", fd1)
+				_, err := rmqc.PutFederationUpstream(vh, "upstream1", def1)
 				Ω(err).Should(BeNil())
 
-				fd2 := FederationDefinition{
+				def2 := FederationDefinition{
 					Uri: "amqp://example.com/%2f",
 				}
 
-				_, err = rmqc.PutFederationUpstream(vh, "upstream2", fd2)
+				_, err = rmqc.PutFederationUpstream(vh, "upstream2", def2)
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
@@ -1943,9 +1943,9 @@ var _ = Describe("Rabbithole", func() {
 				vh := "rabbit/hole"
 				name := "temporary"
 
-				fu, err := rmqc.GetFederationUpstream(vh, name)
+				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
-				Ω(fu).Should(BeNil())
+				Ω(up).Should(BeNil())
 			})
 		})
 
@@ -1954,7 +1954,7 @@ var _ = Describe("Rabbithole", func() {
 				vh := "rabbit/hole"
 				name := "temporary"
 
-				fd := FederationDefinition{
+				def := FederationDefinition{
 					Uri:            "amqp://127.0.0.1/%2f",
 					PrefetchCount:  1000,
 					ReconnectDelay: 1,
@@ -1962,21 +1962,21 @@ var _ = Describe("Rabbithole", func() {
 					TrustUserId:    false,
 				}
 
-				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				_, err := rmqc.PutFederationUpstream(vh, name, def)
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
 
-				fu, err := rmqc.GetFederationUpstream(vh, name)
+				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
-				Ω(fu.Vhost).Should(Equal(vh))
-				Ω(fu.Name).Should(Equal(name))
-				Ω(fu.Component).Should(Equal("federation-upstream"))
-				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
-				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
-				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
-				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
-				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
+				Ω(up.Vhost).Should(Equal(vh))
+				Ω(up.Name).Should(Equal(name))
+				Ω(up.Component).Should(Equal("federation-upstream"))
+				Ω(up.Definition.Uri).Should(Equal(def.Uri))
+				Ω(up.Definition.PrefetchCount).Should(Equal(def.PrefetchCount))
+				Ω(up.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
+				Ω(up.Definition.AckMode).Should(Equal(def.AckMode))
+				Ω(up.Definition.TrustUserId).Should(Equal(def.TrustUserId))
 
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
@@ -1990,29 +1990,39 @@ var _ = Describe("Rabbithole", func() {
 				vh := "rabbit/hole"
 				name := "temporary"
 
-				fd := FederationDefinition{
+				def := FederationDefinition{
 					Uri:            "amqp://127.0.0.1/%2f",
+					Expires:        1800000,
+					MessageTTL:     360000,
+					MaxHops:        1,
 					PrefetchCount:  500,
 					ReconnectDelay: 5,
 					AckMode:        "on-publish",
 					TrustUserId:    false,
+					Exchange:       "",
+					Queue:          "",
 				}
 
-				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				_, err := rmqc.PutFederationUpstream(vh, name, def)
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
 
-				fu, err := rmqc.GetFederationUpstream(vh, name)
+				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
-				Ω(fu.Vhost).Should(Equal(vh))
-				Ω(fu.Name).Should(Equal(name))
-				Ω(fu.Component).Should(Equal("federation-upstream"))
-				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
-				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
-				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
-				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
-				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
+				Ω(up.Vhost).Should(Equal(vh))
+				Ω(up.Name).Should(Equal(name))
+				Ω(up.Component).Should(Equal("federation-upstream"))
+				Ω(up.Definition.Uri).Should(Equal(def.Uri))
+				Ω(up.Definition.Expires).Should(Equal(def.Expires))
+				Ω(up.Definition.MessageTTL).Should(Equal(def.MessageTTL))
+				Ω(up.Definition.MaxHops).Should(Equal(def.MaxHops))
+				Ω(up.Definition.PrefetchCount).Should(Equal(def.PrefetchCount))
+				Ω(up.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
+				Ω(up.Definition.AckMode).Should(Equal(def.AckMode))
+				Ω(up.Definition.TrustUserId).Should(Equal(def.TrustUserId))
+				Ω(up.Definition.Exchange).Should(Equal(def.Exchange))
+				Ω(up.Definition.Queue).Should(Equal(def.Queue))
 
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
@@ -2025,7 +2035,7 @@ var _ = Describe("Rabbithole", func() {
 				name := "temporary"
 
 				// create the upstream
-				fd := FederationDefinition{
+				def := FederationDefinition{
 					Uri:            "amqp://127.0.0.1/%2f",
 					PrefetchCount:  1000,
 					ReconnectDelay: 1,
@@ -2033,24 +2043,24 @@ var _ = Describe("Rabbithole", func() {
 					TrustUserId:    false,
 				}
 
-				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				_, err := rmqc.PutFederationUpstream(vh, name, def)
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
 
-				fu, err := rmqc.GetFederationUpstream(vh, name)
+				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
-				Ω(fu.Vhost).Should(Equal(vh))
-				Ω(fu.Name).Should(Equal(name))
-				Ω(fu.Component).Should(Equal("federation-upstream"))
-				Ω(fu.Definition.Uri).Should(Equal(fd.Uri))
-				Ω(fu.Definition.PrefetchCount).Should(Equal(fd.PrefetchCount))
-				Ω(fu.Definition.ReconnectDelay).Should(Equal(fd.ReconnectDelay))
-				Ω(fu.Definition.AckMode).Should(Equal(fd.AckMode))
-				Ω(fu.Definition.TrustUserId).Should(Equal(fd.TrustUserId))
+				Ω(up.Vhost).Should(Equal(vh))
+				Ω(up.Name).Should(Equal(name))
+				Ω(up.Component).Should(Equal("federation-upstream"))
+				Ω(up.Definition.Uri).Should(Equal(def.Uri))
+				Ω(up.Definition.PrefetchCount).Should(Equal(def.PrefetchCount))
+				Ω(up.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
+				Ω(up.Definition.AckMode).Should(Equal(def.AckMode))
+				Ω(up.Definition.TrustUserId).Should(Equal(def.TrustUserId))
 
 				// update the upstream
-				fd2 := FederationDefinition{
+				def2 := FederationDefinition{
 					Uri:            "amqp://127.0.0.1/%2f",
 					PrefetchCount:  500,
 					ReconnectDelay: 10,
@@ -2058,21 +2068,21 @@ var _ = Describe("Rabbithole", func() {
 					TrustUserId:    true,
 				}
 
-				_, err = rmqc.PutFederationUpstream(vh, name, fd2)
+				_, err = rmqc.PutFederationUpstream(vh, name, def2)
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
 
-				fu2, err := rmqc.GetFederationUpstream(vh, name)
+				up, err = rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
-				Ω(fu2.Vhost).Should(Equal(vh))
-				Ω(fu2.Name).Should(Equal(name))
-				Ω(fu2.Component).Should(Equal("federation-upstream"))
-				Ω(fu2.Definition.Uri).Should(Equal(fd2.Uri))
-				Ω(fu2.Definition.PrefetchCount).Should(Equal(fd2.PrefetchCount))
-				Ω(fu2.Definition.ReconnectDelay).Should(Equal(fd2.ReconnectDelay))
-				Ω(fu2.Definition.AckMode).Should(Equal(fd2.AckMode))
-				Ω(fu2.Definition.TrustUserId).Should(Equal(fd2.TrustUserId))
+				Ω(up.Vhost).Should(Equal(vh))
+				Ω(up.Name).Should(Equal(name))
+				Ω(up.Component).Should(Equal("federation-upstream"))
+				Ω(up.Definition.Uri).Should(Equal(def2.Uri))
+				Ω(up.Definition.PrefetchCount).Should(Equal(def2.PrefetchCount))
+				Ω(up.Definition.ReconnectDelay).Should(Equal(def2.ReconnectDelay))
+				Ω(up.Definition.AckMode).Should(Equal(def2.AckMode))
+				Ω(up.Definition.TrustUserId).Should(Equal(def2.TrustUserId))
 
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
@@ -2109,11 +2119,11 @@ var _ = Describe("Rabbithole", func() {
 				vh := "rabbit/hole"
 				name := "temporary"
 
-				fd := FederationDefinition{
+				def := FederationDefinition{
 					Uri: "amqp://127.0.0.1/%2f",
 				}
 
-				_, err := rmqc.PutFederationUpstream(vh, name, fd)
+				_, err := rmqc.PutFederationUpstream(vh, name, def)
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
@@ -2204,68 +2214,6 @@ var _ = Describe("Rabbithole", func() {
 
 				Ω(v["ack-mode"]).Should(Equal(pv["ack-mode"]))
 				Ω(v["trust-user-id"]).Should(Equal(pv["trust-user-id"]))
-
-				_, err = rmqc.DeleteRuntimeParameter(component, vhost, name)
-				Ω(err).Should(BeNil())
-			})
-		})
-	})
-
-	Context("V2 PUT /api/parameters/federation-upstream/{vhost}/{name}", func() {
-		Context("when the parameter does not exist", func() {
-			It("creates the parameter", func() {
-				component := "federation-upstream"
-				vhost := "rabbit/hole"
-				name := "temporary"
-
-				def := FederationDefinition{
-					Uri:            "amqp://127.0.0.1/%2f",
-					PrefetchCount:  1000,
-					ReconnectDelay: 1,
-					AckMode:        "on-confirm",
-					TrustUserId:    false,
-				}
-
-				// use the federation API to create the parameter
-				_, err := rmqc.PutFederationUpstreamV2(vhost, name, def)
-				Ω(err).Should(BeNil())
-
-				awaitEventPropagation()
-
-				// use the runtime parameter API to read the federation info
-				// param is RuntimeParameter
-				param, err := rmqc.GetRuntimeParameter(component, vhost, name)
-
-				Ω(err).Should(BeNil())
-				Ω(param.Component).Should(Equal("federation-upstream"))
-				Ω(param.Vhost).Should(Equal(vhost))
-				Ω(param.Name).Should(Equal(name))
-
-				// the federation defintion is contained in a map
-				v := param.Value.(map[string]interface{})
-				Ω(v["uri"]).Should(Equal(def.Uri))
-
-				// this could be avoided by using decoder.UserNumber()
-				Ω(int(v["prefetch-count"].(float64))).Should(Equal(def.PrefetchCount))
-				Ω(int(v["reconnect-delay"].(float64))).Should(Equal(def.ReconnectDelay))
-
-				Ω(v["ack-mode"]).Should(Equal(def.AckMode))
-				Ω(v["trust-user-id"]).Should(Equal(def.TrustUserId))
-
-				// use the federation API to read the federation info
-				// info is FederationInfo
-				info, err := rmqc.GetFederationUpstreamV2(vhost, name)
-
-				Ω(err).Should(BeNil())
-				Ω(info.Component).Should(Equal(component))
-				Ω(info.Vhost).Should(Equal(vhost))
-				Ω(info.Name).Should(Equal(name))
-
-				Ω(info.Definition.Uri).Should(Equal(def.Uri))
-				Ω(info.Definition.PrefetchCount).Should(Equal(def.PrefetchCount))
-				Ω(info.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
-				Ω(info.Definition.AckMode).Should(Equal(def.AckMode))
-				Ω(info.Definition.TrustUserId).Should(Equal(def.TrustUserId))
 
 				_, err = rmqc.DeleteRuntimeParameter(component, vhost, name)
 				Ω(err).Should(BeNil())

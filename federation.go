@@ -1,7 +1,6 @@
 package rabbithole
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/url"
 )
@@ -27,20 +26,6 @@ type FederationUpstream struct {
 	Name       string               `json:"name"`
 	Vhost      string               `json:"vhost"`
 	Component  string               `json:"component"`
-	Definition FederationDefinition `json:"value"`
-}
-
-// FederationInfo represents a runtime parameter that targets a "federation-upstream" component.
-// Replaces FederationUpstream and FederationDefinitionDTO
-type FederationInfo struct {
-	Name       string               `json:"name"`
-	Vhost      string               `json:"vhost"`
-	Component  string               `json:"component"`
-	Definition FederationDefinition `json:"value"`
-}
-
-// FederationDefinitionDTO provides a data transfer object for a FederationDefinition.
-type FederationDefinitionDTO struct {
 	Definition FederationDefinition `json:"value"`
 }
 
@@ -85,25 +70,65 @@ func (c *Client) ListFederationUpstreamsIn(vhost string) (rec []FederationUpstre
 //
 
 // GetFederationUpstream returns a federation upstream
-func (c *Client) GetFederationUpstream(vhost, upstreamName string) (rec *FederationUpstream, err error) {
-	req, err := newGETRequest(c, "parameters/federation-upstream/"+url.PathEscape(vhost)+"/"+url.PathEscape(upstreamName))
-
+func (c *Client) GetFederationUpstream(vhost, name string) (up *FederationUpstream, err error) {
+	param, err := c.GetRuntimeParameter("federation-upstream", vhost, name)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
+	// TODO: extract to function when migrating List* methods.
+	up = &FederationUpstream{
+		Name:      param.Name,
+		Vhost:     param.Vhost,
+		Component: param.Component,
 	}
 
-	return rec, nil
-}
+	def := FederationDefinition{}
+	m := param.Value.(map[string]interface{})
 
-func (c *Client) GetFederationUpstreamV2(vhost, name string) (info *FederationInfo, err error) {
-	if err = c.PopulateRuntimeParameter("federation-upstream", vhost, name, &info); err != nil {
-		return nil, err
+	if v, ok := m["uri"].(string); ok {
+		def.Uri = v
 	}
-	return info, nil
+
+	if v, ok := m["expires"].(float64); ok {
+		def.Expires = int(v)
+	}
+
+	if v, ok := m["message-ttl"].(float64); ok {
+		def.MessageTTL = int32(v)
+	}
+
+	if v, ok := m["max-hops"].(float64); ok {
+		def.MaxHops = int(v)
+	}
+
+	if v, ok := m["prefetch-count"].(float64); ok {
+		def.PrefetchCount = int(v)
+	}
+
+	if v, ok := m["reconnect-delay"].(float64); ok {
+		def.ReconnectDelay = int(v)
+	}
+
+	if v, ok := m["ack-mode"].(string); ok {
+		def.AckMode = v
+	}
+
+	if v, ok := m["trust-user-id"].(bool); ok {
+		def.TrustUserId = v
+	}
+
+	if v, ok := m["exchange"].(string); ok {
+		def.Exchange = v
+	}
+
+	if v, ok := m["queue"].(string); ok {
+		def.Queue = v
+	}
+
+	up.Definition = def
+
+	return up, nil
 }
 
 //
@@ -111,29 +136,7 @@ func (c *Client) GetFederationUpstreamV2(vhost, name string) (info *FederationIn
 //
 
 // Updates a federation upstream
-func (c *Client) PutFederationUpstream(vhost string, upstreamName string, fDef FederationDefinition) (res *http.Response, err error) {
-	fedDTO := FederationDefinitionDTO{
-		Definition: fDef,
-	}
-
-	body, err := json.Marshal(fedDTO)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := newRequestWithBody(c, "PUT", "parameters/federation-upstream/"+url.PathEscape(vhost)+"/"+url.PathEscape(upstreamName), body)
-	if err != nil {
-		return nil, err
-	}
-
-	if res, err = executeRequest(c, req); err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func (c *Client) PutFederationUpstreamV2(vhost string, name string, def FederationDefinition) (res *http.Response, err error) {
+func (c *Client) PutFederationUpstream(vhost string, name string, def FederationDefinition) (res *http.Response, err error) {
 	return c.PutRuntimeParameter("federation-upstream", vhost, name, def)
 }
 
@@ -142,15 +145,6 @@ func (c *Client) PutFederationUpstreamV2(vhost string, name string, def Federati
 //
 
 // Deletes a federation upstream.
-func (c *Client) DeleteFederationUpstream(vhost, upstreamName string) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "parameters/federation-upstream/"+url.PathEscape(vhost)+"/"+url.PathEscape(upstreamName), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	if res, err = executeRequest(c, req); err != nil {
-		return nil, err
-	}
-
-	return res, nil
+func (c *Client) DeleteFederationUpstream(vhost, name string) (res *http.Response, err error) {
+	return c.DeleteRuntimeParameter("federation-upstream", vhost, name)
 }
