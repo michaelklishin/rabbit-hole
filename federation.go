@@ -30,6 +30,15 @@ type FederationUpstream struct {
 	Definition FederationDefinition `json:"value"`
 }
 
+// FederationInfo represents a runtime parameter that targets a "federation-upstream" component.
+// Replaces FederationUpstream and FederationDefinitionDTO
+type FederationInfo struct {
+	Name       string               `json:"name"`
+	Vhost      string               `json:"vhost"`
+	Component  string               `json:"component"`
+	Definition FederationDefinition `json:"value"`
+}
+
 // FederationDefinitionDTO provides a data transfer object for a FederationDefinition.
 type FederationDefinitionDTO struct {
 	Definition FederationDefinition `json:"value"`
@@ -88,6 +97,13 @@ func (c *Client) GetFederationUpstream(vhost, upstreamName string) (rec *Federat
 	}
 
 	return rec, nil
+}
+
+func (c *Client) GetFederationUpstreamV2(vhost, name string) (info *FederationInfo, err error) {
+	if err = c.PopulateRuntimeParameter("federation-upstream", vhost, name, &info); err != nil {
+		return nil, err
+	}
+	return info, nil
 }
 
 //

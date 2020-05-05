@@ -2252,6 +2252,21 @@ var _ = Describe("Rabbithole", func() {
 				Ω(v["ack-mode"]).Should(Equal(def.AckMode))
 				Ω(v["trust-user-id"]).Should(Equal(def.TrustUserId))
 
+				// use the federation API to read the federation info
+				// info is FederationInfo
+				info, err := rmqc.GetFederationUpstreamV2(vhost, name)
+
+				Ω(err).Should(BeNil())
+				Ω(info.Component).Should(Equal(component))
+				Ω(info.Vhost).Should(Equal(vhost))
+				Ω(info.Name).Should(Equal(name))
+
+				Ω(info.Definition.Uri).Should(Equal(def.Uri))
+				Ω(info.Definition.PrefetchCount).Should(Equal(def.PrefetchCount))
+				Ω(info.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
+				Ω(info.Definition.AckMode).Should(Equal(def.AckMode))
+				Ω(info.Definition.TrustUserId).Should(Equal(def.TrustUserId))
+
 				_, err = rmqc.DeleteRuntimeParameter(component, vhost, name)
 				Ω(err).Should(BeNil())
 			})

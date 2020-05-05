@@ -79,16 +79,24 @@ func (c *Client) ListRuntimeParametersIn(component, vhost string) (p []RuntimePa
 
 // GetRuntimeParameter returns a runtime parameter.
 func (c *Client) GetRuntimeParameter(component, vhost, name string) (p *RuntimeParameter, err error) {
+	if err = c.PopulateRuntimeParameter(component, vhost, name, &p); err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
+// PopulateRuntimeParameter hydrates a runtime parameter using the provided interface.
+func (c *Client) PopulateRuntimeParameter(component, vhost, name string, p interface{}) error {
 	req, err := newGETRequest(c, "parameters/"+url.PathEscape(component)+"/"+url.PathEscape(vhost)+"/"+url.PathEscape(name))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = executeAndParseRequest(c, req, &p); err != nil {
-		return nil, err
+		return err
 	}
 
-	return p, nil
+	return nil
 }
 
 //
