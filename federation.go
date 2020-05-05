@@ -117,6 +117,10 @@ func (c *Client) PutFederationUpstream(vhost string, upstreamName string, fDef F
 	return res, nil
 }
 
+func (c *Client) PutFederationUpstreamV2(vhost string, name string, def FederationDefinition) (res *http.Response, err error) {
+	return c.PutRuntimeParameter("federation-upstream", vhost, name, def)
+}
+
 //
 // DELETE /api/parameters/federation-upstream/{vhost}/{name}
 //

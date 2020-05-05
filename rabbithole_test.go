@@ -2193,14 +2193,64 @@ var _ = Describe("Rabbithole", func() {
 				Ω(p.Vhost).Should(Equal(vhost))
 				Ω(p.Name).Should(Equal(name))
 
-				// could use deep reflect or a better assertion here.
-				Ω(p.Value["uri"]).Should(Equal(pv["uri"]))
+				// we need to convert from interface{}
+				v := p.Value.(map[string]interface{})
 
-				Ω(int(p.Value["prefetch-count"].(float64))).Should(Equal(pv["prefetch-count"]))
-				Ω(int(p.Value["reconnect-delay"].(float64))).Should(Equal(pv["reconnect-delay"]))
+				// could use reflect or a better assertion here.
+				Ω(v["uri"]).Should(Equal(pv["uri"]))
 
-				Ω(p.Value["ack-mode"]).Should(Equal(pv["ack-mode"]))
-				Ω(p.Value["trust-user-id"]).Should(Equal(pv["trust-user-id"]))
+				Ω(int(v["prefetch-count"].(float64))).Should(Equal(pv["prefetch-count"]))
+				Ω(int(v["reconnect-delay"].(float64))).Should(Equal(pv["reconnect-delay"]))
+
+				Ω(v["ack-mode"]).Should(Equal(pv["ack-mode"]))
+				Ω(v["trust-user-id"]).Should(Equal(pv["trust-user-id"]))
+
+				_, err = rmqc.DeleteRuntimeParameter(component, vhost, name)
+				Ω(err).Should(BeNil())
+			})
+		})
+	})
+
+	Context("V2 PUT /api/parameters/federation-upstream/{vhost}/{name}", func() {
+		Context("when the parameter does not exist", func() {
+			It("creates the parameter", func() {
+				component := "federation-upstream"
+				vhost := "rabbit/hole"
+				name := "temporary"
+
+				def := FederationDefinition{
+					Uri:            "amqp://127.0.0.1/%2f",
+					PrefetchCount:  1000,
+					ReconnectDelay: 1,
+					AckMode:        "on-confirm",
+					TrustUserId:    false,
+				}
+
+				// use the federation API to create the parameter
+				_, err := rmqc.PutFederationUpstreamV2(vhost, name, def)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				// use the runtime parameter API to read the federation info
+				// param is RuntimeParameter
+				param, err := rmqc.GetRuntimeParameter(component, vhost, name)
+
+				Ω(err).Should(BeNil())
+				Ω(param.Component).Should(Equal("federation-upstream"))
+				Ω(param.Vhost).Should(Equal(vhost))
+				Ω(param.Name).Should(Equal(name))
+
+				// the federation defintion is contained in a map
+				v := param.Value.(map[string]interface{})
+				Ω(v["uri"]).Should(Equal(def.Uri))
+
+				// this could be avoided by using decoder.UserNumber()
+				Ω(int(v["prefetch-count"].(float64))).Should(Equal(def.PrefetchCount))
+				Ω(int(v["reconnect-delay"].(float64))).Should(Equal(def.ReconnectDelay))
+
+				Ω(v["ack-mode"]).Should(Equal(def.AckMode))
+				Ω(v["trust-user-id"]).Should(Equal(def.TrustUserId))
 
 				_, err = rmqc.DeleteRuntimeParameter(component, vhost, name)
 				Ω(err).Should(BeNil())

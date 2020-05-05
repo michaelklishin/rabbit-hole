@@ -7,11 +7,13 @@ import (
 )
 
 // RuntimeParameter represents a vhost-scoped parameter.
+// Value is interface{} to support creating parameters directly from types such as
+// FederationInfo and ShovelInfo.
 type RuntimeParameter struct {
-	Name      string                `json:"name"`
-	Vhost     string                `json:"vhost"`
-	Component string                `json:"component"`
-	Value     RuntimeParameterValue `json:"value"`
+	Name      string      `json:"name"`
+	Vhost     string      `json:"vhost"`
+	Component string      `json:"component"`
+	Value     interface{} `json:"value"`
 }
 
 // RuntimeParameterValue represents arbitrary parameter data.
@@ -94,7 +96,7 @@ func (c *Client) GetRuntimeParameter(component, vhost, name string) (p *RuntimeP
 //
 
 // PutRuntimeParameter creates a runtime parameter.
-func (c *Client) PutRuntimeParameter(component, vhost, name string, value RuntimeParameterValue) (res *http.Response, err error) {
+func (c *Client) PutRuntimeParameter(component, vhost, name string, value interface{}) (res *http.Response, err error) {
 	param := RuntimeParameter{
 		name,
 		vhost,
