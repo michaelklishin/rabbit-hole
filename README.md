@@ -326,6 +326,64 @@ resp, err := rmqc.DeleteShovel("/", "a.shovel")
 
 ```
 
+### Operations on Runtime (vhost-scoped) Parameters
+
+```golang
+// list all runtime parameters
+params, err := rmqc.ListRuntimeParameters()
+// => []RuntimeParameter, error
+
+// list all runtime parameters for a component
+params, err := rmqc.ListRuntimeParametersFor("federation-upstream")
+// => []RuntimeParameter, error
+
+// list runtime parameters in a vhost
+params, err := rmqc.ListRuntimeParametersIn("federation-upstream", "/")
+// => []RuntimeParameter, error
+
+// information about a runtime parameter
+p, err := rmqc.GetRuntimeParameter("federation-upstream", "/", "name")
+// => *RuntimeParameter, error
+
+// declare or update a runtime parameter
+resp, err := rmqc.PutRuntimeParameter("federation-upstream", "/", "name", FederationDefinition{
+    Uri: "amqp://server-name",
+})
+// => *http.Response, error
+
+// remove a runtime parameter
+resp, err := rmqc.DeleteRuntimeParameter("federation-upstream", "/", "name")
+// => *http.Response, error
+
+```
+
+### Operations on Federation Upstreams
+
+```golang
+// list all federation upstreams
+ups, err := rmqc.ListFederationUpstreams()
+// => []FederationUpstream, error
+
+// list federation upstreams in a vhost
+ups, err := rmqc.ListFederationUpstreamsIn("/")
+// => []FederationUpstream, error
+
+// information about a federated upstream
+up, err := rmqc.GetFederationUpstream("/", "name")
+// => *FederationUpstream, error
+
+// declare or update a federation upstream
+resp, err := rmqc.PutFederationUpstream("/", "name", FederationDefinition{
+  Uri: "amqp://server-name",
+})
+// => *http.Response, error
+
+// delete an upstream
+resp, err := rmqc.DeleteFederationUpstream("/", "name")
+// => *http.Response, error
+
+```
+
 ### Operations on cluster name
 ``` go
 // Get cluster name
