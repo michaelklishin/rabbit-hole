@@ -2219,4 +2219,55 @@ var _ = Describe("Rabbithole", func() {
 			})
 		})
 	})
+
+	Context("GET /api/parameters", func() {
+		Context("when there are no runtime parameters", func() {
+			It("returns an empty response", func() {
+				list, err := rmqc.ListRuntimeParameters()
+				Ω(err).Should(BeNil())
+				Ω(list).Should(BeEmpty())
+			})
+		})
+
+		Context("when there are runtime parameters", func() {
+			It("returns the list of parameters", func() {
+				fDef := FederationDefinition{
+					Uri: "amqp://server-name/%2f",
+				}
+				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", fDef)
+				Ω(err).Should(BeNil())
+
+				sDef := ShovelDefinition{
+					SourceURI:         "amqp://127.0.0.1/%2f",
+					SourceQueue:       "mySourceQueue",
+					DestinationURI:    "amqp://127.0.0.1/%2f",
+					DestinationQueue:  "myDestQueue",
+					AddForwardHeaders: true,
+					AckMode:           "on-confirm",
+					DeleteAfter:       "never",
+				}
+
+				_, err = rmqc.DeclareShovel("/", "shovel1", sDef)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err := rmqc.ListRuntimeParameters()
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(2))
+
+				_, err = rmqc.DeleteFederationUpstream("rabbit/hole", "upstream1")
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.DeleteShovel("/", "shovel1")
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err = rmqc.ListRuntimeParameters()
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(0))
+			})
+		})
+	})
 })
