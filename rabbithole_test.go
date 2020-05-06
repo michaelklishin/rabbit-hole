@@ -1971,7 +1971,7 @@ var _ = Describe("Rabbithole", func() {
 				Ω(err).Should(BeNil())
 				Ω(up.Vhost).Should(Equal(vh))
 				Ω(up.Name).Should(Equal(name))
-				Ω(up.Component).Should(Equal("federation-upstream"))
+				Ω(up.Component).Should(Equal(FederationUpstreamComponent))
 				Ω(up.Definition.Uri).Should(Equal(def.Uri))
 				Ω(up.Definition.PrefetchCount).Should(Equal(def.PrefetchCount))
 				Ω(up.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
@@ -2012,7 +2012,7 @@ var _ = Describe("Rabbithole", func() {
 				Ω(err).Should(BeNil())
 				Ω(up.Vhost).Should(Equal(vh))
 				Ω(up.Name).Should(Equal(name))
-				Ω(up.Component).Should(Equal("federation-upstream"))
+				Ω(up.Component).Should(Equal(FederationUpstreamComponent))
 				Ω(up.Definition.Uri).Should(Equal(def.Uri))
 				Ω(up.Definition.Expires).Should(Equal(def.Expires))
 				Ω(up.Definition.MessageTTL).Should(Equal(def.MessageTTL))
@@ -2052,7 +2052,7 @@ var _ = Describe("Rabbithole", func() {
 				Ω(err).Should(BeNil())
 				Ω(up.Vhost).Should(Equal(vh))
 				Ω(up.Name).Should(Equal(name))
-				Ω(up.Component).Should(Equal("federation-upstream"))
+				Ω(up.Component).Should(Equal(FederationUpstreamComponent))
 				Ω(up.Definition.Uri).Should(Equal(def.Uri))
 				Ω(up.Definition.PrefetchCount).Should(Equal(def.PrefetchCount))
 				Ω(up.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
@@ -2077,7 +2077,7 @@ var _ = Describe("Rabbithole", func() {
 				Ω(err).Should(BeNil())
 				Ω(up.Vhost).Should(Equal(vh))
 				Ω(up.Name).Should(Equal(name))
-				Ω(up.Component).Should(Equal("federation-upstream"))
+				Ω(up.Component).Should(Equal(FederationUpstreamComponent))
 				Ω(up.Definition.Uri).Should(Equal(def2.Uri))
 				Ω(up.Definition.PrefetchCount).Should(Equal(def2.PrefetchCount))
 				Ω(up.Definition.ReconnectDelay).Should(Equal(def2.ReconnectDelay))
@@ -2179,7 +2179,7 @@ var _ = Describe("Rabbithole", func() {
 	Context("PUT /api/parameters/{component}/{vhost}/{name}", func() {
 		Context("when the parameter does not exist", func() {
 			It("creates the parameter", func() {
-				component := "federation-upstream"
+				component := FederationUpstreamComponent
 				vhost := "rabbit/hole"
 				name := "temporary"
 
@@ -2199,7 +2199,7 @@ var _ = Describe("Rabbithole", func() {
 				p, err := rmqc.GetRuntimeParameter(component, vhost, name)
 
 				Ω(err).Should(BeNil())
-				Ω(p.Component).Should(Equal("federation-upstream"))
+				Ω(p.Component).Should(Equal(FederationUpstreamComponent))
 				Ω(p.Vhost).Should(Equal(vhost))
 				Ω(p.Name).Should(Equal(name))
 

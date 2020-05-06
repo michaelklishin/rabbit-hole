@@ -28,13 +28,15 @@ type FederationUpstream struct {
 	Definition FederationDefinition `json:"value"`
 }
 
+const FederationUpstreamComponent string = "federation-upstream"
+
 //
 // GET /api/parameters/federation-upstream
 //
 
 // ListFederationUpstreams returns all federation upstreams
 func (c *Client) ListFederationUpstreams() (ups []FederationUpstream, err error) {
-	params, err := c.ListRuntimeParametersFor("federation-upstream")
+	params, err := c.ListRuntimeParametersFor(FederationUpstreamComponent)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +54,7 @@ func (c *Client) ListFederationUpstreams() (ups []FederationUpstream, err error)
 
 // ListFederationUpstreamsIn returns all federation upstreams in a vhost
 func (c *Client) ListFederationUpstreamsIn(vhost string) (ups []FederationUpstream, err error) {
-	params, err := c.ListRuntimeParametersIn("federation-upstream", vhost)
+	params, err := c.ListRuntimeParametersIn(FederationUpstreamComponent, vhost)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +72,7 @@ func (c *Client) ListFederationUpstreamsIn(vhost string) (ups []FederationUpstre
 
 // GetFederationUpstream returns a federation upstream
 func (c *Client) GetFederationUpstream(vhost, name string) (up *FederationUpstream, err error) {
-	param, err := c.GetRuntimeParameter("federation-upstream", vhost, name)
+	param, err := c.GetRuntimeParameter(FederationUpstreamComponent, vhost, name)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +85,7 @@ func (c *Client) GetFederationUpstream(vhost, name string) (up *FederationUpstre
 
 // Updates a federation upstream
 func (c *Client) PutFederationUpstream(vhost string, name string, def FederationDefinition) (res *http.Response, err error) {
-	return c.PutRuntimeParameter("federation-upstream", vhost, name, def)
+	return c.PutRuntimeParameter(FederationUpstreamComponent, vhost, name, def)
 }
 
 //
@@ -92,7 +94,7 @@ func (c *Client) PutFederationUpstream(vhost string, name string, def Federation
 
 // Deletes a federation upstream.
 func (c *Client) DeleteFederationUpstream(vhost, name string) (res *http.Response, err error) {
-	return c.DeleteRuntimeParameter("federation-upstream", vhost, name)
+	return c.DeleteRuntimeParameter(FederationUpstreamComponent, vhost, name)
 }
 
 // paramToUpstream maps from a RuntimeParameter structure to a FederationUpstream structure.
