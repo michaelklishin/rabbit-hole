@@ -39,7 +39,6 @@ func (c *Client) ListFederationUpstreams() (ups []FederationUpstream, err error)
 		return nil, err
 	}
 
-	ups = []FederationUpstream{}
 	for _, param := range params {
 		up := paramToUpstream(&param)
 		ups = append(ups, *up)
@@ -58,7 +57,6 @@ func (c *Client) ListFederationUpstreamsIn(vhost string) (ups []FederationUpstre
 		return nil, err
 	}
 
-	ups = []FederationUpstream{}
 	for _, param := range params {
 		up := paramToUpstream(&param)
 		ups = append(ups, *up)
