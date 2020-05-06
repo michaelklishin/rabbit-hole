@@ -8,7 +8,7 @@ import (
 
 // RuntimeParameter represents a vhost-scoped parameter.
 // Value is interface{} to support creating parameters directly from types such as
-// FederationInfo and ShovelInfo.
+// FederationUpstream and ShovelInfo.
 type RuntimeParameter struct {
 	Name      string      `json:"name"`
 	Vhost     string      `json:"vhost"`
@@ -23,7 +23,7 @@ type RuntimeParameterValue map[string]interface{}
 // GET /api/parameters
 //
 
-// ListRuntimeParameters returns all runtime parameters.
+// ListRuntimeParameters returns a list of all runtime parameters.
 func (c *Client) ListRuntimeParameters() (params []RuntimeParameter, err error) {
 	req, err := newGETRequest(c, "parameters")
 	if err != nil {
@@ -41,7 +41,7 @@ func (c *Client) ListRuntimeParameters() (params []RuntimeParameter, err error) 
 // GET /api/parameters/{component}
 //
 
-// ListRuntimeParametersFor returns all runtime parameters for a component in all vhosts.
+// ListRuntimeParametersFor returns a list of all runtime parameters for a component in all vhosts.
 func (c *Client) ListRuntimeParametersFor(component string) (params []RuntimeParameter, err error) {
 	req, err := newGETRequest(c, "parameters/"+url.PathEscape(component))
 	if err != nil {
@@ -59,7 +59,7 @@ func (c *Client) ListRuntimeParametersFor(component string) (params []RuntimePar
 // GET /api/parameters/{component}/{vhost}
 //
 
-// ListRuntimeParametersIn returns all runtime parameters for a component in a vhost.
+// ListRuntimeParametersIn returns a list of all runtime parameters for a component in a vhost.
 func (c *Client) ListRuntimeParametersIn(component, vhost string) (p []RuntimeParameter, err error) {
 	req, err := newGETRequest(c, "parameters/"+url.PathEscape(component)+"/"+url.PathEscape(vhost))
 	if err != nil {
@@ -77,7 +77,7 @@ func (c *Client) ListRuntimeParametersIn(component, vhost string) (p []RuntimePa
 // GET /api/parameters/{component}/{vhost}/{name}
 //
 
-// GetRuntimeParameter returns a runtime parameter.
+// GetRuntimeParameter returns information about a runtime parameter.
 func (c *Client) GetRuntimeParameter(component, vhost, name string) (p *RuntimeParameter, err error) {
 	req, err := newGETRequest(c, "parameters/"+url.PathEscape(component)+"/"+url.PathEscape(vhost)+"/"+url.PathEscape(name))
 	if err != nil {
@@ -95,16 +95,16 @@ func (c *Client) GetRuntimeParameter(component, vhost, name string) (p *RuntimeP
 // PUT /api/parameters/{component}/{vhost}/{name}
 //
 
-// PutRuntimeParameter creates a runtime parameter.
+// PutRuntimeParameter creates or updates a runtime parameter.
 func (c *Client) PutRuntimeParameter(component, vhost, name string, value interface{}) (res *http.Response, err error) {
-	param := RuntimeParameter{
+	p := RuntimeParameter{
 		name,
 		vhost,
 		component,
 		value,
 	}
 
-	body, err := json.Marshal(param)
+	body, err := json.Marshal(p)
 	if err != nil {
 		return nil, err
 	}

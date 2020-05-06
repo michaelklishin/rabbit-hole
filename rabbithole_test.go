@@ -2206,7 +2206,6 @@ var _ = Describe("Rabbithole", func() {
 				// we need to convert from interface{}
 				v := p.Value.(map[string]interface{})
 
-				// could use reflect or a better assertion here.
 				Ω(v["uri"]).Should(Equal(pv["uri"]))
 
 				Ω(int(v["prefetch-count"].(float64))).Should(Equal(pv["prefetch-count"]))

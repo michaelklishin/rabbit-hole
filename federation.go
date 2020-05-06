@@ -34,15 +34,15 @@ const FederationUpstreamComponent string = "federation-upstream"
 // GET /api/parameters/federation-upstream
 //
 
-// ListFederationUpstreams returns all federation upstreams
+// ListFederationUpstreams returns a list of all federation upstreams.
 func (c *Client) ListFederationUpstreams() (ups []FederationUpstream, err error) {
 	params, err := c.ListRuntimeParametersFor(FederationUpstreamComponent)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, param := range params {
-		up := paramToUpstream(&param)
+	for _, p := range params {
+		up := paramToUpstream(&p)
 		ups = append(ups, *up)
 	}
 	return ups, nil
@@ -52,15 +52,15 @@ func (c *Client) ListFederationUpstreams() (ups []FederationUpstream, err error)
 // GET /api/parameters/federation-upstream/{vhost}
 //
 
-// ListFederationUpstreamsIn returns all federation upstreams in a vhost
+// ListFederationUpstreamsIn returns a list of all federation upstreams in a vhost.
 func (c *Client) ListFederationUpstreamsIn(vhost string) (ups []FederationUpstream, err error) {
 	params, err := c.ListRuntimeParametersIn(FederationUpstreamComponent, vhost)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, param := range params {
-		up := paramToUpstream(&param)
+	for _, p := range params {
+		up := paramToUpstream(&p)
 		ups = append(ups, *up)
 	}
 	return ups, nil
@@ -70,21 +70,21 @@ func (c *Client) ListFederationUpstreamsIn(vhost string) (ups []FederationUpstre
 // GET /api/parameters/federation-upstream/{vhost}/{upstream}
 //
 
-// GetFederationUpstream returns a federation upstream
+// GetFederationUpstream returns information about a federation upstream.
 func (c *Client) GetFederationUpstream(vhost, name string) (up *FederationUpstream, err error) {
-	param, err := c.GetRuntimeParameter(FederationUpstreamComponent, vhost, name)
+	p, err := c.GetRuntimeParameter(FederationUpstreamComponent, vhost, name)
 	if err != nil {
 		return nil, err
 	}
-	return paramToUpstream(param), nil
+	return paramToUpstream(p), nil
 }
 
 //
 // PUT /api/parameters/federation-upstream/{vhost}/{upstream}
 //
 
-// Updates a federation upstream
-func (c *Client) PutFederationUpstream(vhost string, name string, def FederationDefinition) (res *http.Response, err error) {
+// PutFederationUpstream creates or updates a federation upstream configuration.
+func (c *Client) PutFederationUpstream(vhost, name string, def FederationDefinition) (res *http.Response, err error) {
 	return c.PutRuntimeParameter(FederationUpstreamComponent, vhost, name, def)
 }
 
@@ -92,7 +92,7 @@ func (c *Client) PutFederationUpstream(vhost string, name string, def Federation
 // DELETE /api/parameters/federation-upstream/{vhost}/{name}
 //
 
-// Deletes a federation upstream.
+// DeleteFederationUpstream removes a federation upstream.
 func (c *Client) DeleteFederationUpstream(vhost, name string) (res *http.Response, err error) {
 	return c.DeleteRuntimeParameter(FederationUpstreamComponent, vhost, name)
 }
