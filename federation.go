@@ -4,9 +4,8 @@ import (
 	"net/http"
 )
 
-// Federation definition: additional arguments
-// added to the entities (queues, exchanges or both)
-// that match a policy.
+// FederationDefinition represents settings
+// that will be used by federation links.
 type FederationDefinition struct {
 	Uri            string `json:"uri"`
 	Expires        int    `json:"expires"`
@@ -20,7 +19,7 @@ type FederationDefinition struct {
 	Queue          string `json:"queue"`
 }
 
-// Represents a configured Federation upstream.
+// FederationUpstream represents a configured federation upstream.
 type FederationUpstream struct {
 	Name       string               `json:"name"`
 	Vhost      string               `json:"vhost"`
@@ -28,6 +27,8 @@ type FederationUpstream struct {
 	Definition FederationDefinition `json:"value"`
 }
 
+// FederationUpstreamComponent is the name of the runtime parameter component
+// used by federation upstreams.
 const FederationUpstreamComponent string = "federation-upstream"
 
 //
