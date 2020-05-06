@@ -1,5 +1,11 @@
 ## Changes Between 2.1.0 and 2.2.0 (in development)
 
+### [Runtime Parameter](https://www.rabbitmq.com/parameters.html) and [Federation Upstream](https://www.rabbitmq.com/federation.html) Management
+
+Contributed by @niclic.
+
+GitHub issue: [#150](https://github.com/michaelklishin/rabbit-hole/pull/150)
+
 ### Fixed a null Pointer in HTTP Response Handling
 
 Contributed by @justabaka.
