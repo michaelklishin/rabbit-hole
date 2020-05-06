@@ -2,7 +2,6 @@ package rabbithole
 
 import (
 	"net/http"
-	"net/url"
 )
 
 // Federation definition: additional arguments
@@ -34,17 +33,18 @@ type FederationUpstream struct {
 //
 
 // ListFederationUpstreams returns all federation upstreams
-func (c *Client) ListFederationUpstreams() (rec []FederationUpstream, err error) {
-	req, err := newGETRequest(c, "parameters/federation-upstream")
+func (c *Client) ListFederationUpstreams() (ups []FederationUpstream, err error) {
+	params, err := c.ListRuntimeParametersFor("federation-upstream")
 	if err != nil {
-		return []FederationUpstream{}, err
+		return nil, err
 	}
 
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return []FederationUpstream{}, err
+	ups = []FederationUpstream{}
+	for _, param := range params {
+		up := paramToUpstream(&param)
+		ups = append(ups, *up)
 	}
-
-	return rec, nil
+	return ups, nil
 }
 
 //
@@ -52,17 +52,18 @@ func (c *Client) ListFederationUpstreams() (rec []FederationUpstream, err error)
 //
 
 // ListFederationUpstreamsIn returns all federation upstreams in a vhost
-func (c *Client) ListFederationUpstreamsIn(vhost string) (rec []FederationUpstream, err error) {
-	req, err := newGETRequest(c, "parameters/federation-upstream/"+url.PathEscape(vhost))
+func (c *Client) ListFederationUpstreamsIn(vhost string) (ups []FederationUpstream, err error) {
+	params, err := c.ListRuntimeParametersIn("federation-upstream", vhost)
 	if err != nil {
-		return []FederationUpstream{}, err
+		return nil, err
 	}
 
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return []FederationUpstream{}, err
+	ups = []FederationUpstream{}
+	for _, param := range params {
+		up := paramToUpstream(&param)
+		ups = append(ups, *up)
 	}
-
-	return rec, nil
+	return ups, nil
 }
 
 //
@@ -75,16 +76,37 @@ func (c *Client) GetFederationUpstream(vhost, name string) (up *FederationUpstre
 	if err != nil {
 		return nil, err
 	}
+	return paramToUpstream(param), nil
+}
 
-	// TODO: extract to function when migrating List* methods.
+//
+// PUT /api/parameters/federation-upstream/{vhost}/{upstream}
+//
+
+// Updates a federation upstream
+func (c *Client) PutFederationUpstream(vhost string, name string, def FederationDefinition) (res *http.Response, err error) {
+	return c.PutRuntimeParameter("federation-upstream", vhost, name, def)
+}
+
+//
+// DELETE /api/parameters/federation-upstream/{vhost}/{name}
+//
+
+// Deletes a federation upstream.
+func (c *Client) DeleteFederationUpstream(vhost, name string) (res *http.Response, err error) {
+	return c.DeleteRuntimeParameter("federation-upstream", vhost, name)
+}
+
+// paramToUpstream maps from a RuntimeParameter structure to a FederationUpstream structure.
+func paramToUpstream(p *RuntimeParameter) (up *FederationUpstream) {
 	up = &FederationUpstream{
-		Name:      param.Name,
-		Vhost:     param.Vhost,
-		Component: param.Component,
+		Name:      p.Name,
+		Vhost:     p.Vhost,
+		Component: p.Component,
 	}
 
 	def := FederationDefinition{}
-	m := param.Value.(map[string]interface{})
+	m := p.Value.(map[string]interface{})
 
 	if v, ok := m["uri"].(string); ok {
 		def.Uri = v
@@ -127,24 +149,5 @@ func (c *Client) GetFederationUpstream(vhost, name string) (up *FederationUpstre
 	}
 
 	up.Definition = def
-
-	return up, nil
-}
-
-//
-// PUT /api/parameters/federation-upstream/{vhost}/{upstream}
-//
-
-// Updates a federation upstream
-func (c *Client) PutFederationUpstream(vhost string, name string, def FederationDefinition) (res *http.Response, err error) {
-	return c.PutRuntimeParameter("federation-upstream", vhost, name, def)
-}
-
-//
-// DELETE /api/parameters/federation-upstream/{vhost}/{name}
-//
-
-// Deletes a federation upstream.
-func (c *Client) DeleteFederationUpstream(vhost, name string) (res *http.Response, err error) {
-	return c.DeleteRuntimeParameter("federation-upstream", vhost, name)
+	return up
 }
