@@ -114,8 +114,11 @@ func executeRequest(client *Client, req *http.Request) (res *http.Response, err 
 		return nil, err
 	}
 
-	if resp.StatusCode == 401 {
-		return nil, errors.New("Error: API responded with a 401 Unauthorized")
+	if err = parseResponseErrors(resp); err != nil {
+		if resp.Body != nil {
+			resp.Body.Close()
+		}
+		return nil, err
 	}
 
 	return resp, err
@@ -126,7 +129,19 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close() // always close body
+	defer res.Body.Close()
+
+	if err = json.NewDecoder(res.Body).Decode(&rec); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func parseResponseErrors(res *http.Response) (err error) {
+	if res.StatusCode == 401 {
+		return errors.New("Error: API responded with a 401 Unauthorized")
+	}
 
 	if res.StatusCode >= http.StatusBadRequest {
 		rme := ErrorResponse{}
@@ -136,10 +151,5 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 		rme.StatusCode = res.StatusCode
 		return rme
 	}
-
-	if err = json.NewDecoder(res.Body).Decode(&rec); err != nil {
-		return err
-	}
-
 	return nil
 }

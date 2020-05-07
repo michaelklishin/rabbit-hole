@@ -1339,7 +1339,14 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
 			Ω(err).Should(BeNil())
 
+			permissions := Permissions{Configure: "log.*", Write: "log.*", Read: "log.*"}
+			_, err = rmqc.UpdatePermissionsIn("/", u, permissions)
+			Ω(err).Should(BeNil())
+
 			awaitEventPropagation()
+
+			// no permissions were being created, so there was nothing to clear
+			// the 404 response was ignored
 			_, err = rmqc.ClearPermissionsIn("/", u)
 			Ω(err).Should(BeNil())
 			awaitEventPropagation()
@@ -1436,7 +1443,14 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
 			Ω(err).Should(BeNil())
 
+			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
+			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
+			Ω(err).Should(BeNil())
+
 			awaitEventPropagation()
+
+			// no permissions were being created, so there was nothing to clear
+			// the 404 response was ignored
 			_, err = rmqc.ClearTopicPermissionsIn("/", u)
 			Ω(err).Should(BeNil())
 			awaitEventPropagation()
@@ -1785,14 +1799,30 @@ var _ = Describe("Rabbithole", func() {
 		It("updates the policy", func() {
 			policy := Policy{
 				Pattern:    ".*",
+				ApplyTo:    "exchanges",
 				Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
 			}
 
-			// create Policy
-			_, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
+			// create policy
+			// the first policy was never created because of a bad request.
+			resp, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
 			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(HavePrefix("20"))
 
-			// create new Policy
+			awaitEventPropagation()
+
+			pol, err := rmqc.GetPolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+			Ω(pol.Vhost).Should(Equal("rabbit/hole"))
+			Ω(pol.Name).Should(Equal("woot"))
+			Ω(pol.Pattern).Should(Equal(".*"))
+			Ω(pol.ApplyTo).Should(Equal("exchanges"))
+			Ω(pol.Priority).Should(BeEquivalentTo(0))
+			Ω(pol.Definition).Should(BeAssignableToTypeOf(PolicyDefinition{}))
+			Ω(pol.Definition["ha-mode"]).Should(Equal("all"))
+			Ω(pol.Definition["expires"]).Should(BeEquivalentTo(100))
+
+			// update the policy
 			newPolicy := Policy{
 				Pattern: "\\d+",
 				ApplyTo: "all",
@@ -1804,22 +1834,18 @@ var _ = Describe("Rabbithole", func() {
 				Priority: 1,
 			}
 
-			// update old Policy
-			resp, err := rmqc.PutPolicy("/", "woot2", newPolicy)
+			// this used to be a different policy altogether
+			// nothing was being updated, just a new policy created
+			resp, err = rmqc.PutPolicy("rabbit/hole", "woot", newPolicy)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
 			awaitEventPropagation()
 
-			// old policy should not exist already
-			_, err = rmqc.GetPolicy("rabbit/hole", "woot")
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
-
-			// but new (updated) policy is here
-			pol, err := rmqc.GetPolicy("/", "woot2")
+			pol, err = rmqc.GetPolicy("rabbit/hole", "woot")
 			Ω(err).Should(BeNil())
-			Ω(pol.Vhost).Should(Equal("/"))
-			Ω(pol.Name).Should(Equal("woot2"))
+			Ω(pol.Vhost).Should(Equal("rabbit/hole"))
+			Ω(pol.Name).Should(Equal("woot"))
 			Ω(pol.Pattern).Should(Equal("\\d+"))
 			Ω(pol.ApplyTo).Should(Equal("all"))
 			Ω(pol.Priority).Should(BeEquivalentTo(1))
@@ -1832,7 +1858,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(pol.Definition["expires"]).Should(BeNil())
 
 			// cleanup
-			_, err = rmqc.DeletePolicy("/", "woot2")
+			_, err = rmqc.DeletePolicy("rabbit/hole", "woot")
 			Ω(err).Should(BeNil())
 		})
 	})
@@ -2091,11 +2117,15 @@ var _ = Describe("Rabbithole", func() {
 
 		Context("when the upstream definition is bad", func() {
 			It("returns a 400 error response", func() {
-				// this is NOT an err, but a HTTP 400 response
 				resp, err := rmqc.PutFederationUpstream("rabbit/hole", "error", FederationDefinition{})
-				Ω(err).Should(BeNil())
-				Ω(resp.StatusCode).Should(Equal(400))
-				Ω(resp.Status).Should(Equal("400 Bad Request"))
+				Ω(resp).Should(BeNil())
+				Ω(err).Should(HaveOccurred())
+
+				e, ok := err.(ErrorResponse)
+				Ω(ok).Should(BeTrue())
+				Ω(e.StatusCode).Should(Equal(400))
+				Ω(e.Message).Should(Equal("bad_request"))
+				Ω(e.Reason).Should(MatchRegexp(`^Validation failed`))
 			})
 		})
 	})
@@ -2106,11 +2136,9 @@ var _ = Describe("Rabbithole", func() {
 				vh := "rabbit/hole"
 				name := "temporary"
 
-				// this is NOT an err, but a HTTP 404 response
 				resp, err := rmqc.DeleteFederationUpstream(vh, name)
-				Ω(err).Should(BeNil())
-				Ω(resp.StatusCode).Should(Equal(404))
-				Ω(resp.Status).Should(Equal("404 Not Found"))
+				Ω(resp).Should(BeNil())
+				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 			})
 		})
 
