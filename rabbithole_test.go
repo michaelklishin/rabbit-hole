@@ -2236,11 +2236,8 @@ var _ = Describe("Rabbithole", func() {
 
 				Ω(v["uri"]).Should(Equal(pv["uri"]))
 
-				Ω(int(v["prefetch-count"].(float64))).Should(Equal(pv["prefetch-count"]))
-				Ω(int(v["reconnect-delay"].(float64))).Should(Equal(pv["reconnect-delay"]))
-
-				Ω(v["ack-mode"]).Should(Equal(pv["ack-mode"]))
-				Ω(v["trust-user-id"]).Should(Equal(pv["trust-user-id"]))
+				Ω(v["prefetch-count"]).Should(BeNumerically("==", pv["prefetch-count"]))
+				Ω(v["reconnect-delay"]).Should(BeNumerically("==", pv["reconnect-delay"]))
 
 				_, err = rmqc.DeleteRuntimeParameter(component, vhost, name)
 				Ω(err).Should(BeNil())
