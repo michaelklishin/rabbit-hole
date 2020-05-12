@@ -797,6 +797,10 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
 			Ω(u.Tags).Should(Equal("policymaker,management"))
+
+			// cleanup
+			_, err = rmqc.DeleteUser("rabbithole")
+			Ω(err).Should(BeNil())
 		})
 
 		It("updates the user with a password hash and hashing function", func() {
@@ -819,6 +823,10 @@ var _ = Describe("Rabbithole", func() {
 			Ω(u.PasswordHash).ShouldNot(BeNil())
 			Ω(u.PasswordHash).ShouldNot(BeEquivalentTo(""))
 			Ω(u.Tags).Should(Equal(tags))
+
+			// cleanup
+			_, err = rmqc.DeleteUser("rabbithole_hashed")
+			Ω(err).Should(BeNil())
 		})
 
 		It("updates the user with no password", func() {
@@ -836,6 +844,10 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(u.PasswordHash).Should(BeEquivalentTo(""))
 			Ω(u.Tags).Should(Equal("policymaker,management"))
+
+			// cleanup
+			_, err = rmqc.DeleteUser("rabbithole")
+			Ω(err).Should(BeNil())
 		})
 	})
 
@@ -2253,6 +2265,11 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 			awaitEventPropagation()
 
+			_, err = rmqc.DeleteQueue("/", "mySourceQueue")
+			Ω(err).Should(BeNil())
+			_, err = rmqc.DeleteQueue("/", "myDestQueue")
+			Ω(err).Should(BeNil())
+
 			x, err = rmqc.GetShovel(vh, sn)
 			Ω(x).Should(BeNil())
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
@@ -2346,6 +2363,12 @@ var _ = Describe("Rabbithole", func() {
 				list, err = rmqc.ListRuntimeParameters()
 				Ω(err).Should(BeNil())
 				Ω(len(list)).Should(Equal(0))
+
+				// cleanup
+				_, err = rmqc.DeleteQueue("/", "mySourceQueue")
+				Ω(err).Should(BeNil())
+				_, err = rmqc.DeleteQueue("/", "myDestQueue")
+				Ω(err).Should(BeNil())
 			})
 		})
 	})
