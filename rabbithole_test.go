@@ -2270,4 +2270,17 @@ var _ = Describe("Rabbithole", func() {
 			})
 		})
 	})
+
+	Context("paramToUpstream", func() {
+		Context("when the parameter value is not initialized", func() {
+			It("returns an empty FederationUpstream", func() {
+				p := RuntimeParameter{} // p.Value is interface{}
+				up := paramToUpstream(&p)
+				Ω(up.Name).Should(BeEmpty())
+				Ω(up.Vhost).Should(BeEmpty())
+				Ω(up.Component).Should(BeEmpty())
+				Ω(up.Definition).Should(Equal(FederationDefinition{}))
+			})
+		})
+	})
 })

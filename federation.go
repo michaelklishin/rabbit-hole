@@ -106,8 +106,12 @@ func paramToUpstream(p *RuntimeParameter) (up *FederationUpstream) {
 		Component: p.Component,
 	}
 
+	m, ok := p.Value.(map[string]interface{})
+	if !ok {
+		return up
+	}
+
 	def := FederationDefinition{}
-	m := p.Value.(map[string]interface{})
 
 	if v, ok := m["uri"].(string); ok {
 		def.Uri = v
