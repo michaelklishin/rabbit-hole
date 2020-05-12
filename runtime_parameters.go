@@ -98,10 +98,10 @@ func (c *Client) GetRuntimeParameter(component, vhost, name string) (p *RuntimeP
 // PutRuntimeParameter creates or updates a runtime parameter.
 func (c *Client) PutRuntimeParameter(component, vhost, name string, value interface{}) (res *http.Response, err error) {
 	p := RuntimeParameter{
-		name,
-		vhost,
-		component,
-		value,
+		Name:      name,
+		Vhost:     vhost,
+		Component: component,
+		Value:     value,
 	}
 
 	body, err := json.Marshal(p)
