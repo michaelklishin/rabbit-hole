@@ -102,20 +102,23 @@ func newRequestWithBody(client *Client, method string, path string, body []byte)
 	return req, err
 }
 
-func executeRequest(client *Client, req *http.Request) (res *http.Response, err error) {
+func executeRequest(client *Client, req *http.Request) (resp *http.Response, err error) {
 	httpc := &http.Client{
 		Timeout: client.timeout,
 	}
 	if client.transport != nil {
 		httpc.Transport = client.transport
 	}
-	resp, err := httpc.Do(req)
+	resp, err = httpc.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode == 401 {
-		return nil, errors.New("Error: API responded with a 401 Unauthorized")
+	if err = parseResponseErrors(resp); err != nil {
+		if resp.Body != nil {
+			resp.Body.Close()
+		}
+		return nil, err
 	}
 
 	return resp, err
@@ -126,7 +129,24 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close() // always close body
+	defer res.Body.Close()
+
+	if err = json.NewDecoder(res.Body).Decode(&rec); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func parseResponseErrors(res *http.Response) (err error) {
+	if res.StatusCode == http.StatusUnauthorized {
+		return errors.New("Error: API responded with a 401 Unauthorized")
+	}
+
+	// handle a "404 Not Found" response for a DELETE request as success.
+	if res.Request.Method == http.MethodDelete && res.StatusCode == http.StatusNotFound {
+		return nil
+	}
 
 	if res.StatusCode >= http.StatusBadRequest {
 		rme := ErrorResponse{}
@@ -136,10 +156,5 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 		rme.StatusCode = res.StatusCode
 		return rme
 	}
-
-	if err = json.NewDecoder(res.Body).Decode(&rec); err != nil {
-		return err
-	}
-
 	return nil
 }
