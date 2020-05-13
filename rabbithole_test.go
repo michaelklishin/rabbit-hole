@@ -2022,8 +2022,8 @@ var _ = Describe("Rabbithole", func() {
 				name := "temporary"
 
 				up, err := rmqc.GetFederationUpstream(vh, name)
-				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 				Ω(up).Should(BeNil())
+				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 			})
 		})
 
@@ -2192,9 +2192,10 @@ var _ = Describe("Rabbithole", func() {
 				vh := "rabbit/hole"
 				name := "temporary"
 
+				// an error is not returned by design
 				resp, err := rmqc.DeleteFederationUpstream(vh, name)
-				Ω(resp).Should(BeNil())
-				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				Ω(resp.Status).Should(Equal("404 Not Found"))
+				Ω(err).Should(BeNil())
 			})
 		})
 

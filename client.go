@@ -139,8 +139,13 @@ func executeAndParseRequest(client *Client, req *http.Request, rec interface{}) 
 }
 
 func parseResponseErrors(res *http.Response) (err error) {
-	if res.StatusCode == 401 {
+	if res.StatusCode == http.StatusUnauthorized {
 		return errors.New("Error: API responded with a 401 Unauthorized")
+	}
+
+	// handle a "404 Not Found" response for a DELETE request as success.
+	if res.Request.Method == http.MethodDelete && res.StatusCode == http.StatusNotFound {
+		return nil
 	}
 
 	if res.StatusCode >= http.StatusBadRequest {
