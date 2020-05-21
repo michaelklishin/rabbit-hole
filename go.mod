@@ -1,15 +1,21 @@
 module github.com/michaelklishin/rabbit-hole/v2
 
 require (
-	github.com/golang/protobuf v1.3.2 // indirect
+	cloud.google.com/go/storage v1.8.0
+	github.com/hpcloud/tail v1.0.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
-	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
-	golang.org/x/sys v0.0.0-20190712062909-fae7ac547cb7 // indirect
-	golang.org/x/text v0.3.2 // indirect
+	go4.org v0.0.0-20200411211856-f5505b9728dd
+	golang.org/x/build v0.0.0-20200520141049-92427f67eca1
+	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
+	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f
+	golang.org/x/sys v0.0.0-20200511232937-7e40ca221e25
+	golang.org/x/text v0.3.2
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	gopkg.in/fsnotify/fsnotify.v1 v1.4.7
+	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
 
