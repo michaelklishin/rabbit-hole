@@ -9,8 +9,9 @@ Rabbit Hole supports the last 2 stable Go versions, as well as the version in de
 
 ## Supported RabbitMQ Versions
 
- * RabbitMQ `3.8.x` is the primary target series
+ * [RabbitMQ `3.8.x`](https://www.rabbitmq.com/changelog.html) is the primary target series
  * Almost all API endpoints work against RabbitMQ `3.7.x` nodes but some metrics and stats may be missing
+ * RabbitMQ `3.7.x` is [out of general support](https://www.rabbitmq.com/versions.html)
 
 All versions require [RabbitMQ Management UI plugin](https://www.rabbitmq.com/management.html) to be installed and enabled.
 
