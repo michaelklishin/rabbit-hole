@@ -8,7 +8,7 @@ import (
 // that will be used by federation links.
 type FederationDefinition struct {
 	Uri            string `json:"uri"`
-	Expires        int    `json:"expires"`
+	Expires        int    `json:"expires,omitempty"`
 	MessageTTL     int32  `json:"message-ttl"`
 	MaxHops        int    `json:"max-hops"`
 	PrefetchCount  int    `json:"prefetch-count"`
