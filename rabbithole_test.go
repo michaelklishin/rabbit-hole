@@ -2228,6 +2228,87 @@ var _ = Describe("Rabbithole", func() {
 		})
 	})
 
+	Context("GET /api/federation-links", func() {
+		Context("when there are no links", func() {
+			It("returns an empty response", func() {
+				list, err := rmqc.ListFederationLinks()
+				Ω(list).Should(BeEmpty())
+				Ω(err).Should(BeNil())
+			})
+		})
+	})
+
+	Context("GET /api/federation-links/{vhost}", func() {
+		Context("when there are no links", func() {
+			It("returns an empty response", func() {
+				list, err := rmqc.ListFederationLinksIn("rabbit/hole")
+				Ω(list).Should(BeEmpty())
+				Ω(err).Should(BeNil())
+			})
+		})
+
+		Context("when there are links", func() {
+			It("returns the list of links", func() {
+				// upstream vhost: '/'
+				// upstream exchange: amq.topic
+				// downstream vhost: 'rabbit-hole'
+				// downstream exchange: amq.topic
+				vhost := "rabbit/hole"
+
+				// create upstream
+				upstreamName := "myUpsteam"
+				def := FederationDefinition{
+					Uri:     "amqp://localhost/%2f",
+					Expires: 1800000,
+				}
+
+				_, err := rmqc.PutFederationUpstream(vhost, upstreamName, def)
+				Ω(err).Should(BeNil())
+
+				// create policy to match upstream
+				policyName := "myUpsteamPolicy"
+				policy := Policy{
+					Pattern: "(^amq.topic$)",
+					ApplyTo: "exchanges",
+					Definition: PolicyDefinition{
+						"federation-upstream": upstreamName,
+					},
+				}
+
+				_, err = rmqc.PutPolicy(vhost, policyName, policy)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				// assertions
+				list, err := rmqc.ListFederationLinksIn(vhost)
+				Ω(len(list)).Should(Equal(1))
+				Ω(err).Should(BeNil())
+
+				var link map[string]interface{} = list[0]
+				Ω(link["vhost"]).Should(Equal(vhost))
+				Ω(link["upstream"]).Should(Equal(upstreamName))
+				Ω(link["type"]).Should(Equal("exchange"))
+				Ω(link["exchange"]).Should(Equal("amq.topic"))
+				Ω(link["uri"]).Should(Equal(def.Uri))
+				Ω(link["status"]).Should(Equal("running"))
+
+				// cleanup
+				_, err = rmqc.DeletePolicy(vhost, policyName)
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.DeleteFederationUpstream(vhost, upstreamName)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err = rmqc.ListFederationLinksIn(vhost)
+				Ω(len(list)).Should(Equal(0))
+				Ω(err).Should(BeNil())
+			})
+		})
+	})
+
 	Context("PUT /parameters/shovel/{vhost}/{name}", func() {
 		It("declares a shovel", func() {
 			vh := "rabbit/hole"
