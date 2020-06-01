@@ -1,6 +1,16 @@
 ## Changes Between 2.2.0 and 2.3.0 (in development)
 
-No changes yet.
+### New Endpoints for Listing Federation Links
+
+Contributed by @niclic.
+
+GitHub issue: [#155](https://github.com/michaelklishin/rabbit-hole/pull/155)
+
+### Conditional Exclusion of Expiration Field
+
+Contributed by @niclic.
+
+GitHub issue: [#154](https://github.com/michaelklishin/rabbit-hole/pull/154)
 
 
 ## Changes Between 2.1.0 and 2.2.0 (May 21st, 2020)
