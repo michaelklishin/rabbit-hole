@@ -2310,6 +2310,63 @@ var _ = Describe("Rabbithole", func() {
 	})
 
 	Context("PUT /parameters/shovel/{vhost}/{name}", func() {
+		It("declares a shovel using AMQP 1.0 protocol", func() {
+			vh := "rabbit/hole"
+			sn := "temporary"
+
+			ssu := "amqp://127.0.0.1/%2f"
+			sdu := "amqp://127.0.0.1/%2f"
+
+			shovelDefinition := ShovelDefinition{
+				SourceURI:                     ssu,
+				SourceAddress:                 "mySourceQueue",
+				SourceProtocol:                "amqp10",
+				DestinationURI:                sdu,
+				DestinationProtocol:           "amqp10",
+				DestinationAddress:            "myDestQueue",
+				DestinationAddForwardHeaders:  true,
+				DestinationAddTimestampHeader: true,
+				AckMode:                       "on-confirm",
+				SourcePrefetchCount:           42,
+				SourceDeleteAfter:             "never"}
+
+			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
+			Ω(err).Should(BeNil())
+
+			awaitEventPropagation()
+			x, err := rmqc.GetShovel(vh, sn)
+			Ω(err).Should(BeNil())
+			Ω(x.Name).Should(Equal(sn))
+			Ω(x.Vhost).Should(Equal(vh))
+			Ω(x.Component).Should(Equal("shovel"))
+			Ω(x.Definition.SourceAddress).Should(Equal("mySourceQueue"))
+			Ω(x.Definition.SourceURI).Should(Equal(ssu))
+			Ω(x.Definition.SourcePrefetchCount).Should(Equal(42))
+			Ω(x.Definition.SourceProtocol).Should(Equal("amqp10"))
+			Ω(x.Definition.DestinationAddress).Should(Equal("myDestQueue"))
+			Ω(x.Definition.DestinationURI).Should(Equal(sdu))
+			Ω(x.Definition.DestinationProtocol).Should(Equal("amqp10"))
+			Ω(x.Definition.DestinationAddForwardHeaders).Should(Equal(true))
+			Ω(x.Definition.DestinationAddTimestampHeader).Should(Equal(true))
+			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
+			Ω(x.Definition.SourceDeleteAfter).Should(Equal("never"))
+
+			_, err = rmqc.DeleteShovel(vh, sn)
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			_, err = rmqc.DeleteQueue("/", "mySourceQueue")
+			Ω(err).Should(BeNil())
+			_, err = rmqc.DeleteQueue("/", "myDestQueue")
+			Ω(err).Should(BeNil())
+
+			x, err = rmqc.GetShovel(vh, sn)
+			Ω(x).Should(BeNil())
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+		})
+	})
+
+	Context("PUT /parameters/shovel/{vhost}/{name}", func() {
 		It("declares a shovel", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
