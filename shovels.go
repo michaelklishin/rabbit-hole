@@ -20,19 +20,30 @@ type ShovelInfo struct {
 
 // ShovelDefinition contains the details of the shovel configuration
 type ShovelDefinition struct {
-	SourceURI              string `json:"src-uri"`
-	SourceExchange         string `json:"src-exchange,omitempty"`
-	SourceExchangeKey      string `json:"src-exchange-key,omitempty"`
-	SourceQueue            string `json:"src-queue,omitempty"`
-	DestinationURI         string `json:"dest-uri"`
-	DestinationExchange    string `json:"dest-exchange,omitempty"`
-	DestinationExchangeKey string `json:"dest-exchange-key,omitempty"`
-	DestinationQueue       string `json:"dest-queue,omitempty"`
-	PrefetchCount          int    `json:"prefetch-count,omitempty"`
-	ReconnectDelay         int    `json:"reconnect-delay,omitempty"`
-	AddForwardHeaders      bool   `json:"add-forward-headers"`
-	AckMode                string `json:"ack-mode"`
-	DeleteAfter            string `json:"delete-after"`
+	AckMode                          string `json:"ack-mode,omitempty"`
+	AddForwardHeaders                bool   `json:"add-forward-headers,omitempty"`
+	DeleteAfter                      string `json:"delete-after,omitempty"`
+	DestinationAddForwardHeaders     bool   `json:"dest-add-forward-headers,omitempty"`
+	DestinationAddTimestampHeader    bool   `json:"dest-add-timestamp-header,omitempty"`
+	DestinationAddress               string `json:"dest-address,omitempty"`
+	DestinationApplicationProperties string `json:"dest-application-properties,omitempty"`
+	DestinationExchange              string `json:"dest-exchange,omitempty"`
+	DestinationExchangeKey           string `json:"dest-exchange-key,omitempty"`
+	DestinationProperties            string `json:"dest-properties,omitempty"`
+	DestinationProtocol              string `json:"dest-protocol,omitempty"`
+	DestinationPublishProperties     string `json:"dest-publish-properties,omitempty"`
+	DestinationQueue                 string `json:"dest-queue,omitempty"`
+	DestinationURI                   string `json:"dest-uri"`
+	PrefetchCount                    int    `json:"prefetch-count,omitempty"`
+	ReconnectDelay                   int    `json:"reconnect-delay,omitempty"`
+	SourceAddress                    string `json:"src-address,omitempty"`
+	SourceDeleteAfter                string `json:"src-delete-after,omitempty"`
+	SourceExchange                   string `json:"src-exchange,omitempty"`
+	SourceExchangeKey                string `json:"src-exchange-key,omitempty"`
+	SourcePrefetchCount              int    `json:"src-prefetch-count,omitempty"`
+	SourceProtocol                   string `json:"src-protocol,omitempty"`
+	SourceQueue                      string `json:"src-queue,omitempty"`
+	SourceURI                        string `json:"src-uri"`
 }
 
 // ShovelDefinitionDTO provides a data transfer object
