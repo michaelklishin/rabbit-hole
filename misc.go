@@ -4,6 +4,7 @@ package rabbithole
 // GET /api/overview
 //
 
+// QueueTotals represents queue metrics across the entire cluster.
 type QueueTotals struct {
 	Messages        int         `json:"messages"`
 	MessagesDetails RateDetails `json:"messages_details"`
@@ -15,6 +16,8 @@ type QueueTotals struct {
 	MessagesUnacknowledgedDetails RateDetails `json:"messages_unacknowledged_details"`
 }
 
+// ObjectTotals represents object (connections, queues, consumers, etc) metrics
+// across the entire cluster.
 type ObjectTotals struct {
 	Consumers   int `json:"consumers"`
 	Queues      int `json:"queues"`
@@ -23,6 +26,7 @@ type ObjectTotals struct {
 	Channels    int `json:"channels"`
 }
 
+// Listener represents a TCP listener on a node.
 type Listener struct {
 	Node      string `json:"node"`
 	Protocol  string `json:"protocol"`
@@ -30,6 +34,7 @@ type Listener struct {
 	Port      Port   `json:"port"`
 }
 
+// Overview provides a point-in-time overview of cluster state and some of its key aggregated metrics.
 type Overview struct {
 	ManagementVersion string          `json:"management_version"`
 	StatisticsLevel   string          `json:"statistics_level"`
@@ -46,6 +51,7 @@ type Overview struct {
 	Contexts          []BrokerContext `json:"contexts"`
 }
 
+// Overview returns an overview of cluster state with some key aggregated metrics.
 func (c *Client) Overview() (rec *Overview, err error) {
 	req, err := newGETRequest(c, "overview")
 	if err != nil {
@@ -63,12 +69,15 @@ func (c *Client) Overview() (rec *Overview, err error) {
 // GET /api/whoami
 //
 
+// WhoamiInfo represents a user whose request was successfully authenticated
+// by the "whoami" API endpoint.
 type WhoamiInfo struct {
 	Name        string `json:"name"`
 	Tags        string `json:"tags"`
 	AuthBackend string `json:"auth_backend"`
 }
 
+// Whoami echoes requesting user's name back.
 func (c *Client) Whoami() (rec *WhoamiInfo, err error) {
 	req, err := newGETRequest(c, "whoami")
 	if err != nil {
