@@ -1,10 +1,21 @@
-## Changes Between 2.2.0 and 2.3.0 (in development)
+## Changes Between 2.3.0 and 2.4.0 (in development)
+
+No changes yet.
+
+
+## Changes Between 2.2.0 and 2.3.0 (July 11th, 2020)
 
 ### New Endpoints for Listing Federation Links
 
 Contributed by @niclic.
 
 GitHub issue: [#155](https://github.com/michaelklishin/rabbit-hole/pull/155)
+
+### Support for More Shovel Parameters (e.g. for AMQP 1.0 Sources and Destinations)
+
+Contributed by @akurz.
+
+GitHub issue: [#155](https://github.com/michaelklishin/rabbit-hole/pull/157)
 
 ### Conditional Exclusion of Expiration Field
 
