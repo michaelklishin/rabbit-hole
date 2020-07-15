@@ -161,7 +161,7 @@ func parseResponseErrors(res *http.Response) (err error) {
 	if res.StatusCode >= http.StatusBadRequest {
 		rme := ErrorResponse{}
 		if err = json.NewDecoder(res.Body).Decode(&rme); err != nil {
-			return fmt.Errorf("Error %d from RabbitMQ: %s", res.StatusCode, err)
+			rme.Message = fmt.Sprintf("Error %d from RabbitMQ: %s", res.StatusCode, err)
 		}
 		rme.StatusCode = res.StatusCode
 		return rme
