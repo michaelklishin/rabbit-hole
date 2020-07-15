@@ -1,6 +1,16 @@
 ## Changes Between 2.3.0 and 2.4.0 (in development)
 
-No changes yet.
+### More Thorough Error Checking of HTTP[S] Requests
+
+Suggested by @mammothbane.
+
+GitHub issue: [#158](https://github.com/michaelklishin/rabbit-hole/issues/158)
+
+## More Standardized Response Errors
+
+Error responses (`40x` with the exception of `404` in response to `DELETE` operations,
+`50x`) HTTP API response errors are now always wrapped into`ErrorResponse`,
+even if they do not carry a JSON payload.
 
 
 ## Changes Between 2.2.0 and 2.3.0 (July 11th, 2020)
