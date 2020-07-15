@@ -783,8 +783,9 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("PUT /users/{name}", func() {
 		It("updates the user", func() {
+			username := "rabbithole"
 			info := UserSettings{Password: "s3krE7", Tags: "policymaker, management"}
-			resp, err := rmqc.PutUser("rabbithole", info)
+			resp, err := rmqc.PutUser(username, info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
@@ -799,7 +800,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(u.Tags).Should(Equal("policymaker,management"))
 
 			// cleanup
-			_, err = rmqc.DeleteUser("rabbithole")
+			_, err = rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 		})
 
