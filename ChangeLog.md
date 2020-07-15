@@ -6,6 +6,12 @@ Suggested by @mammothbane.
 
 GitHub issue: [#158](https://github.com/michaelklishin/rabbit-hole/issues/158)
 
+### Salt Generation Helper Now Uses `crypto/rand` Instead of `math/rand`
+
+Suggested by @mammothbane.
+
+GitHub issue: [#160](https://github.com/michaelklishin/rabbit-hole/issues/160)
+
 ## More Standardized Response Errors
 
 Error responses (`40x` with the exception of `404` in response to `DELETE` operations,
