@@ -804,14 +804,19 @@ var _ = Describe("Rabbithole", func() {
 		})
 
 		It("updates the user with a password hash and hashing function", func() {
-			username := "rabbithole_hashed"
+			username := "rabbithole_with_hashed_password1"
 			tags := "policymaker,management"
-			info := UserSettings{PasswordHash: Base64EncodedSaltedPasswordHashSHA256("s3krE7"),
+			password := "s3krE7-s3t-v!a-4A$h"
+			info := UserSettings{PasswordHash: Base64EncodedSaltedPasswordHashSHA256(password),
 				HashingAlgorithm: HashingAlgorithmSHA256,
 				Tags:             tags}
 			resp, err := rmqc.PutUser(username, info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
+
+			permissions := Permissions{Configure: "log.*", Write: "log.*", Read: "log.*"}
+			_, err = rmqc.UpdatePermissionsIn("/", username, permissions)
+			Ω(err).Should(BeNil())
 
 			// give internal events a moment to be
 			// handled
@@ -824,8 +829,29 @@ var _ = Describe("Rabbithole", func() {
 			Ω(u.PasswordHash).ShouldNot(BeEquivalentTo(""))
 			Ω(u.Tags).Should(Equal(tags))
 
+			// make sure the user can successfully connect
+			conn, err := amqp.Dial("amqp://" + username + ":" + password + "@localhost:5672/%2f")
+			Ω(err).Should(BeNil())
+			defer conn.Close()
+
 			// cleanup
-			_, err = rmqc.DeleteUser("rabbithole_hashed")
+			_, err = rmqc.DeleteUser(username)
+			Ω(err).Should(BeNil())
+		})
+
+		It("fails to update the user with incorrectly encoded password hash", func() {
+			username := "rabbithole_with_hashed_password2"
+			tags := "policymaker,management"
+			password := "s3krE7-s3t-v!a-4A$h"
+			info := UserSettings{PasswordHash: password,
+				HashingAlgorithm: HashingAlgorithmSHA256,
+				Tags:             tags}
+			_, err := rmqc.PutUser(username, info)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.(ErrorResponse).StatusCode).Should(Equal(400))
+
+			// cleanup
+			_, err = rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 		})
 
