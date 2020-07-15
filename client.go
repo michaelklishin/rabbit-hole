@@ -72,6 +72,9 @@ func (c *Client) SetTimeout(timeout time.Duration) {
 func newGETRequest(client *Client, path string) (*http.Request, error) {
 	s := client.Endpoint + "/api/" + path
 	req, err := http.NewRequest("GET", s, nil)
+	if err != nil {
+		return nil, err
+	}
 
 	req.Close = true
 	req.SetBasicAuth(client.Username, client.Password)
@@ -83,6 +86,10 @@ func newGETRequestWithParameters(client *Client, path string, qs url.Values) (*h
 	s := client.Endpoint + "/api/" + path + "?" + qs.Encode()
 
 	req, err := http.NewRequest("GET", s, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	req.Close = true
 	req.SetBasicAuth(client.Username, client.Password)
 
@@ -93,6 +100,9 @@ func newRequestWithBody(client *Client, method string, path string, body []byte)
 	s := client.Endpoint + "/api/" + path
 
 	req, err := http.NewRequest(method, s, bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
 
 	req.Close = true
 	req.SetBasicAuth(client.Username, client.Password)
