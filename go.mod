@@ -3,7 +3,6 @@ module github.com/michaelklishin/rabbit-hole/v2
 require (
 	cloud.google.com/go/storage v1.8.0
 	github.com/hpcloud/tail v1.0.0
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
@@ -13,10 +12,8 @@ require (
 	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f
 	golang.org/x/sys v0.0.0-20200511232937-7e40ca221e25
 	golang.org/x/text v0.3.2
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/fsnotify/fsnotify.v1 v1.4.7
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7
-	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
 
 go 1.13
