@@ -784,6 +784,9 @@ var _ = Describe("Rabbithole", func() {
 	Context("PUT /users/{name}", func() {
 		It("updates the user", func() {
 			username := "rabbithole"
+			_, err := rmqc.DeleteUser(username)
+			Ω(err).Should(BeNil())
+
 			info := UserSettings{Password: "s3krE7", Tags: "policymaker, management"}
 			resp, err := rmqc.PutUser(username, info)
 			Ω(err).Should(BeNil())
@@ -806,6 +809,9 @@ var _ = Describe("Rabbithole", func() {
 
 		It("updates the user with a password hash and hashing function", func() {
 			username := "rabbithole_with_hashed_password1"
+			_, err := rmqc.DeleteUser(username)
+			Ω(err).Should(BeNil())
+
 			tags := "policymaker,management"
 			password := "s3krE7-s3t-v!a-4A$h"
 			info := UserSettings{PasswordHash: Base64EncodedSaltedPasswordHashSHA256(password),
@@ -842,12 +848,15 @@ var _ = Describe("Rabbithole", func() {
 
 		It("fails to update the user with incorrectly encoded password hash", func() {
 			username := "rabbithole_with_hashed_password2"
+			_, err := rmqc.DeleteUser(username)
+			Ω(err).Should(BeNil())
+
 			tags := "policymaker,management"
 			password := "s3krE7-s3t-v!a-4A$h"
 			info := UserSettings{PasswordHash: password,
 				HashingAlgorithm: HashingAlgorithmSHA256,
 				Tags:             tags}
-			_, err := rmqc.PutUser(username, info)
+			_, err = rmqc.PutUser(username, info)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.(ErrorResponse).StatusCode).Should(Equal(400))
 
