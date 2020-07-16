@@ -1,12 +1,11 @@
 package rabbithole
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/json"
-	"math/big"
+	"math/rand"
 	"net/http"
 	"net/url"
 )
@@ -162,7 +161,7 @@ func (c *Client) DeleteUser(username string) (res *http.Response, err error) {
 // Password Hash generation
 //
 
-const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 // GenerateSalt generates a password salt. Used to compute password hashes
 // when creating or updating user information.
@@ -170,10 +169,8 @@ const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567
 // for details.
 func GenerateSalt(n int) string {
 	bs := make([]byte, n)
-	limit := int64(len(characters))
 	for i := range bs {
-		n, _ := rand.Int(rand.Reader, big.NewInt(limit))
-		bs[i] = characters[n.Int64()]
+		bs[i] = characters[rand.Intn(len(characters))]
 	}
 	return string(bs)
 }
