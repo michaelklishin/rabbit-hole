@@ -1,4 +1,8 @@
-## Changes Between 2.3.0 and 2.4.0 (in development)
+## Changes Between 2.4.0 and 2.5.0 (in development)
+
+No changes yet.
+
+## Changes Between 2.3.0 and 2.4.0 (Aug 4th, 2020)
 
 ### More Thorough Error Checking of HTTP[S] Requests
 
