@@ -77,6 +77,9 @@ type VhostInfo struct {
 	SendPending    uint64      `json:"send_pend"`
 	RecvOctDetails RateDetails `json:"recv_oct_details"`
 	SendOctDetails RateDetails `json:"send_oct_details"`
+
+	// Cluster State
+	ClusterState map[string]string `json:"cluster_state"`
 }
 
 // ListVhosts returns a list of virtual hosts.
