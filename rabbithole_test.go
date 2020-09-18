@@ -917,6 +917,7 @@ var _ = Describe("Rabbithole", func() {
 			x := xs[0]
 			Ω(x.Name).ShouldNot(BeNil())
 			Ω(x.Tracing).ShouldNot(BeNil())
+			Ω(x.ClusterState).ShouldNot(BeNil())
 		})
 	})
 
@@ -927,6 +928,7 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(x.Name).ShouldNot(BeNil())
 			Ω(x.Tracing).ShouldNot(BeNil())
+			Ω(x.ClusterState).ShouldNot(BeNil())
 		})
 	})
 
