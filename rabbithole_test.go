@@ -2422,11 +2422,11 @@ var _ = Describe("Rabbithole", func() {
 				DeleteAfter:       "never"}
 
 			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
-			Ω(err).Should(BeNil())
+			Ω(err).Should(BeNil(), "Error declaring shovel")
 
 			awaitEventPropagation()
 			x, err := rmqc.GetShovel(vh, sn)
-			Ω(err).Should(BeNil())
+			Ω(err).Should(BeNil(), "Error getting shovel")
 			Ω(x.Name).Should(Equal(sn))
 			Ω(x.Vhost).Should(Equal(vh))
 			Ω(x.Component).Should(Equal("shovel"))
@@ -2436,7 +2436,53 @@ var _ = Describe("Rabbithole", func() {
 			Ω(x.Definition.DestinationQueue).Should(Equal("myDestQueue"))
 			Ω(x.Definition.AddForwardHeaders).Should(Equal(true))
 			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
-			Ω(x.Definition.DeleteAfter).Should(Equal("never"))
+			Ω(string(x.Definition.DeleteAfter)).Should(Equal("never"))
+
+			_, err = rmqc.DeleteShovel(vh, sn)
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			_, err = rmqc.DeleteQueue("/", "mySourceQueue")
+			Ω(err).Should(BeNil())
+			_, err = rmqc.DeleteQueue("/", "myDestQueue")
+			Ω(err).Should(BeNil())
+
+			x, err = rmqc.GetShovel(vh, sn)
+			Ω(x).Should(BeNil())
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+		})
+		It("declares a shovel with a numeric delete-after value", func() {
+			vh := "rabbit/hole"
+			sn := "temporary"
+
+			ssu := "amqp://127.0.0.1/%2f"
+			sdu := "amqp://127.0.0.1/%2f"
+
+			shovelDefinition := ShovelDefinition{
+				SourceURI:         ssu,
+				SourceQueue:       "mySourceQueue",
+				DestinationURI:    sdu,
+				DestinationQueue:  "myDestQueue",
+				AddForwardHeaders: true,
+				AckMode:           "on-confirm",
+				DeleteAfter:       "42"}
+
+			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
+			Ω(err).Should(BeNil(), "Error declaring shovel")
+
+			awaitEventPropagation()
+			x, err := rmqc.GetShovel(vh, sn)
+			Ω(err).Should(BeNil(), "Error getting shovel")
+			Ω(x.Name).Should(Equal(sn))
+			Ω(x.Vhost).Should(Equal(vh))
+			Ω(x.Component).Should(Equal("shovel"))
+			Ω(x.Definition.SourceURI).Should(Equal(ssu))
+			Ω(x.Definition.SourceQueue).Should(Equal("mySourceQueue"))
+			Ω(x.Definition.DestinationURI).Should(Equal(sdu))
+			Ω(x.Definition.DestinationQueue).Should(Equal("myDestQueue"))
+			Ω(x.Definition.AddForwardHeaders).Should(Equal(true))
+			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
+			Ω(string(x.Definition.DeleteAfter)).Should(Equal("42"))
 
 			_, err = rmqc.DeleteShovel(vh, sn)
 			Ω(err).Should(BeNil())
