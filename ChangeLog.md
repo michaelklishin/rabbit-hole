@@ -1,6 +1,14 @@
 ## Changes Between 2.4.0 and 2.5.0 (in development)
 
-No changes yet.
+### Shovels: Support for Numerical Delete-After Values
+
+The `delete-after` Shovel parameter now can be deserialised to
+a numerical TTL value as well as special string values such as `"never"`.
+
+Contributed by Michal @mkuratczyk Kuratczyk.
+
+GitHub issue: [#164](https://github.com/michaelklishin/rabbit-hole/pull/164)
+
 
 ## Changes Between 2.3.0 and 2.4.0 (Aug 4th, 2020)
 
