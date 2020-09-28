@@ -1,4 +1,9 @@
-## Changes Between 2.4.0 and 2.5.0 (in development)
+## Changes Between 2.5.0 and 2.6.0 (under development)
+
+No changes yet.
+
+
+## Changes Between 2.4.0 and 2.5.0 (Sep 28th, 2020)
 
 ### Shovels: Support for Numerical Delete-After Values
 
