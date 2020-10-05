@@ -166,8 +166,8 @@ resp, err := rmqc.DeleteUser("my.user")
 ```
 
 ``` go
-// creates or updates individual user with a SHA256 password hash
-hash := SaltedPasswordHashSHA256("password-s3krE7")
+// creates or updates individual user with a Base64-encoded SHA256 password hash
+hash := Base64EncodedSaltedPasswordHashSHA256("password-s3krE7")
 resp, err := rmqc.PutUser("my.user", UserSettings{
   PasswordHash: hash,
   HashingAlgorithm: HashingAlgorithmSHA256,
