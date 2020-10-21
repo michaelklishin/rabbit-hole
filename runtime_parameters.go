@@ -138,3 +138,21 @@ func (c *Client) DeleteRuntimeParameter(component, vhost, name string) (res *htt
 
 	return res, nil
 }
+
+// DeleteAllRuntimeParameters clears all runtime parameters. Only mean to be used
+// in integration tests.
+func (c *Client) DeleteAllRuntimeParameters() (err error) {
+	list, err := c.ListRuntimeParameters()
+	if err != nil {
+		return err
+	}
+
+	for _, rp := range list {
+		_, err = c.DeleteRuntimeParameter(rp.Component, rp.Vhost, rp.Name)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
