@@ -2542,6 +2542,9 @@ var _ = Describe("Rabbithole", func() {
 	Context("GET /api/parameters", func() {
 		Context("when there are no runtime parameters", func() {
 			It("returns an empty response", func() {
+				err := rmqc.DeleteAllRuntimeParameters()
+				Ω(err).Should(BeNil())
+
 				list, err := rmqc.ListRuntimeParameters()
 				Ω(err).Should(BeNil())
 				Ω(list).Should(BeEmpty())
@@ -2550,10 +2553,13 @@ var _ = Describe("Rabbithole", func() {
 
 		Context("when there are runtime parameters", func() {
 			It("returns the list of parameters", func() {
+				err := rmqc.DeleteAllRuntimeParameters()
+				Ω(err).Should(BeNil())
+
 				fDef := FederationDefinition{
 					Uri: "amqp://server-name/%2f",
 				}
-				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", fDef)
+				_, err = rmqc.PutFederationUpstream("rabbit/hole", "upstream1", fDef)
 				Ω(err).Should(BeNil())
 
 				sDef := ShovelDefinition{
