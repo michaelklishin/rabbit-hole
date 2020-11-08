@@ -3,6 +3,7 @@ package rabbithole
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -2612,6 +2613,29 @@ var _ = Describe("Rabbithole", func() {
 				Ω(up.Component).Should(BeEmpty())
 				Ω(up.Definition).Should(Equal(FederationDefinition{}))
 			})
+		})
+	})
+
+	Context("feature flags", func() {
+		It("lists and enables feature flags", func() {
+			By("GET /feature-flags")
+			featureFlags, err := rmqc.ListFeatureFlags()
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(featureFlags).ShouldNot(BeNil())
+
+			By("PUT /feature-flags/{name}/enable")
+			for _, f := range featureFlags {
+				resp, err := rmqc.EnableFeatureFlag(f.Name)
+				Ω(err).ShouldNot(HaveOccurred())
+				Ω(resp).Should(HaveHTTPStatus(http.StatusNoContent))
+			}
+
+			featureFlags, err = rmqc.ListFeatureFlags()
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(featureFlags).ShouldNot(BeNil())
+			for _, f := range featureFlags {
+				Ω(f.State).Should(Equal(StateEnabled))
+			}
 		})
 	})
 })
