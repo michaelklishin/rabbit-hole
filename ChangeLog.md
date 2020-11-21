@@ -1,7 +1,13 @@
 ## Changes Between 2.5.0 and 2.6.0 (under development)
 
-No changes yet.
+### Feature Flag Management
 
+The client now can list and enable feature flags
+using the `ListFeatureFlags` and `EnableFeatureFlag` functions.
+
+Contributed by David Ansari.
+
+GitHub issue: [#167](https://github.com/michaelklishin/rabbit-hole/pull/167)
 
 ## Changes Between 2.4.0 and 2.5.0 (Sep 28th, 2020)
 
