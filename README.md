@@ -302,6 +302,17 @@ resp, err := rmqc.DeleteBinding("/", BindingInfo{
 // => *http.Response, err
 ```
 
+### Operations on Feature Flags
+
+``` go
+xs, err := rmqc.ListFeatureFlags()
+// => []FeatureFlag, err
+
+// enable a feature flag
+_, err := rmqc.EnableFeatureFlag("drop_unroutable_metric")
+// => *http.Response, err
+```
+
 ### Operations on Shovels
 
 ``` go
