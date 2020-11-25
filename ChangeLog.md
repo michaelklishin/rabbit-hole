@@ -1,4 +1,8 @@
-## Changes Between 2.5.0 and 2.6.0 (under development)
+## Changes Between 2.6.0 and 2.7.0 (under development)
+
+No changes yet.
+
+## Changes Between 2.5.0 and 2.6.0 (Nov 25, 2020)
 
 ### Feature Flag Management
 

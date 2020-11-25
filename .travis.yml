@@ -5,8 +5,8 @@ language: go
 
 go:
   - tip
+  - "1.15"
   - "1.14"
-  - "1.13"
 
 env:
   - GO111MODULE=on
