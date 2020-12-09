@@ -195,7 +195,9 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(res.Name).ShouldNot(BeNil())
 			Ω(res.Name).Should(Equal("guest"))
-			Ω(res.Tags).ShouldNot(BeNil())
+
+			tags := UserTags([]string{"administrator"})
+			Ω(res.Tags).Should(Equal(tags))
 			Ω(res.AuthBackend).ShouldNot(BeNil())
 		})
 	})
@@ -767,7 +769,9 @@ var _ = Describe("Rabbithole", func() {
 			u := FindUserByName(xs, "guest")
 			Ω(u.Name).Should(BeEquivalentTo("guest"))
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal(["administrator"]))
+
+			tags := UserTags([]string{"administrator"})
+			Ω(u.Tags).Should(Equal(tags))
 		})
 	})
 
@@ -778,7 +782,9 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(u.Name).Should(BeEquivalentTo("guest"))
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal(["administrator"]))
+
+			tags := UserTags([]string{"administrator"})
+			Ω(u.Tags).Should(Equal(tags))
 		})
 	})
 
@@ -801,7 +807,8 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal(["policymaker", "management"]))
+			tags := UserTags([]string{"policymaker", "management"})
+			Ω(u.Tags).Should(Equal(tags))
 
 			// cleanup
 			_, err = rmqc.DeleteUser(username)
@@ -835,7 +842,9 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
 			Ω(u.PasswordHash).ShouldNot(BeEquivalentTo(""))
-			Ω(u.Tags).Should(Equal(strings.split(tags, ",")))
+
+			expectdTags := UserTags(strings.Split(tags, ","))
+			Ω(u.Tags).Should(Equal(expectdTags))
 
 			// make sure the user can successfully connect
 			conn, err := amqp.Dial("amqp://" + username + ":" + password + "@localhost:5672/%2f")
@@ -880,7 +889,8 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).Should(BeEquivalentTo(""))
-			Ω(u.Tags).Should(Equal(["policymaker", "management"]))
+			tags := UserTags([]string{"policymaker", "management"})
+			Ω(u.Tags).Should(Equal(tags))
 
 			// cleanup
 			_, err = rmqc.DeleteUser("rabbithole")
