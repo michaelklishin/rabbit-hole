@@ -767,7 +767,7 @@ var _ = Describe("Rabbithole", func() {
 			u := FindUserByName(xs, "guest")
 			Ω(u.Name).Should(BeEquivalentTo("guest"))
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal("administrator"))
+			Ω(u.Tags).Should(Equal(["administrator"]))
 		})
 	})
 
@@ -778,7 +778,7 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(u.Name).Should(BeEquivalentTo("guest"))
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal("administrator"))
+			Ω(u.Tags).Should(Equal(["administrator"]))
 		})
 	})
 
@@ -801,7 +801,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal("policymaker,management"))
+			Ω(u.Tags).Should(Equal(["policymaker", "management"]))
 
 			// cleanup
 			_, err = rmqc.DeleteUser(username)
@@ -835,7 +835,7 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
 			Ω(u.PasswordHash).ShouldNot(BeEquivalentTo(""))
-			Ω(u.Tags).Should(Equal(tags))
+			Ω(u.Tags).Should(Equal(strings.split(tags, ",")))
 
 			// make sure the user can successfully connect
 			conn, err := amqp.Dial("amqp://" + username + ":" + password + "@localhost:5672/%2f")
@@ -880,7 +880,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).Should(BeEquivalentTo(""))
-			Ω(u.Tags).Should(Equal("policymaker,management"))
+			Ω(u.Tags).Should(Equal(["policymaker", "management"]))
 
 			// cleanup
 			_, err = rmqc.DeleteUser("rabbithole")

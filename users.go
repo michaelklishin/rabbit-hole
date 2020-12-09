@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // HashingAlgorithm represents a hashing algorithm used
@@ -31,6 +32,32 @@ const (
 	HashingAlgorithmMD5 HashingAlgorithm = "rabbit_password_hashing_md5"
 )
 
+// UserTags represents tags of a user. In HTTP API responses this can be
+// a JSON array (3.9.0+) or a comma-separated list in a string.
+type UserTags []string
+
+// MarshalJSON can marshal an array of strings or a comma-separated list in a string
+func (d UserTags) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]string(d))
+}
+
+// UnmarshalJSON can unmarshal an array of strings or a comma-separated list in a string
+func (d *UserTags) UnmarshalJSON(b []byte) error {
+	// the value is a comma-separated string
+	if b[0] == '"' {
+		*d = UserTags(strings.Split(string(b), ","))
+		return nil
+	}
+
+	// the value is an array
+	var ary []string
+	if err := json.Unmarshal(b, &ary); err != nil {
+		return err
+	}
+	*d = UserTags(ary)
+	return nil
+}
+
 // UserInfo represents a user record. Only relevant when internal authentication
 // backend is used.
 type UserInfo struct {
@@ -38,7 +65,7 @@ type UserInfo struct {
 	PasswordHash     string           `json:"password_hash"`
 	HashingAlgorithm HashingAlgorithm `json:"hashing_algorithm,omitempty"`
 	// Tags control permissions. Built-in tags: administrator, management, policymaker.
-	Tags string `json:"tags"`
+	Tags UserTags `json:"tags"`
 }
 
 // UserSettings represents properties of a user. Used to create users.
@@ -123,7 +150,7 @@ func (c *Client) PutUser(username string, info UserSettings) (res *http.Response
 // using an X.509 certificate or another authentication mechanism (or backend) that does not
 // use passwords..
 func (c *Client) PutUserWithoutPassword(username string, info UserSettings) (res *http.Response, err error) {
-	body, err := json.Marshal(UserInfo{Tags: info.Tags})
+	body, err := json.Marshal(UserInfo{Tags: UserTags(strings.Split(info.Tags, ","))})
 	if err != nil {
 		return nil, err
 	}
