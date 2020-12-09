@@ -240,3 +240,29 @@ func Base64EncodedSaltedPasswordHashSHA512(password string) string {
 	salt, saltedHash := SaltedPasswordHashSHA512(password)
 	return base64.StdEncoding.EncodeToString([]byte(salt + saltedHash))
 }
+
+//
+// GET /api/whoami
+//
+
+// WhoamiInfo represents a user whose request was successfully authenticated
+// by the "whoami" API endpoint.
+type WhoamiInfo struct {
+	Name        string   `json:"name"`
+	Tags        UserTags `json:"tags"`
+	AuthBackend string   `json:"auth_backend"`
+}
+
+// Whoami echoes requesting user's name back.
+func (c *Client) Whoami() (rec *WhoamiInfo, err error) {
+	req, err := newGETRequest(c, "whoami")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
+	}
+
+	return rec, nil
+}
