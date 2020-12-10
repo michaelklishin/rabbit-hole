@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -38,17 +39,22 @@ type UserTags []string
 
 // MarshalJSON can marshal an array of strings or a comma-separated list in a string
 func (d UserTags) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]string(d))
+	return json.Marshal(strings.Join(d, ","))
 }
 
 // UnmarshalJSON can unmarshal an array of strings or a comma-separated list in a string
 func (d *UserTags) UnmarshalJSON(b []byte) error {
 	// the value is a comma-separated string
+	t, _ := strconv.Unquote(string(b))
 	if b[0] == '"' {
-		*d = UserTags(strings.Split(string(b), ","))
+		quotedTags := strings.Split(t, ",")
+		tags := []string{}
+		for _, qt := range quotedTags {
+			tags = append(tags, qt)
+		}
+		*d = UserTags(tags)
 		return nil
 	}
-
 	// the value is an array
 	var ary []string
 	if err := json.Unmarshal(b, &ary); err != nil {
@@ -75,7 +81,7 @@ type UserSettings struct {
 	// Tags control permissions. Administrator grants full
 	// permissions, management grants management UI and HTTP API
 	// access, policymaker grants policy management permissions.
-	Tags string `json:"tags"`
+	Tags UserTags `json:"tags"`
 
 	// *never* returned by RabbitMQ. Set by the client
 	// to create/update a user. MK.
@@ -150,7 +156,7 @@ func (c *Client) PutUser(username string, info UserSettings) (res *http.Response
 // using an X.509 certificate or another authentication mechanism (or backend) that does not
 // use passwords..
 func (c *Client) PutUserWithoutPassword(username string, info UserSettings) (res *http.Response, err error) {
-	body, err := json.Marshal(UserInfo{Tags: UserTags(strings.Split(info.Tags, ","))})
+	body, err := json.Marshal(info)
 	if err != nil {
 		return nil, err
 	}

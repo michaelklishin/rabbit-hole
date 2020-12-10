@@ -794,7 +794,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 
-			info := UserSettings{Password: "s3krE7", Tags: "policymaker, management"}
+			info := UserSettings{Password: "s3krE7", Tags: UserTags{"policymaker", "management"}}
 			resp, err := rmqc.PutUser(username, info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
@@ -820,7 +820,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 
-			tags := "policymaker,management"
+			tags := UserTags{"policymaker", "management"}
 			password := "s3krE7-s3t-v!a-4A$h"
 			info := UserSettings{PasswordHash: Base64EncodedSaltedPasswordHashSHA256(password),
 				HashingAlgorithm: HashingAlgorithmSHA256,
@@ -843,8 +843,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(u.PasswordHash).ShouldNot(BeNil())
 			Ω(u.PasswordHash).ShouldNot(BeEquivalentTo(""))
 
-			expectdTags := UserTags(strings.Split(tags, ","))
-			Ω(u.Tags).Should(Equal(expectdTags))
+			Ω(u.Tags).Should(Equal(tags))
 
 			// make sure the user can successfully connect
 			conn, err := amqp.Dial("amqp://" + username + ":" + password + "@localhost:5672/%2f")
@@ -861,7 +860,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 
-			tags := "policymaker,management"
+			tags := UserTags{"policymaker", "management"}
 			password := "s3krE7-s3t-v!a-4A$h"
 			info := UserSettings{PasswordHash: password,
 				HashingAlgorithm: HashingAlgorithmSHA256,
@@ -876,7 +875,8 @@ var _ = Describe("Rabbithole", func() {
 		})
 
 		It("updates the user with no password", func() {
-			info := UserSettings{Tags: "policymaker, management"}
+			tags := UserTags{"policymaker", "management"}
+			info := UserSettings{Tags: tags}
 			resp, err := rmqc.PutUserWithoutPassword("rabbithole", info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
@@ -886,10 +886,10 @@ var _ = Describe("Rabbithole", func() {
 			awaitEventPropagation()
 
 			u, err := rmqc.GetUser("rabbithole")
+			fmt.Printf("KURA: %+v\n", u)
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).Should(BeEquivalentTo(""))
-			tags := UserTags([]string{"policymaker", "management"})
 			Ω(u.Tags).Should(Equal(tags))
 
 			// cleanup
@@ -900,7 +900,7 @@ var _ = Describe("Rabbithole", func() {
 
 	Context("DELETE /users/{name}", func() {
 		It("deletes the user", func() {
-			info := UserSettings{Password: "s3krE7", Tags: "management policymaker"}
+			info := UserSettings{Password: "s3krE7", Tags: UserTags{"management", "policymaker"}}
 			_, err := rmqc.PutUser("rabbithole", info)
 			Ω(err).Should(BeNil())
 
