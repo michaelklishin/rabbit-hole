@@ -321,9 +321,27 @@ func (c *Client) DeclareQueue(vhost, queue string, info QueueSettings) (res *htt
 // DELETE /api/queues/{vhost}/{name}
 //
 
+// Options for deleting a queue. Use it with DeleteQueue.
+type QueueDeleteOptions struct {
+	// Only delete the queue if there are no messages.
+	IfEmpty bool
+	// Only delete the queue if there are no consumers.
+	IfUnused bool
+}
+
 // DeleteQueue deletes a queue.
-func (c *Client) DeleteQueue(vhost, queue string) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue), nil)
+func (c *Client) DeleteQueue(vhost, queue string, opts ...QueueDeleteOptions) (res *http.Response, err error) {
+	query := url.Values{}
+	for _, o := range opts {
+		if o.IfEmpty {
+			query["if-empty"] = []string{"true"}
+		}
+		if o.IfUnused {
+			query["if-unused"] = []string{"true"}
+		}
+	}
+
+	req, err := newRequestWithBody(c, "DELETE", "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue)+"?"+query.Encode(), nil)
 	if err != nil {
 		return nil, err
 	}

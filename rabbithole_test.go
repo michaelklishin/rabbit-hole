@@ -1651,6 +1651,40 @@ var _ = Describe("Rabbithole", func() {
 			Ω(x).Should(BeNil())
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
+
+		It("accepts IfEmpty option", func() {
+			vh := "rabbit/hole"
+			qn := "temporary"
+
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			x, err := rmqc.GetQueue(vh, qn)
+			Ω(x).Should(BeNil())
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+		})
+
+		It("accepts IfUnused option", func() {
+			vh := "rabbit/hole"
+			qn := "temporary"
+
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfUnused: true})
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			x, err := rmqc.GetQueue(vh, qn)
+			Ω(x).Should(BeNil())
+			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+		})
 	})
 
 	Context("DELETE /queues/{vhost}/{queue}/contents", func() {
