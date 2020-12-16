@@ -195,7 +195,9 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(res.Name).ShouldNot(BeNil())
 			Ω(res.Name).Should(Equal("guest"))
-			Ω(res.Tags).ShouldNot(BeNil())
+
+			tags := UserTags([]string{"administrator"})
+			Ω(res.Tags).Should(Equal(tags))
 			Ω(res.AuthBackend).ShouldNot(BeNil())
 		})
 	})
@@ -767,7 +769,9 @@ var _ = Describe("Rabbithole", func() {
 			u := FindUserByName(xs, "guest")
 			Ω(u.Name).Should(BeEquivalentTo("guest"))
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal("administrator"))
+
+			tags := UserTags([]string{"administrator"})
+			Ω(u.Tags).Should(Equal(tags))
 		})
 	})
 
@@ -778,7 +782,9 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(u.Name).Should(BeEquivalentTo("guest"))
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal("administrator"))
+
+			tags := UserTags([]string{"administrator"})
+			Ω(u.Tags).Should(Equal(tags))
 		})
 	})
 
@@ -788,7 +794,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 
-			info := UserSettings{Password: "s3krE7", Tags: "policymaker, management"}
+			info := UserSettings{Password: "s3krE7", Tags: UserTags{"policymaker", "management"}}
 			resp, err := rmqc.PutUser(username, info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
@@ -801,7 +807,8 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.Tags).Should(Equal("policymaker,management"))
+			tags := UserTags([]string{"policymaker", "management"})
+			Ω(u.Tags).Should(Equal(tags))
 
 			// cleanup
 			_, err = rmqc.DeleteUser(username)
@@ -813,7 +820,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 
-			tags := "policymaker,management"
+			tags := UserTags{"policymaker", "management"}
 			password := "s3krE7-s3t-v!a-4A$h"
 			info := UserSettings{PasswordHash: Base64EncodedSaltedPasswordHashSHA256(password),
 				HashingAlgorithm: HashingAlgorithmSHA256,
@@ -835,6 +842,7 @@ var _ = Describe("Rabbithole", func() {
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
 			Ω(u.PasswordHash).ShouldNot(BeEquivalentTo(""))
+
 			Ω(u.Tags).Should(Equal(tags))
 
 			// make sure the user can successfully connect
@@ -852,7 +860,7 @@ var _ = Describe("Rabbithole", func() {
 			_, err := rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 
-			tags := "policymaker,management"
+			tags := UserTags{"policymaker", "management"}
 			password := "s3krE7-s3t-v!a-4A$h"
 			info := UserSettings{PasswordHash: password,
 				HashingAlgorithm: HashingAlgorithmSHA256,
@@ -867,8 +875,11 @@ var _ = Describe("Rabbithole", func() {
 		})
 
 		It("updates the user with no password", func() {
-			info := UserSettings{Tags: "policymaker, management"}
-			resp, err := rmqc.PutUserWithoutPassword("rabbithole", info)
+			tags := UserTags{"policymaker", "management"}
+			info := UserSettings{Tags: tags}
+			uname := "rabbithole-passwordless"
+			rmqc.DeleteUser(uname)
+			resp, err := rmqc.PutUserWithoutPassword(uname, info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
@@ -876,21 +887,21 @@ var _ = Describe("Rabbithole", func() {
 			// handled
 			awaitEventPropagation()
 
-			u, err := rmqc.GetUser("rabbithole")
+			u, err := rmqc.GetUser(uname)
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).Should(BeEquivalentTo(""))
-			Ω(u.Tags).Should(Equal("policymaker,management"))
+			Ω(u.Tags).Should(Equal(tags))
 
 			// cleanup
-			_, err = rmqc.DeleteUser("rabbithole")
+			_, err = rmqc.DeleteUser(uname)
 			Ω(err).Should(BeNil())
 		})
 	})
 
 	Context("DELETE /users/{name}", func() {
 		It("deletes the user", func() {
-			info := UserSettings{Password: "s3krE7", Tags: "management policymaker"}
+			info := UserSettings{Password: "s3krE7", Tags: UserTags{"management", "policymaker"}}
 			_, err := rmqc.PutUser("rabbithole", info)
 			Ω(err).Should(BeNil())
 

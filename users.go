@@ -9,6 +9,8 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 )
 
 // HashingAlgorithm represents a hashing algorithm used
@@ -31,6 +33,37 @@ const (
 	HashingAlgorithmMD5 HashingAlgorithm = "rabbit_password_hashing_md5"
 )
 
+// UserTags represents tags of a user. In HTTP API responses this can be
+// a JSON array (3.9.0+) or a comma-separated list in a string.
+type UserTags []string
+
+// MarshalJSON can marshal an array of strings or a comma-separated list in a string
+func (d UserTags) MarshalJSON() ([]byte, error) {
+	return json.Marshal(strings.Join(d, ","))
+}
+
+// UnmarshalJSON can unmarshal an array of strings or a comma-separated list in a string
+func (d *UserTags) UnmarshalJSON(b []byte) error {
+	// the value is a comma-separated string
+	t, _ := strconv.Unquote(string(b))
+	if b[0] == '"' {
+		quotedTags := strings.Split(t, ",")
+		tags := []string{}
+		for _, qt := range quotedTags {
+			tags = append(tags, qt)
+		}
+		*d = UserTags(tags)
+		return nil
+	}
+	// the value is an array
+	var ary []string
+	if err := json.Unmarshal(b, &ary); err != nil {
+		return err
+	}
+	*d = UserTags(ary)
+	return nil
+}
+
 // UserInfo represents a user record. Only relevant when internal authentication
 // backend is used.
 type UserInfo struct {
@@ -38,7 +71,7 @@ type UserInfo struct {
 	PasswordHash     string           `json:"password_hash"`
 	HashingAlgorithm HashingAlgorithm `json:"hashing_algorithm,omitempty"`
 	// Tags control permissions. Built-in tags: administrator, management, policymaker.
-	Tags string `json:"tags"`
+	Tags UserTags `json:"tags"`
 }
 
 // UserSettings represents properties of a user. Used to create users.
@@ -48,7 +81,7 @@ type UserSettings struct {
 	// Tags control permissions. Administrator grants full
 	// permissions, management grants management UI and HTTP API
 	// access, policymaker grants policy management permissions.
-	Tags string `json:"tags"`
+	Tags UserTags `json:"tags"`
 
 	// *never* returned by RabbitMQ. Set by the client
 	// to create/update a user. MK.
@@ -121,7 +154,7 @@ func (c *Client) PutUser(username string, info UserSettings) (res *http.Response
 
 // PutUserWithoutPassword creates a passwordless user. Such users can only authenticate
 // using an X.509 certificate or another authentication mechanism (or backend) that does not
-// use passwords..
+// use passwords.
 func (c *Client) PutUserWithoutPassword(username string, info UserSettings) (res *http.Response, err error) {
 	body, err := json.Marshal(UserInfo{Tags: info.Tags})
 	if err != nil {
@@ -212,4 +245,30 @@ func SaltedPasswordHashSHA512(password string) (string, string) {
 func Base64EncodedSaltedPasswordHashSHA512(password string) string {
 	salt, saltedHash := SaltedPasswordHashSHA512(password)
 	return base64.StdEncoding.EncodeToString([]byte(salt + saltedHash))
+}
+
+//
+// GET /api/whoami
+//
+
+// WhoamiInfo represents a user whose request was successfully authenticated
+// by the "whoami" API endpoint.
+type WhoamiInfo struct {
+	Name        string   `json:"name"`
+	Tags        UserTags `json:"tags"`
+	AuthBackend string   `json:"auth_backend"`
+}
+
+// Whoami echoes requesting user's name back.
+func (c *Client) Whoami() (rec *WhoamiInfo, err error) {
+	req, err := newGETRequest(c, "whoami")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
+	}
+
+	return rec, nil
 }
