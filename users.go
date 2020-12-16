@@ -154,9 +154,9 @@ func (c *Client) PutUser(username string, info UserSettings) (res *http.Response
 
 // PutUserWithoutPassword creates a passwordless user. Such users can only authenticate
 // using an X.509 certificate or another authentication mechanism (or backend) that does not
-// use passwords..
+// use passwords.
 func (c *Client) PutUserWithoutPassword(username string, info UserSettings) (res *http.Response, err error) {
-	body, err := json.Marshal(info)
+	body, err := json.Marshal(UserInfo{Tags: info.Tags})
 	if err != nil {
 		return nil, err
 	}
