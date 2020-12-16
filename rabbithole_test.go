@@ -877,7 +877,9 @@ var _ = Describe("Rabbithole", func() {
 		It("updates the user with no password", func() {
 			tags := UserTags{"policymaker", "management"}
 			info := UserSettings{Tags: tags}
-			resp, err := rmqc.PutUserWithoutPassword("rabbithole", info)
+			uname := "rabbithole-passwordless"
+			rmqc.DeleteUser(uname)
+			resp, err := rmqc.PutUserWithoutPassword(uname, info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
@@ -885,8 +887,7 @@ var _ = Describe("Rabbithole", func() {
 			// handled
 			awaitEventPropagation()
 
-			u, err := rmqc.GetUser("rabbithole")
-			fmt.Printf("KURA: %+v\n", u)
+			u, err := rmqc.GetUser(uname)
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).Should(BeEquivalentTo(""))
