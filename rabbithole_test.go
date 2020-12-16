@@ -894,7 +894,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(u.Tags).Should(Equal(tags))
 
 			// cleanup
-			_, err = rmqc.DeleteUser("rabbithole")
+			_, err = rmqc.DeleteUser(uname)
 			Ω(err).Should(BeNil())
 		})
 	})
