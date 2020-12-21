@@ -16,8 +16,43 @@ type RuntimeParameter struct {
 	Value     interface{} `json:"value"`
 }
 
+// RuntimeDefinitions represents rabbitmq runtime configuration.
+type RuntimeDefinitions struct {
+	RabbitVersion    string      `json:"rabbit_version"`
+	RabbitmqVersion  string      `json:"rabbitmq_version"`
+	ProductName      string      `json:"product_name"`
+	ProductVersion   string      `json:"product_version"`
+	Users            interface{} `json:"users"`
+	Vhosts           interface{} `json:"vhosts"`
+	Permissions      interface{} `json:"permissions"`
+	TopicPermissions interface{} `json:"topic_permissions"`
+	Parameters       interface{} `json:"parameters"`
+	GlobalParameters interface{} `json:"global_parameters"`
+	Policies         interface{} `json:"policies"`
+	Queues           interface{} `json:"queues"`
+	Exchanges        interface{} `json:"exchanges"`
+	Bindings         interface{} `json:"bindings"`
+}
+
 // RuntimeParameterValue represents arbitrary parameter data.
 type RuntimeParameterValue map[string]interface{}
+
+//
+// GET /api/definitions
+//
+
+func (c *Client) ListRuntimeDefinitions() (p *RuntimeDefinitions, err error) {
+	req, err := newGETRequest(c, "definitions")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(c, req, &p); err != nil {
+		return nil, err
+	}
+
+	return p, nil
+}
 
 //
 // GET /api/parameters
