@@ -18,20 +18,20 @@ type RuntimeParameter struct {
 
 // RuntimeDefinitions represents rabbitmq runtime configuration.
 type RuntimeDefinitions struct {
-	RabbitVersion    string      `json:"rabbit_version"`
-	RabbitmqVersion  string      `json:"rabbitmq_version"`
-	ProductName      string      `json:"product_name"`
-	ProductVersion   string      `json:"product_version"`
-	Users            interface{} `json:"users"`
-	Vhosts           interface{} `json:"vhosts"`
-	Permissions      interface{} `json:"permissions"`
-	TopicPermissions interface{} `json:"topic_permissions"`
-	Parameters       interface{} `json:"parameters"`
+	RabbitVersion    string `json:"rabbit_version"`
+	RabbitMQVersion  string `json:"rabbitmq_version"`
+	ProductName      string `json:"product_name"`
+	ProductVersion   string `json:"product_version"`
+	Users            []UserInfo
+	Vhosts           []VhostInfo
+	Permissions      []Permissions
+	TopicPermissions []TopicPermissionInfo
+	Parameters       []RuntimeParameter
 	GlobalParameters interface{} `json:"global_parameters"`
-	Policies         interface{} `json:"policies"`
-	Queues           interface{} `json:"queues"`
-	Exchanges        interface{} `json:"exchanges"`
-	Bindings         interface{} `json:"bindings"`
+	Policies         []PolicyDefinition
+	Queues           []QueueInfo
+	Exchanges        []ExchangeInfo
+	Bindings         []BindingInfo
 }
 
 // RuntimeParameterValue represents arbitrary parameter data.
