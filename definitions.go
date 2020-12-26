@@ -11,7 +11,7 @@ type ExportedDefinitions struct {
 	Permissions      []Permissions
 	TopicPermissions []TopicPermissionInfo
 	Parameters       []RuntimeParameter
-	GlobalParameters interface{} `json:"global_parameters"`
+	GlobalParameters []GlobalRuntimeParameter `json:"global_parameters"`
 	Policies         []PolicyDefinition
 	Queues           []QueueInfo
 	Exchanges        []ExchangeInfo
@@ -22,8 +22,8 @@ type ExportedDefinitions struct {
 // GET /api/definitions
 //
 
-// ExportDefinitions returns a set of definitions exported from a RabbitMQ cluster.
-func (c *Client) ExportDefinitions() (p *ExportedDefinitions, err error) {
+// ListDefinitions returns a set of definitions exported from a RabbitMQ cluster.
+func (c *Client) ListDefinitions() (p *ExportedDefinitions, err error) {
 	req, err := newGETRequest(c, "definitions")
 	if err != nil {
 		return nil, err
