@@ -2683,4 +2683,37 @@ var _ = Describe("Rabbithole", func() {
 			}
 		})
 	})
+
+	Context("definition export", func() {
+		It("returns exported definitions", func() {
+			By("GET /definitions")
+			defs, err := rmqc.ListDefinitions()
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(defs).ShouldNot(BeNil())
+
+			Ω(defs.RabbitMQVersion).ShouldNot(BeNil())
+
+			Ω(defs.Vhosts).ShouldNot(BeEmpty())
+			Ω(defs.Users).ShouldNot(BeEmpty())
+
+			Ω(defs.Queues).ShouldNot(BeNil())
+			Ω(defs.Parameters).ShouldNot(BeNil())
+			Ω(defs.Policies).ShouldNot(BeNil())
+		})
+
+		It("returns exported global parameters", func() {
+			By("GET /definitions")
+			defs, err := rmqc.ListDefinitions()
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(defs).ShouldNot(BeNil())
+
+			foundClusterName := false
+			for _, param := range defs.GlobalParameters {
+				if param.Name == "cluster_name" {
+					foundClusterName = true
+				}
+			}
+			Ω(foundClusterName).Should(Equal(true))
+		})
+	})
 })
