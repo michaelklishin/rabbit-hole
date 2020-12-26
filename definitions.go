@@ -22,6 +22,7 @@ type ExportedDefinitions struct {
 // GET /api/definitions
 //
 
+// ExportDefinitions returns a set of definitions exported from a RabbitMQ cluster.
 func (c *Client) ExportDefinitions() (p *ExportedDefinitions, err error) {
 	req, err := newGETRequest(c, "definitions")
 	if err != nil {
