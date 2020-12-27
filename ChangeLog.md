@@ -1,6 +1,13 @@
 ## Changes Between 2.6.0 and 2.7.0 (under development)
 
-No changes yet.
+### User Tags as Array
+
+For forward compatibility with RabbitMQ 3.9, as of this
+version the list of user tags is returned as an array
+intead of a comma-separated string.
+
+Compatibility with earlier RabbitMQ HTTP API versions, such as 3.8,
+has been preserved.
 
 ## Changes Between 2.5.0 and 2.6.0 (Nov 25, 2020)
 
