@@ -67,7 +67,7 @@ type ShovelDefinition struct {
 	DestinationProtocol              string      `json:"dest-protocol,omitempty"`
 	DestinationPublishProperties     string      `json:"dest-publish-properties,omitempty"`
 	DestinationQueue                 string      `json:"dest-queue,omitempty"`
-	DestinationURI                   string      `json:"dest-uri"`
+	DestinationURI                   []string    `json:"dest-uri"`
 	PrefetchCount                    int         `json:"prefetch-count,omitempty"`
 	ReconnectDelay                   int         `json:"reconnect-delay,omitempty"`
 	SourceAddress                    string      `json:"src-address,omitempty"`
@@ -77,7 +77,7 @@ type ShovelDefinition struct {
 	SourcePrefetchCount              int         `json:"src-prefetch-count,omitempty"`
 	SourceProtocol                   string      `json:"src-protocol,omitempty"`
 	SourceQueue                      string      `json:"src-queue,omitempty"`
-	SourceURI                        string      `json:"src-uri"`
+	SourceURI                        []string    `json:"src-uri"`
 }
 
 // ShovelDefinitionDTO provides a data transfer object
