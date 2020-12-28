@@ -6,7 +6,7 @@ import (
 	"net/url"
 )
 
-// RuntimeParameter represents a vhost-scoped parameter.
+// RuntimeParameter represents a vhost-scoped runtime parameter.
 // Value is interface{} to support creating parameters directly from types such as
 // FederationUpstream and ShovelInfo.
 type RuntimeParameter struct {
@@ -16,42 +16,15 @@ type RuntimeParameter struct {
 	Value     interface{} `json:"value"`
 }
 
-// RuntimeDefinitions represents rabbitmq runtime configuration.
-type RuntimeDefinitions struct {
-	RabbitVersion    string `json:"rabbit_version"`
-	RabbitMQVersion  string `json:"rabbitmq_version"`
-	ProductName      string `json:"product_name"`
-	ProductVersion   string `json:"product_version"`
-	Users            []UserInfo
-	Vhosts           []VhostInfo
-	Permissions      []Permissions
-	TopicPermissions []TopicPermissionInfo
-	Parameters       []RuntimeParameter
-	GlobalParameters interface{} `json:"global_parameters"`
-	Policies         []PolicyDefinition
-	Queues           []QueueInfo
-	Exchanges        []ExchangeInfo
-	Bindings         []BindingInfo
-}
-
 // RuntimeParameterValue represents arbitrary parameter data.
 type RuntimeParameterValue map[string]interface{}
 
-//
-// GET /api/definitions
-//
-
-func (c *Client) ListRuntimeDefinitions() (p *RuntimeDefinitions, err error) {
-	req, err := newGETRequest(c, "definitions")
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &p); err != nil {
-		return nil, err
-	}
-
-	return p, nil
+// GlobalRuntimeParameter represents a vhost-scoped parameter.
+// Value is interface{} to support creating parameters directly from types such as
+// FederationUpstream and ShovelInfo.
+type GlobalRuntimeParameter struct {
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
 }
 
 //
