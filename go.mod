@@ -1,4 +1,4 @@
-module github.com/michaelklishin/rabbit-hole/v2
+module github.com/pathcl/rabbit-hole/v2
 
 require (
 	github.com/kr/pretty v0.1.0 // indirect
