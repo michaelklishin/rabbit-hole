@@ -1,4 +1,13 @@
 ## Changes Between 2.6.0 and 2.7.0 (under development)
+### Definition Export
+
+`rabbithole.ListDefinitions` is a new function that retuns
+[exported definitions from a cluster](https://www.rabbitmq.com/definitions.html)
+as a typed Go data structure.
+
+Contributed by @pathcl.
+
+GitHub issue: [#170](https://github.com/michaelklishin/rabbit-hole/pull/170)
 
 ### User Tags as Array
 
