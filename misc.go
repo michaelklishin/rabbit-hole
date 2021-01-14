@@ -64,3 +64,21 @@ func (c *Client) Overview() (rec *Overview, err error) {
 
 	return rec, nil
 }
+
+type Aliveness struct {
+	Status string `json:"status"`
+}
+
+// Aliveness ...
+func (c *Client) Aliveness(vhost string) (rec *Aliveness, err error) {
+	req, err := newGETRequest(c, "overview")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
+	}
+
+	return rec, nil
+}
