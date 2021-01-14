@@ -91,6 +91,44 @@ var _ = Describe("Rabbithole", func() {
 		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 	})
 
+	Context("GET /aliveness-test/%2F", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+
+			ensureNonZeroMessageRate(ch)
+
+			res, err := rmqc.Aliveness("%2F")
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+
+			ch.Close()
+		})
+	})
+
+	Context("GET /healthchecks/nodes", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+
+			ensureNonZeroMessageRate(ch)
+
+			res, err := rmqc.HealthCheck()
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+
+			ch.Close()
+		})
+	})
+
 	Context("GET /overview", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
