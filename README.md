@@ -82,8 +82,31 @@ RabbitMQ HTTP API has to be [configured to use TLS](http://www.rabbitmq.com/mana
 ### Getting Overview
 
 ``` go
-res, err := rmqc.Overview()
+resp, err := rmqc.Overview()
 ```
+
+
+### Aliveness Check
+
+``` go
+// declares a queue, then publishes and consumes a message 
+resp, err := rmqc.Aliveness("%2F")
+// => Aliveness, err
+```
+
+
+### Health Check
+
+``` go
+// checks if application is running, channels and queues can be listed and no alarms are in effect
+resp, err := rmqc.HealthCheck()
+// => Health, err
+
+// checks for node
+resp, err := rmqc.HealthCheck("rabbit@mercurio")
+// => Health, err
+```
+
 
 ### Node and Cluster Status
 
