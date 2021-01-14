@@ -71,7 +71,7 @@ type Aliveness struct {
 
 // Aliveness ...
 func (c *Client) Aliveness(vhost string) (rec *Aliveness, err error) {
-	req, err := newGETRequest(c, "overview")
+	req, err := newGETRequest(c, "aliveness-test/" + vhost)
 	if err != nil {
 		return nil, err
 	}
