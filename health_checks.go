@@ -5,10 +5,10 @@ import "strconv"
 type TimeUnit string
 
 const (
-	DAYS   TimeUnit = "days"
-	WEEKS  TimeUnit = "weeks"
-	MONTHS TimeUnit = "months"
-	YEARS  TimeUnit = "years"
+	SECONDS TimeUnit = "seconds"
+	DAYS    TimeUnit = "days"
+	MONTHS  TimeUnit = "months"
+	YEARS   TimeUnit = "years"
 )
 
 type Protocol string
@@ -22,34 +22,42 @@ const (
 	WEB_STOMP Protocol = "web-stomp"
 )
 
+// Health represents response from healthchecks endpoint
+type Health struct {
+	Status    string   `json:"status"`
+	Reason    string   `json:"reason"`
+	Missing   string   `json:"missing"`
+	Ports     []string `json:"ports"`
+	Protocols []string `json:"protocols"`
+}
+
 // Responds a 200 OK if there are no alarms in effect in the cluster, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckAlarms() error {
+func (c *Client) HealthCheckAlarms() (rec *Health, err error) {
 	req, err := newGETRequest(c, "health/checks/alarms")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err = executeRequest(c, req); err != nil {
-		return err
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return rec, nil
 }
 
 // Responds a 200 OK if there are no local alarms in effect on the target node, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckLocalAlarms() error {
+func (c *Client) HealthCheckLocalAlarms() (rec *Health, err error) {
 	req, err := newGETRequest(c, "health/checks/local-alarms")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err = executeRequest(c, req); err != nil {
-		return err
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return rec, nil
 }
-
 
 // Checks the expiration date on the certificates for every listener configured to use TLS.
 // Responds a 200 OK if all certificates are valid (have not expired), otherwise responds with a 503 Service Unavailable.
@@ -61,7 +69,7 @@ func (c *Client) HealthCheckCertificateExpiration(within uint, unit TimeUnit) (r
 		return nil, err
 	}
 
-	if _, err = executeRequest(c, req); err != nil {
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return nil, err
 	}
 
@@ -69,85 +77,79 @@ func (c *Client) HealthCheckCertificateExpiration(within uint, unit TimeUnit) (r
 }
 
 // Responds a 200 OK if there is an active listener on the give port, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckPortListenerListener(port uint) error {
+func (c *Client) HealthCheckPortListenerListener(port uint) (rec *Health, err error) {
 	req, err := newGETRequest(c, "health/checks/port-listener/"+strconv.Itoa(int(port)))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err = executeRequest(c, req); err != nil {
-		return err
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return rec, nil
 }
 
 // Responds a 200 OK if there is an active listener for the given protocol, otherwise responds with a 503 Service Unavailable.
 // Valid protocol names are: amqp091, amqp10, mqtt, stomp, web-mqtt, web-stomp.
-func (c *Client) HealthCheckProtocolListener(protocol Protocol) error {
+func (c *Client) HealthCheckProtocolListener(protocol Protocol) (rec *Health, err error) {
 	req, err := newGETRequest(c, "health/checks/protocol-listener/"+string(protocol))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err = executeRequest(c, req); err != nil {
-		return err
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return rec, nil
 }
 
 // Responds a 200 OK if all virtual hosts and running on the target node, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckVirtualHosts() error {
+func (c *Client) HealthCheckVirtualHosts() (rec *Health, err error) {
 	req, err := newGETRequest(c, "health/checks/virtual-hosts")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err = executeRequest(c, req); err != nil {
-		return err
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return rec, nil
 }
 
 // Checks if there are classic mirrored queues without synchronised mirrors online (queues that would potentially lose data if the target node is shut down).
 // Responds a 200 OK if there are no such classic mirrored queues, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckNodeIsMirrorSyncCritical() error {
+func (c *Client) HealthCheckNodeIsMirrorSyncCritical() (rec *Health, err error) {
 	req, err := newGETRequest(c, "health/checks/node-is-mirror-sync-critical")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err = executeRequest(c, req); err != nil {
-		return err
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return rec, nil
 }
 
 // Checks if there are quorum queues with minimum online quorum (queues that would lose their quorum and availability if the target node is shut down).
 // Responds a 200 OK if there are no such quorum queues, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckNodeIsQuorumCritical() error {
+func (c *Client) HealthCheckNodeIsQuorumCritical() (rec *Health, err error) {
 	req, err := newGETRequest(c, "health/checks/node-is-quorum-critical")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err = executeRequest(c, req); err != nil {
-		return err
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return rec, nil
 }
 
 // Deprecated health check api
-
-// Health represents response from healthchecks endpoint
-type Health struct {
-	Status string `json:"status"`
-	Reason string `json:"reason"`
-}
 
 // HealthChecks endpoint checks if the application is running,
 // channels and queues can be listed, and that no alarms are raised
