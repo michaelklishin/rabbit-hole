@@ -91,6 +91,102 @@ var _ = Describe("Rabbithole", func() {
 		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 	})
 
+	Context("GET /health/checks/alarms", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			res, err := rmqc.HealthCheckAlarms()
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+		})
+	})
+
+	Context("GET /health/checks/local-alarms", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			res, err := rmqc.HealthCheckLocalAlarms()
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+		})
+	})
+
+	Context("GET /health/checks/certificate-expiration/1/days", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			res, err := rmqc.HealthCheckCertificateExpiration(1, DAYS)
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+		})
+	})
+
+	Context("GET /health/checks/port-listener/5672", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			res, err := rmqc.HealthCheckPortListenerListener(5672)
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+		})
+	})
+
+	Context("GET /health/checks/protocol-listener/amqp091", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			res, err := rmqc.HealthCheckProtocolListener(AMQP091)
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+		})
+	})
+
+	Context("GET /health/checks/virtual-hosts", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			res, err := rmqc.HealthCheckVirtualHosts()
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+		})
+	})
+
+	Context("GET /health/checks/node-is-mirror-sync-critical", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			res, err := rmqc.HealthCheckNodeIsMirrorSyncCritical()
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+		})
+	})
+
+	Context("GET /health/checks/node-is-quorum-critical", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			res, err := rmqc.HealthCheckNodeIsMirrorSyncCritical()
+			Ω(err).Should(BeNil())
+
+			Ω(res.Status).Should(Equal("ok"))
+		})
+	})
+
 	Context("GET /aliveness-test/%2F", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
