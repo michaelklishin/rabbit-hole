@@ -96,6 +96,10 @@ var _ = Describe("Rabbithole", func() {
 			conn := openConnection("/")
 			defer conn.Close()
 
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer  ch.Close()
+
 			res, err := rmqc.HealthCheckAlarms()
 			Ω(err).Should(BeNil())
 
@@ -107,6 +111,10 @@ var _ = Describe("Rabbithole", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
 			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer  ch.Close()
 
 			res, err := rmqc.HealthCheckLocalAlarms()
 			Ω(err).Should(BeNil())
@@ -120,6 +128,10 @@ var _ = Describe("Rabbithole", func() {
 			conn := openConnection("/")
 			defer conn.Close()
 
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer  ch.Close()
+
 			res, err := rmqc.HealthCheckCertificateExpiration(1, DAYS)
 			Ω(err).Should(BeNil())
 
@@ -131,6 +143,10 @@ var _ = Describe("Rabbithole", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
 			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer  ch.Close()
 
 			res, err := rmqc.HealthCheckPortListenerListener(5672)
 			Ω(err).Should(BeNil())
@@ -144,6 +160,10 @@ var _ = Describe("Rabbithole", func() {
 			conn := openConnection("/")
 			defer conn.Close()
 
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer  ch.Close()
+
 			res, err := rmqc.HealthCheckProtocolListener(AMQP091)
 			Ω(err).Should(BeNil())
 
@@ -155,6 +175,10 @@ var _ = Describe("Rabbithole", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
 			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer  ch.Close()
 
 			res, err := rmqc.HealthCheckVirtualHosts()
 			Ω(err).Should(BeNil())
@@ -168,6 +192,10 @@ var _ = Describe("Rabbithole", func() {
 			conn := openConnection("/")
 			defer conn.Close()
 
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer  ch.Close()
+
 			res, err := rmqc.HealthCheckNodeIsMirrorSyncCritical()
 			Ω(err).Should(BeNil())
 
@@ -179,6 +207,10 @@ var _ = Describe("Rabbithole", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
 			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer  ch.Close()
 
 			res, err := rmqc.HealthCheckNodeIsMirrorSyncCritical()
 			Ω(err).Should(BeNil())
