@@ -4,14 +4,15 @@ This library is a [RabbitMQ HTTP API](https://raw.githack.com/rabbitmq/rabbitmq-
 
 ## Supported Go Versions
 
-Rabbit Hole supports the last 2 stable Go versions, as well as the version in development (a.k.a. master).
+Rabbit Hole targets two latests stable Go versions available at the time of the library release.
+Older versions may work but this is not guaranteed.
 
 
 ## Supported RabbitMQ Versions
 
- * [RabbitMQ `3.8.x`](https://www.rabbitmq.com/changelog.html) is the primary target series
- * Almost all API endpoints work against RabbitMQ `3.7.x` nodes but some metrics and stats may be missing
- * RabbitMQ `3.7.x` is [out of general support](https://www.rabbitmq.com/versions.html)
+ * [RabbitMQ `3.8.x`](https://www.rabbitmq.com/changelog.html) will be the only supported release series starting with Rabbit Hole 3.0
+ * Almost all API operations work against RabbitMQ `3.7.x` nodes. Some metrics and stats may be missing.
+ * RabbitMQ `3.7.x` and older versions are [out of general support](https://www.rabbitmq.com/versions.html)
 
 All versions require [RabbitMQ Management UI plugin](https://www.rabbitmq.com/management.html) to be installed and enabled.
 

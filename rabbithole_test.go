@@ -2526,8 +2526,8 @@ var _ = Describe("Rabbithole", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := "amqp://127.0.0.1/%2f"
-			sdu := "amqp://127.0.0.1/%2f"
+			ssu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
+			sdu := ShovelURISet([]string{"amqp://127.0.0.1/%2f", "amqp://localhost/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:                     ssu,
@@ -2583,8 +2583,8 @@ var _ = Describe("Rabbithole", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := "amqp://127.0.0.1/%2f"
-			sdu := "amqp://127.0.0.1/%2f"
+			ssu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
+			sdu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:         ssu,
@@ -2629,8 +2629,8 @@ var _ = Describe("Rabbithole", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := "amqp://127.0.0.1/%2f"
-			sdu := "amqp://127.0.0.1/%2f"
+			ssu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
+			sdu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:         ssu,
@@ -2737,9 +2737,9 @@ var _ = Describe("Rabbithole", func() {
 				Ω(err).Should(BeNil())
 
 				sDef := ShovelDefinition{
-					SourceURI:         "amqp://127.0.0.1/%2f",
+					SourceURI:         ShovelURISet([]string{"amqp://127.0.0.1/%2f"}),
 					SourceQueue:       "mySourceQueue",
-					DestinationURI:    "amqp://127.0.0.1/%2f",
+					DestinationURI:    ShovelURISet([]string{"amqp://127.0.0.1/%2f"}),
 					DestinationQueue:  "myDestQueue",
 					AddForwardHeaders: true,
 					AckMode:           "on-confirm",
@@ -2842,6 +2842,46 @@ var _ = Describe("Rabbithole", func() {
 				}
 			}
 			Ω(foundClusterName).Should(Equal(true))
+		})
+	})
+
+	Context("DeleteAfter marshalling", func() {
+		It("unmarshals DeleteAfter when it is a number", func() {
+			var d DeleteAfter
+			s := []byte("1")
+			err := d.UnmarshalJSON(s)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(d).Should(Equal(DeleteAfter("1")))
+		})
+
+		It("unmarshals DeleteAfter when it is a quoted string", func() {
+			var d DeleteAfter
+			s := []byte("\"3\"")
+			err := d.UnmarshalJSON(s)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(d).Should(Equal(DeleteAfter("3")))
+		})
+	})
+
+	Context("ShovelURISet marshalling", func() {
+		It("unmarshals a single string", func() {
+			var us ShovelURISet
+			bs := []byte("\"amqp://127.0.0.1:5672\"")
+			err := us.UnmarshalJSON(bs)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(us).Should(Equal(ShovelURISet([]string{"amqp://127.0.0.1:5672"})))
+		})
+
+		It("unmarshals a list of strings", func() {
+			var us ShovelURISet
+			bs := []byte("[\"amqp://127.0.0.1:5672\", \"amqp://localhost:5672\"]")
+			err := us.UnmarshalJSON(bs)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(us).Should(Equal(ShovelURISet([]string{"amqp://127.0.0.1:5672", "amqp://localhost:5672"})))
 		})
 	})
 })
