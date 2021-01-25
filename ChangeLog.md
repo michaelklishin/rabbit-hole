@@ -1,4 +1,32 @@
-## Changes Between 2.6.0 and 2.7.0 (under development)
+## Changes Between 2.6.0 and 3.0.0 (under development)
+
+This release contains **minor breaking public API changes**
+and targets RabbitMQ 3.8.x (the only [supported version at the time of wrigin](https://www.rabbitmq.com/versions.html))
+exclusively.
+
+### Support for Lists of Shovel URIs
+
+Shovel definition now uses a dedicated type, ``, to represent
+a set of URIs that will be tried sequentially until the Shovel
+can successfully connect and authenticate:
+
+``` go
+sDef := ShovelDefinition{
+            SourceURI:         ShovelURISet([]string{"amqp://host2/%2f", "amqp://host3/%2f"}),
+            SourceQueue:       "mySourceQueue",
+            DestinationURI:    ShovelURISet([]string{"amqp://host1/%2f"}),
+            DestinationQueue:  "myDestQueue",
+            AddForwardHeaders: true,
+            AckMode:           "on-confirm",
+            DeleteAfter:       "never",
+        }
+```
+
+Source and destination URI sets are only supported by the Shovel plugin in
+RabbitMQ 3.8.x.
+
+Originally suggested by @pathcl in #172.
+
 ### Definition Export
 
 `rabbithole.ListDefinitions` is a new function that retuns
