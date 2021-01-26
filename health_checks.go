@@ -1,6 +1,9 @@
 package rabbithole
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 type TimeUnit string
 
@@ -22,13 +25,28 @@ const (
 	WEB_STOMP Protocol = "web-stomp"
 )
 
+type Check interface {
+	// Returns true if the check is ok, otherwise false
+	Ok() bool
+
+	// Return true if the check failed, otherwise false
+	Failed() bool
+}
+
 // Health represents response from healthchecks endpoint
 type Health struct {
-	Status    string   `json:"status"`
-	Reason    string   `json:"reason"`
-	Missing   string   `json:"missing"`
-	Ports     []string `json:"ports"`
-	Protocols []string `json:"protocols"`
+	Check
+	Status string `json:"status"`
+	Error  string `json:"error"`
+	Reason string `json:"reason"`
+}
+
+func (h *Health) Ok() bool {
+	return h.Status == "ok"
+}
+
+func (h *Health) Failed() bool {
+	return !h.Ok()
 }
 
 // Responds a 200 OK if there are no alarms in effect in the cluster, otherwise responds with a 503 Service Unavailable.
@@ -76,23 +94,42 @@ func (c *Client) HealthCheckCertificateExpiration(within uint, unit TimeUnit) (r
 	return rec, nil
 }
 
+type PortListenerHealth struct {
+	Status string `json:"status"`
+	Error  string `json:"error"'`
+	Reason string `json:"reason"`
+	Port   string
+	Ports  []string `json:"ports"`
+}
+
 // Responds a 200 OK if there is an active listener on the give port, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckPortListenerListener(port uint) (rec *Health, err error) {
+func (c *Client) HealthCheckPortListenerListener(port uint) (rec *PortListenerHealth, err error) {
 	req, err := newGETRequest(c, "health/checks/port-listener/"+strconv.Itoa(int(port)))
 	if err != nil {
 		return nil, err
 	}
 
 	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
+
+		if !strings.Contains(err.Error(), "503") {
+			return nil, err
+		}
+
 	}
 
 	return rec, nil
 }
 
+type ProtocolListenerHealth struct {
+	Status    string   `json:"status"`
+	Reason    string   `json:"reason"`
+	Missing   string   `json:"missing"`
+	Protocols []string `json:"protocols"`
+}
+
 // Responds a 200 OK if there is an active listener for the given protocol, otherwise responds with a 503 Service Unavailable.
 // Valid protocol names are: amqp091, amqp10, mqtt, stomp, web-mqtt, web-stomp.
-func (c *Client) HealthCheckProtocolListener(protocol Protocol) (rec *Health, err error) {
+func (c *Client) HealthCheckProtocolListener(protocol Protocol) (rec *ProtocolListenerHealth, err error) {
 	req, err := newGETRequest(c, "health/checks/protocol-listener/"+string(protocol))
 	if err != nil {
 		return nil, err
