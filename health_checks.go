@@ -1,8 +1,9 @@
 package rabbithole
 
 import (
+	"encoding/json"
+	"net/http"
 	"strconv"
-	"strings"
 )
 
 type TimeUnit string
@@ -37,7 +38,6 @@ type Check interface {
 type Health struct {
 	Check
 	Status string `json:"status"`
-	Error  string `json:"error"`
 	Reason string `json:"reason"`
 }
 
@@ -50,74 +50,38 @@ func (h *Health) Failed() bool {
 }
 
 // Responds a 200 OK if there are no alarms in effect in the cluster, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckAlarms() (rec *Health, err error) {
-	req, err := newGETRequest(c, "health/checks/alarms")
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
-	}
-
-	return rec, nil
+func (c *Client) HealthCheckAlarms() (rec Health, err error) {
+	err = executeCheck(c, "health/checks/alarms", &rec)
+	return rec, err
 }
 
 // Responds a 200 OK if there are no local alarms in effect on the target node, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckLocalAlarms() (rec *Health, err error) {
-	req, err := newGETRequest(c, "health/checks/local-alarms")
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
-	}
-
-	return rec, nil
+func (c *Client) HealthCheckLocalAlarms() (rec Health, err error) {
+	err = executeCheck(c, "health/checks/local-alarms", &rec)
+	return rec, err
 }
 
 // Checks the expiration date on the certificates for every listener configured to use TLS.
 // Responds a 200 OK if all certificates are valid (have not expired), otherwise responds with a 503 Service Unavailable.
 // Valid units: days, weeks, months, years. The value of the within argument is the number of units.
 // So, when within is 2 and unit is "months", the expiration period used by the check will be the next two months.
-func (c *Client) HealthCheckCertificateExpiration(within uint, unit TimeUnit) (rec *Health, err error) {
-	req, err := newGETRequest(c, "health/checks/certificate-expiration/"+strconv.Itoa(int(within))+"/"+string(unit))
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
-	}
-
-	return rec, nil
+func (c *Client) HealthCheckCertificateExpiration(within uint, unit TimeUnit) (rec Health, err error) {
+	err = executeCheck(c, "health/checks/certificate-expiration/"+strconv.Itoa(int(within))+"/"+string(unit), &rec)
+	return rec, err
 }
 
 type PortListenerHealth struct {
-	Status string `json:"status"`
-	Error  string `json:"error"'`
-	Reason string `json:"reason"`
-	Port   string
-	Ports  []string `json:"ports"`
+	Status  string `json:"status"`
+	Reason  string `json:"reason"`
+	Missing string `json:"missing"'`
+	Port    uint   `json:"port"`
+	Ports   []uint `json:"ports"`
 }
 
 // Responds a 200 OK if there is an active listener on the give port, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckPortListenerListener(port uint) (rec *PortListenerHealth, err error) {
-	req, err := newGETRequest(c, "health/checks/port-listener/"+strconv.Itoa(int(port)))
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-
-		if !strings.Contains(err.Error(), "503") {
-			return nil, err
-		}
-
-	}
-
-	return rec, nil
+func (c *Client) HealthCheckPortListener(port uint) (rec PortListenerHealth, err error) {
+	err = executeCheck(c, "health/checks/port-listener/"+strconv.Itoa(int(port)), &rec)
+	return rec, err
 }
 
 type ProtocolListenerHealth struct {
@@ -129,110 +93,57 @@ type ProtocolListenerHealth struct {
 
 // Responds a 200 OK if there is an active listener for the given protocol, otherwise responds with a 503 Service Unavailable.
 // Valid protocol names are: amqp091, amqp10, mqtt, stomp, web-mqtt, web-stomp.
-func (c *Client) HealthCheckProtocolListener(protocol Protocol) (rec *ProtocolListenerHealth, err error) {
-	req, err := newGETRequest(c, "health/checks/protocol-listener/"+string(protocol))
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
-	}
-
-	return rec, nil
+func (c *Client) HealthCheckProtocolListener(protocol Protocol) (rec ProtocolListenerHealth, err error) {
+	err = executeCheck(c, "health/checks/protocol-listener/"+string(protocol), &rec)
+	return rec, err
 }
 
 // Responds a 200 OK if all virtual hosts and running on the target node, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckVirtualHosts() (rec *Health, err error) {
-	req, err := newGETRequest(c, "health/checks/virtual-hosts")
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
-	}
-
-	return rec, nil
+func (c *Client) HealthCheckVirtualHosts() (rec Health, err error) {
+	err = executeCheck(c, "health/checks/virtual-hosts", &rec)
+	return rec, err
 }
 
 // Checks if there are classic mirrored queues without synchronised mirrors online (queues that would potentially lose data if the target node is shut down).
 // Responds a 200 OK if there are no such classic mirrored queues, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckNodeIsMirrorSyncCritical() (rec *Health, err error) {
-	req, err := newGETRequest(c, "health/checks/node-is-mirror-sync-critical")
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
-	}
-
-	return rec, nil
+func (c *Client) HealthCheckNodeIsMirrorSyncCritical() (rec Health, err error) {
+	err = executeCheck(c, "health/checks/node-is-mirror-sync-critical", &rec)
+	return rec, err
 }
 
 // Checks if there are quorum queues with minimum online quorum (queues that would lose their quorum and availability if the target node is shut down).
 // Responds a 200 OK if there are no such quorum queues, otherwise responds with a 503 Service Unavailable.
-func (c *Client) HealthCheckNodeIsQuorumCritical() (rec *Health, err error) {
-	req, err := newGETRequest(c, "health/checks/node-is-quorum-critical")
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
-	}
-
-	return rec, nil
+func (c *Client) HealthCheckNodeIsQuorumCritical() (rec Health, err error) {
+	err = executeCheck(c, "health/checks/node-is-quorum-critical", &rec)
+	return rec, err
 }
 
-// Deprecated health check api
-
-// HealthChecks endpoint checks if the application is running,
-// channels and queues can be listed, and that no alarms are raised
-func (c *Client) HealthCheck() (rec *Health, err error) {
-	req, err := newGETRequest(c, "healthchecks/node")
+func executeCheck(client *Client, path string, rec interface{}) error {
+	req, err := newGETRequest(client, path)
+	httpc := &http.Client{
+		Timeout: client.timeout,
+	}
+	if client.transport != nil {
+		httpc.Transport = client.transport
+	}
+	resp, err := httpc.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
+	defer resp.Body.Close()
+
+	if resp.StatusCode < http.StatusBadRequest || resp.StatusCode == http.StatusServiceUnavailable {
+		if err = json.NewDecoder(resp.Body).Decode(&rec); err != nil {
+			return err
+		}
+
+		return nil
 	}
 
-	return rec, nil
-}
-
-// HealthChecks endpoint checks for a given node if the application is running,
-// channels and queues can be listed, and that no alarms are raised
-func (c *Client) HealthCheckFor(node string) (rec *Health, err error) {
-	req, err := newGETRequest(c, "healthchecks/node/"+node)
-	if err != nil {
-		return nil, err
+	if err = parseResponseErrors(resp); err != nil {
+		return err
 	}
 
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
-	}
-
-	return rec, nil
-}
-
-// Aliveness represents response from aliveness-test endpoint
-type Aliveness struct {
-	Status string `json:"status"`
-}
-
-// Aliveness endpoint declares a test queue, then publishes a message and consumes a message
-func (c *Client) Aliveness(vhost string) (rec *Aliveness, err error) {
-	req, err := newGETRequest(c, "aliveness-test/"+vhost)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = executeAndParseRequest(c, req, &rec); err != nil {
-		return nil, err
-	}
-
-	return rec, nil
+	return nil
 }
