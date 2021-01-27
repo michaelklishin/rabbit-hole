@@ -71,6 +71,7 @@ func (c *Client) HealthCheckCertificateExpiration(within uint, unit TimeUnit) (r
 }
 
 type PortListenerHealth struct {
+	Check
 	Status  string `json:"status"`
 	Reason  string `json:"reason"`
 	Missing string `json:"missing"'`
@@ -85,6 +86,7 @@ func (c *Client) HealthCheckPortListener(port uint) (rec PortListenerHealth, err
 }
 
 type ProtocolListenerHealth struct {
+	Check
 	Status    string   `json:"status"`
 	Reason    string   `json:"reason"`
 	Missing   string   `json:"missing"`
