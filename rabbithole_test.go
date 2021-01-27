@@ -148,7 +148,7 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 			defer  ch.Close()
 
-			res, err := rmqc.HealthCheckPortListenerListener(5672)
+			res, err := rmqc.HealthCheckPortListener(5672)
 			Ω(err).Should(BeNil())
 
 			Ω(res.Status).Should(Equal("ok"))
@@ -216,44 +216,6 @@ var _ = Describe("Rabbithole", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(res.Status).Should(Equal("ok"))
-		})
-	})
-
-	Context("GET /aliveness-test/%2F", func() {
-		It("returns decoded response", func() {
-			conn := openConnection("/")
-			defer conn.Close()
-
-			ch, err := conn.Channel()
-			Ω(err).Should(BeNil())
-
-			ensureNonZeroMessageRate(ch)
-
-			res, err := rmqc.Aliveness("%2F")
-			Ω(err).Should(BeNil())
-
-			Ω(res.Status).Should(Equal("ok"))
-
-			ch.Close()
-		})
-	})
-
-	Context("GET /healthchecks/nodes", func() {
-		It("returns decoded response", func() {
-			conn := openConnection("/")
-			defer conn.Close()
-
-			ch, err := conn.Channel()
-			Ω(err).Should(BeNil())
-
-			ensureNonZeroMessageRate(ch)
-
-			res, err := rmqc.HealthCheck()
-			Ω(err).Should(BeNil())
-
-			Ω(res.Status).Should(Equal("ok"))
-
-			ch.Close()
 		})
 	})
 
