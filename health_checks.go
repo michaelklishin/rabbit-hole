@@ -30,7 +30,7 @@ type Check interface {
 	// Returns true if the check is ok, otherwise false
 	Ok() bool
 
-	// Return true if the check failed, otherwise false
+	// Returns true if the check failed, otherwise false
 	Failed() bool
 }
 
