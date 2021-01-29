@@ -83,8 +83,9 @@ RabbitMQ HTTP API has to be [configured to use TLS](http://www.rabbitmq.com/mana
 ### Getting Overview
 
 ``` go
-res, err := rmqc.Overview()
+resp, err := rmqc.Overview()
 ```
+
 
 ### Node and Cluster Status
 
