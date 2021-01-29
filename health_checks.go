@@ -26,7 +26,9 @@ const (
 	WEB_STOMP Protocol = "web-stomp"
 )
 
-type Check interface {
+// HealthCheck represents a generic health check endpoint response
+// Related RabbitMQ doc guide: https://www.rabbitmq.com/monitoring.html
+type HealthCheck interface {
 	// Returns true if the check is ok, otherwise false
 	Ok() bool
 
@@ -34,87 +36,97 @@ type Check interface {
 	Failed() bool
 }
 
-// Represents general response from health check endpoints if no dedicated representation is defined
-type Health struct {
-	Check
+// HealthCheckStatus represents a generic health check endpoint response
+// Related RabbitMQ doc guide: https://www.rabbitmq.com/monitoring.html
+type HealthCheckStatus struct {
+	HealthCheck
 	Status string `json:"status"`
-	Reason string `json:"reason"`
+	Reason string `json:"reason,omitempty"`
 }
 
-func (h *Health) Ok() bool {
+// Ok returns true if the health check succeeded
+func (h *HealthCheckStatus) Ok() bool {
 	return h.Status == "ok"
 }
 
-func (h *Health) Failed() bool {
+// Failed returns true if the health check failed
+func (h *HealthCheckStatus) Failed() bool {
 	return !h.Ok()
 }
 
-// Checks if there are alarms in effect in the cluster
-func (c *Client) HealthCheckAlarms() (rec Health, err error) {
+// HealthCheckAlarms checks if there are resource alarms in effect in the cluster
+// Related RabbitMQ doc guide: https://www.rabbitmq.com/alarms.html
+func (c *Client) HealthCheckAlarms() (rec HealthCheckStatus, err error) {
 	err = executeCheck(c, "health/checks/alarms", &rec)
 	return rec, err
 }
 
-// Checks if there are local alarms in effect on the target node
-func (c *Client) HealthCheckLocalAlarms() (rec Health, err error) {
+// HealthCheckLocalAlarms checks if there are resource alarms in effect on the target node
+// Related RabbitMQ doc guide: https://www.rabbitmq.com/alarms.html
+func (c *Client) HealthCheckLocalAlarms() (rec HealthCheckStatus, err error) {
 	err = executeCheck(c, "health/checks/local-alarms", &rec)
 	return rec, err
 }
 
-// Checks the expiration date on the certificates for every listener configured to use TLS.
+// HealthCheckCertificateExpiration checks the expiration date on the certificates for every listener configured to use TLS.
 // Valid units: days, weeks, months, years. The value of the within argument is the number of units.
 // So, when within is 2 and unit is "months", the expiration period used by the check will be the next two months.
-func (c *Client) HealthCheckCertificateExpiration(within uint, unit TimeUnit) (rec Health, err error) {
+func (c *Client) HealthCheckCertificateExpiration(within uint, unit TimeUnit) (rec HealthCheckStatus, err error) {
 	err = executeCheck(c, "health/checks/certificate-expiration/"+strconv.Itoa(int(within))+"/"+string(unit), &rec)
 	return rec, err
 }
 
-// Represents the response from HealthCheckPortListener
-type PortListenerHealth struct {
-	Check
+// PortListenerCheckStatus represents the response from HealthCheckPortListener
+type PortListenerCheckStatus struct {
+	HealthCheck
 	Status  string `json:"status"`
-	Reason  string `json:"reason"`
-	Missing string `json:"missing"`
-	Port    uint   `json:"port"`
-	Ports   []uint `json:"ports"`
+	Reason  string `json:"reason,omitempty"`
+	Port    uint   `json:"port,omitempty"`
+	Missing string `json:"missing,omitempty"`
+	Ports   []uint `json:"ports,omitempty"`
 }
 
-// Checks if there is an active listener on the give port
-func (c *Client) HealthCheckPortListener(port uint) (rec PortListenerHealth, err error) {
+// HealthCheckPortListener checks if there is an active listener on the give port.
+// Relevant RabbitMQ doc guide: https://www.rabbitmq.com/monitoring.html
+func (c *Client) HealthCheckPortListener(port uint) (rec PortListenerCheckStatus, err error) {
 	err = executeCheck(c, "health/checks/port-listener/"+strconv.Itoa(int(port)), &rec)
 	return rec, err
 }
 
-// Represents the response from HealthCheckProtocolListener
-type ProtocolListenerHealth struct {
-	Check
+// ProtocolListenerCheckStatus represents the response from HealthCheckProtocolListener
+type ProtocolListenerCheckStatus struct {
+	HealthCheck
 	Status    string   `json:"status"`
-	Reason    string   `json:"reason"`
-	Missing   string   `json:"missing"`
-	Protocols []string `json:"protocols"`
+	Reason    string   `json:"reason,omitempty"`
+	Missing   string   `json:"missing,omitempty"`
+	Protocols []string `json:"protocols,omitempty"`
 }
 
-// Checks if there is an active listener for the given protocol
-// Valid protocol names are: amqp091, amqp10, mqtt, stomp, web-mqtt, web-stomp.
-func (c *Client) HealthCheckProtocolListener(protocol Protocol) (rec ProtocolListenerHealth, err error) {
+// HealthCheckProtocolListener checks if there is an active listener for the given protocol
+// Valid protocol names are: amqp091, amqp10, mqtt, stomp, web-mqtt, web-stomp, http, https, clustering
+// Relevant RabbitMQ doc guide: https://www.rabbitmq.com/monitoring.html
+func (c *Client) HealthCheckProtocolListener(protocol Protocol) (rec ProtocolListenerCheckStatus, err error) {
 	err = executeCheck(c, "health/checks/protocol-listener/"+string(protocol), &rec)
 	return rec, err
 }
 
-// Checks if all virtual hosts and running on the target node
-func (c *Client) HealthCheckVirtualHosts() (rec Health, err error) {
+// HealthCheckVirtualHosts checks if all virtual hosts are running on the target node
+func (c *Client) HealthCheckVirtualHosts() (rec HealthCheckStatus, err error) {
 	err = executeCheck(c, "health/checks/virtual-hosts", &rec)
 	return rec, err
 }
 
-// Checks if there are classic mirrored queues without synchronised mirrors online (queues that would potentially lose data if the target node is shut down).
-func (c *Client) HealthCheckNodeIsMirrorSyncCritical() (rec Health, err error) {
+// HealthCheckNodeIsMirrorSyncCritical checks if there are classic mirrored queues without synchronised mirrors online
+// (queues that would potentially lose data if the target node is shut down).
+func (c *Client) HealthCheckNodeIsMirrorSyncCritical() (rec HealthCheckStatus, err error) {
 	err = executeCheck(c, "health/checks/node-is-mirror-sync-critical", &rec)
 	return rec, err
 }
 
-// Checks if there are quorum queues with minimum online quorum (queues that would lose their quorum and availability if the target node is shut down).
-func (c *Client) HealthCheckNodeIsQuorumCritical() (rec Health, err error) {
+// HealthCheckNodeIsQuorumCritical checks if there are quorum queues with minimum online quorum (queues that would lose
+// their quorum and availability if the target node is shut down).
+// Relevant RabbitMQ doc guide: https://www.rabbitmq.com/quorum-queues.html
+func (c *Client) HealthCheckNodeIsQuorumCritical() (rec HealthCheckStatus, err error) {
 	err = executeCheck(c, "health/checks/node-is-quorum-critical", &rec)
 	return rec, err
 }
