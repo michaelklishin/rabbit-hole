@@ -2798,7 +2798,6 @@ var _ = Describe("Health checks", func() {
 			res, err := rmqc.HealthCheckLocalAlarms()
 			Ω(err).Should(BeNil())
 
-			fmt.Printf("local-alarms: %+v", res)
 			Ω(res.Ok()).Should(BeTrue())
 			Ω(res.Status).Should(Equal("ok"))
 		})
@@ -2821,7 +2820,7 @@ var _ = Describe("Health checks", func() {
 		})
 	})
 
-	FContext("GET /health/checks/port-listener/5672", func() {
+	Context("GET /health/checks/port-listener/5672", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
 			defer conn.Close()
@@ -2833,9 +2832,7 @@ var _ = Describe("Health checks", func() {
 			res, err := rmqc.HealthCheckPortListener(5672)
 			Ω(err).Should(BeNil())
 
-			fmt.Printf("FAILING res: %+v\n", res)
-			fmt.Printf("FAILING res.Status: %+v\n", res.Status)
-			fmt.Printf("res.Ok(): %+v", res.Ok())
+			res.Ok()
 			Ω(res.Status).Should(Equal("ok"))
 		})
 	})
