@@ -10,6 +10,12 @@ The client now supports [modern health check endpoints](https://www.rabbitmq.com
 (same checks as provided by `rabbitmq-diagnostics`):
 
 ``` go
+import (
+       "github.com/michaelklishin/rabbit-hole/v2"
+)
+
+rmqc, _ = NewClient("http://127.0.0.1:15672", "username", "$3KrEƮ")
+
 res1, err1 := rmqc.HealthCheckAlarms()
 
 res2, err2 := rmqc.HealthCheckLocalAlarms()
