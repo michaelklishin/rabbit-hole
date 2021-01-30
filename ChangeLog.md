@@ -4,9 +4,34 @@ This release contains **minor breaking public API changes**
 and targets RabbitMQ 3.8.x (the only [supported version at the time of wrigin](https://www.rabbitmq.com/versions.html))
 exclusively.
 
+### Support for Modern Health Check Endpoints
+
+The client now supports [modern health check endpoints](https://www.rabbitmq.com/monitoring.html#health-checks)
+(same checks as provided by `rabbitmq-diagnostics`):
+
+``` go
+res1, err1 := rmqc.HealthCheckAlarms()
+
+res2, err2 := rmqc.HealthCheckLocalAlarms()
+
+res3, err3 := rmqc.HealthCheckCertificateExpiration(1, DAYS)
+
+res4, err4 := rmqc.HealthCheckPortListener(5672)
+
+res5, err5 := rmqc.HealthCheckProtocolListener(AMQP091)
+
+res6, err6 := rmqc.HealthCheckVirtualHosts()
+
+res7, err7 := rmqc.HealthCheckNodeIsMirrorSyncCritical()
+
+res8, err8 := rmqc.HealthCheckNodeIsQuorumCritical()
+```
+
+Contributed by Martin @mkrueger-sabio Krueger.
+
 ### Support for Lists of Shovel URIs
 
-Shovel definition now uses a dedicated type, ``, to represent
+Shovel definition now uses a dedicated type, `ShovelURISet`, to represent
 a set of URIs that will be tried sequentially until the Shovel
 can successfully connect and authenticate:
 
