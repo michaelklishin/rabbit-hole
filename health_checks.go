@@ -18,13 +18,18 @@ const (
 type Protocol string
 
 const (
-	AMQP091    Protocol = "amqp091"
-	AMQP10     Protocol = "amqp10"
+	AMQP    Protocol = "amqp"
+	AMQPS   Protocol = "amqp/ssl"
+	AMQP091 Protocol = "amqp091"
+	AMQP10  Protocol = "amqp10"
+
 	MQTT       Protocol = "mqtt"
 	STOMP      Protocol = "stomp"
 	WebMQTT    Protocol = "web-mqtt"
 	WebSTOMP   Protocol = "web-stomp"
 	HTTP       Protocol = "http"
+	HTTPS      Protocol = "https"
+	Prometheus Protocol = "http/prometheus"
 	Clustering Protocol = "clustering"
 )
 
