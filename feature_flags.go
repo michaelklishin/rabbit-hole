@@ -7,6 +7,7 @@ import (
 	"net/url"
 )
 
+// FeatureFlag represents a feature flag.
 // Feature flags are a mechanism that controls what features are considered to be enabled or available on all cluster nodes.
 // If a FeatureFlag is enabled so is its associated feature (or behavior).
 // If not then all nodes in the cluster will disable the feature (behavior).
@@ -22,19 +23,26 @@ type FeatureFlag struct {
 	ProvidedBy string `json:"provided_by,omitempty"`
 }
 
+// State is an enumeration for supported feature flag states
 type State string
 
 const (
-	StateEnabled  State = "enabled"
+	// StateEnabled means that the flag is enabled
+	StateEnabled State = "enabled"
+	// StateDisabled means that the flag is disabled
 	StateDisabled State = "disabled"
-	// StateUnsupported means that one or more nodes in the cluster do not know this feature flag (and therefore it cannot be enabled).
+	// StateUnsupported means that one or more nodes in the cluster do not support this feature flag
+	// (and therefore it cannot be enabled)
 	StateUnsupported State = "unsupported"
 )
 
+// Stability status of a feature flag
 type Stability string
 
 const (
-	StabilityStable       Stability = "stable"
+	// StabilityStable means a feature flag enables a fully supported feature
+	StabilityStable Stability = "stable"
+	// StabilityExperimental means a feature flag enables an experimental feature
 	StabilityExperimental Stability = "experimental"
 )
 
