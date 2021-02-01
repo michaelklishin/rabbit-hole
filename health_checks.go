@@ -100,7 +100,7 @@ type PortListenerCheckStatus struct {
 	Status  string `json:"status"`
 	Reason  string `json:"reason,omitempty"`
 	Port    uint   `json:"port,omitempty"`
-	Missing string `json:"missing,omitempty"`
+	Missing uint   `json:"missing,omitempty"`
 	Ports   []uint `json:"ports,omitempty"`
 }
 
