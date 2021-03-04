@@ -10,13 +10,13 @@ type FederationDefinition struct {
 	Uri            string `json:"uri"`
 	Expires        int    `json:"expires,omitempty"`
 	MessageTTL     int32  `json:"message-ttl"`
-	MaxHops        int    `json:"max-hops"`
-	PrefetchCount  int    `json:"prefetch-count"`
+	MaxHops        int    `json:"max-hops,omitempty"`
+	PrefetchCount  int    `json:"prefetch-count,omitempty"`
 	ReconnectDelay int    `json:"reconnect-delay"`
 	AckMode        string `json:"ack-mode,omitempty"`
 	TrustUserId    bool   `json:"trust-user-id"`
-	Exchange       string `json:"exchange"`
-	Queue          string `json:"queue"`
+	Exchange       string `json:"exchange,omitempty"`
+	Queue          string `json:"queue,omitempty"`
 }
 
 // FederationUpstream represents a configured federation upstream.
