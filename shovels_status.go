@@ -4,7 +4,7 @@ import (
 	"net/url"
 )
 
-// ShovelStatus contains the configuration of a shovel
+// ShovelStatus contains the status of a shovel
 type ShovelStatus struct {
 	// Shovel name
 	Name string `json:"name"`
