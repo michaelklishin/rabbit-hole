@@ -11,7 +11,7 @@ type ShovelStatus struct {
 	// Virtual host this shovel belongs to
 	Vhost string `json:"vhost"`
 	// Type of this shovel
-	Type string `json:"state"`
+	Type string `json:"type"`
 	// State of this shovel
 	State string `json:"state"`
 	// Timestamp of this shovel
@@ -24,7 +24,7 @@ type ShovelStatus struct {
 
 // ListShovelStatus returns status of all shovels in a vhost
 func (c *Client) ListShovelStatus(vhost string) (rec []ShovelStatus, err error) {
-	req, err := newGETRequest(c, "shovels/" + url.PathEscape(vhost))
+	req, err := newGETRequest(c, "shovels/"+url.PathEscape(vhost))
 	if err != nil {
 		return []ShovelStatus{}, err
 	}
