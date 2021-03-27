@@ -16,6 +16,10 @@ Older versions may work but this is not guaranteed.
 
 All versions require [RabbitMQ Management UI plugin](https://www.rabbitmq.com/management.html) to be installed and enabled.
 
+## Build Status
+
+![Actions](https://github.com/michaelklishin/rabbit-hole/actions/workflows/tests.yml/badge.svg)
+![Travis CI](https://travis-ci.org/michaelklishin/rabbit-hole.svg?branch=master)
 
 ## Project Maturity
 
