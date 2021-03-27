@@ -1,0 +1,24 @@
+name: Test
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        go: [1.15.x, 1.16.x, tip]
+    steps:
+    - name: CHECKOUT
+      uses: actions/checkout@v2
+    - name: Install Go
+        run: |
+          curl -sL https://raw.githubusercontent.com/maxatome/install-go/v2.1/install-go.pl |
+              perl - ${{ matrix.go-version }} $HOME/go
+    - name: Print Go version
+      run: go version
+    - name: Install RabbitMQ
+      run: ./bin/ci/install_on_debian.sh
+    - name: Configure RabbitMQ
+      run: ./bin/ci/before_build.sh
+    - name: Run tests
+      continue-on-error: ${{ matrix.go-version == 'tip' }}
+      run: make
