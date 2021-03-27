@@ -2497,6 +2497,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(x).Should(BeNil())
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
+
 		It("declares a shovel with a numeric delete-after value", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
@@ -2542,6 +2543,42 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			x, err = rmqc.GetShovel(vh, sn)
 			Ω(x).Should(BeNil())
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+		})
+	})
+
+	Context("GET /shovels/{vhost}", func() {
+		It("reports status of Shovels in target virtual host", func() {
+			vh := "rabbit/hole"
+			sn := "temporary"
+
+			ssu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
+			sdu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
+
+			shovelDefinition := ShovelDefinition{
+				SourceURI:         ssu,
+				SourceQueue:       "mySourceQueue",
+				DestinationURI:    sdu,
+				DestinationQueue:  "myDestQueue",
+				AddForwardHeaders: true,
+				AckMode:           "on-confirm",
+				DeleteAfter:       "never"}
+
+			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
+			Ω(err).Should(BeNil(), "Error declaring shovel")
+
+			awaitEventPropagation()
+			xs, err := rmqc.ListShovelStatus(vh)
+			Ω(err).Should(BeNil(), "Error getting shovel")
+			Ω(xs).ShouldNot(BeEmpty())
+			Expect(xs[0].Vhost).To(Equal(vh))
+
+			_, err = rmqc.DeleteShovel(vh, sn)
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			x, err := rmqc.ListShovelStatus(vh)
+			Ω(err).Should(BeNil())
+			Ω(x).Should(BeEmpty())
 		})
 	})
 
