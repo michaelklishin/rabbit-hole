@@ -457,4 +457,4 @@ See [CONTRIBUTING.md](https://github.com/michaelklishin/rabbit-hole/blob/master/
 
 2-clause BSD license.
 
-(c) Michael S. Klishin and contributors, 2013-2020.
+(c) Michael S. Klishin and contributors, 2013-2021.
