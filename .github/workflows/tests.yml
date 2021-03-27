@@ -10,9 +10,8 @@ jobs:
     - name: CHECKOUT
       uses: actions/checkout@v2
     - name: Install Go
-        run: |
-          curl -sL https://raw.githubusercontent.com/maxatome/install-go/v2.1/install-go.pl |
-              perl - ${{ matrix.go-version }} $HOME/go
+      run: |
+        curl -sL https://raw.githubusercontent.com/maxatome/install-go/v2.1/install-go.pl | perl - ${{ matrix.go-version }} $HOME/go
     - name: Print Go version
       run: go version
     - name: Install RabbitMQ
