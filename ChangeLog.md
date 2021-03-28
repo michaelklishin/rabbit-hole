@@ -1,7 +1,7 @@
 ## Changes Between 2.6.0 and 2.7.0 (under development)
 
 This release contains **minor breaking public API changes**
-and targets RabbitMQ 3.8.x (the only [supported version at the time of wrigin](https://www.rabbitmq.com/versions.html))
+and targets RabbitMQ 3.8.x (the only [supported version at the time of writing](https://www.rabbitmq.com/versions.html))
 exclusively.
 
 ### Support for Modern Health Check Endpoints
@@ -34,6 +34,21 @@ res8, err8 := rmqc.HealthCheckNodeIsQuorumCritical()
 ```
 
 Contributed by Martin @mkrueger-sabio Krueger.
+
+GitHub issue: [#173](https://github.com/michaelklishin/rabbit-hole/pull/173)
+
+### Support for Inspecting Shovel Status
+
+`ListShovelStatus` is a new function that returns a list of
+Shovel status reports for a virtual host:
+
+``` go
+res, err := rmqc.ListShovelStatus("a-virtual-host")
+```
+
+Contributed by Martin @mkrueger-sabio Krueger.
+
+GitHub issue: [#178](https://github.com/michaelklishin/rabbit-hole/pull/178)
 
 ### Support for Lists of Shovel URIs
 
@@ -76,6 +91,13 @@ intead of a comma-separated string.
 
 Compatibility with earlier RabbitMQ HTTP API versions, such as 3.8,
 has been preserved.
+
+### Optional Federation Parameters are Now Marked with `omitempty`
+
+Contributed by Michał @michalkurzeja Kurzeja.
+
+GitHub issue: [#177](https://github.com/michaelklishin/rabbit-hole/pull/177)
+
 
 ## Changes Between 2.5.0 and 2.6.0 (Nov 25, 2020)
 
