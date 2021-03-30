@@ -447,11 +447,6 @@ rmqc.SetTransport(transport)
 ```
 
 
-## CI Status
-
-[![Build Status](https://travis-ci.org/michaelklishin/rabbit-hole.svg?branch=master)](https://travis-ci.org/michaelklishin/rabbit-hole)
-
-
 ## Contributing
 
 See [CONTRIBUTING.md](https://github.com/michaelklishin/rabbit-hole/blob/master/CONTRIBUTING.md)
