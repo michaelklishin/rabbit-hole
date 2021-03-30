@@ -1,4 +1,8 @@
-## Changes Between 2.6.0 and 2.7.0 (under development)
+## Changes Between 2.7.0 and 2.8.0 (in development)
+
+No changes yet.
+
+## Changes Between 2.6.0 and 2.7.0 (Mar 30, 2021)
 
 This release contains **minor breaking public API changes**
 and targets RabbitMQ 3.8.x (the only [supported version at the time of writing](https://www.rabbitmq.com/versions.html))
