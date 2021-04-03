@@ -18,7 +18,7 @@ All versions require [RabbitMQ Management UI plugin](https://www.rabbitmq.com/ma
 
 ## Build Status
 
-![Actions](https://github.com/michaelklishin/rabbit-hole/actions/workflows/tests.yml)
+[![Tests](https://github.com/michaelklishin/rabbit-hole/actions/workflows/tests.yml/badge.svg)](https://github.com/michaelklishin/rabbit-hole/actions/workflows/tests.yml)
 
 ## Project Maturity
 
