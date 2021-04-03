@@ -41,4 +41,6 @@ sudo apt-get install rabbitmq-server -y --fix-missing
 
 sudo service rabbitmq-server start
 
+sudo rabbitmqctl await_startup --timeout 120
+
 until sudo lsof -i:5672; do echo "Waiting for RabbitMQ to start..."; sleep 1; done
