@@ -41,6 +41,8 @@ import (
 //       "rate": 0
 //     },
 //     "name": "\/",
+//	   "description": "myvhost",
+//     "tags": "production,eu-west-1",
 //     "tracing": false
 //   },
 //   {
@@ -53,6 +55,10 @@ import (
 type VhostInfo struct {
 	// Virtual host name
 	Name string `json:"name"`
+	// Virtual host description
+	Description string `json:"description"`
+	// Virtual host tags
+	Tags VhostTags `json:"tags"`
 	// True if tracing is enabled for this virtual host
 	Tracing bool `json:"tracing"`
 
@@ -81,6 +87,8 @@ type VhostInfo struct {
 	// Cluster State
 	ClusterState map[string]string `json:"cluster_state"`
 }
+
+type VhostTags []string
 
 // ListVhosts returns a list of virtual hosts.
 func (c *Client) ListVhosts() (rec []VhostInfo, err error) {
@@ -120,6 +128,10 @@ func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
 
 // VhostSettings are properties used to create or modify virtual hosts.
 type VhostSettings struct {
+	// Virtual host description
+	Description string `json:"description"`
+	// Virtual host tags
+	Tags VhostTags `json:"tags"`
 	// True if tracing should be enabled.
 	Tracing bool `json:"tracing"`
 }
