@@ -928,8 +928,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			x := xs[0]
 			Ω(x.Name).ShouldNot(BeNil())
-			Ω(x.Description).Should(BeNil())
-			Ω(x.Tags).Should(BeNil())
+			Ω(x.Description).ShouldNot(BeNil())
+			Ω(x.Tags).ShouldNot(BeNil())
 			Ω(x.Tracing).ShouldNot(BeNil())
 			Ω(x.ClusterState).ShouldNot(BeNil())
 		})
@@ -941,8 +941,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(x.Name).ShouldNot(BeNil())
-			Ω(x.Description).Should(BeNil())
-			Ω(x.Tags).Should(BeNil())
+			Ω(x.Description).ShouldNot(BeNil())
+			Ω(x.Tags).ShouldNot(BeNil())
 			Ω(x.Tracing).ShouldNot(BeNil())
 			Ω(x.ClusterState).ShouldNot(BeNil())
 		})
