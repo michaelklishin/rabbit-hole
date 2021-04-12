@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 )
 
 //
@@ -89,6 +91,33 @@ type VhostInfo struct {
 }
 
 type VhostTags []string
+
+// MarshalJSON can marshal an array of strings or a comma-separated list in a string
+func (d VhostTags) MarshalJSON() ([]byte, error) {
+	return json.Marshal(strings.Join(d, ","))
+}
+
+// UnmarshalJSON can unmarshal an array of strings or a comma-separated list in a string
+func (d *VhostTags) UnmarshalJSON(b []byte) error {
+	// the value is a comma-separated string
+	t, _ := strconv.Unquote(string(b))
+	if b[0] == '"' {
+		quotedTags := strings.Split(t, ",")
+		tags := []string{}
+		for _, qt := range quotedTags {
+			tags = append(tags, qt)
+		}
+		*d = VhostTags(tags)
+		return nil
+	}
+	// the value is an array
+	var ary []string
+	if err := json.Unmarshal(b, &ary); err != nil {
+		return err
+	}
+	*d = VhostTags(ary)
+	return nil
+}
 
 // ListVhosts returns a list of virtual hosts.
 func (c *Client) ListVhosts() (rec []VhostInfo, err error) {

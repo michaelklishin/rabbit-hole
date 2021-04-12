@@ -928,6 +928,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			x := xs[0]
 			Ω(x.Name).ShouldNot(BeNil())
+			Ω(x.Description).Should(BeNil())
+			Ω(x.Tags).Should(BeNil())
 			Ω(x.Tracing).ShouldNot(BeNil())
 			Ω(x.ClusterState).ShouldNot(BeNil())
 		})
@@ -939,6 +941,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(x.Name).ShouldNot(BeNil())
+			Ω(x.Description).Should(BeNil())
+			Ω(x.Tags).Should(BeNil())
 			Ω(x.Tracing).ShouldNot(BeNil())
 			Ω(x.ClusterState).ShouldNot(BeNil())
 		})
@@ -946,7 +950,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("PUT /vhosts/{name}", func() {
 		It("creates a vhost", func() {
-			vs := VhostSettings{Tracing: false}
+			tags := VhostTags{"production", "eu-west-1"}
+			vs := VhostSettings{Description: "rabbit/hole2 vhost", Tags: tags, Tracing: false}
 			_, err := rmqc.PutVhost("rabbit/hole2", vs)
 			Ω(err).Should(BeNil())
 
@@ -955,6 +960,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(x.Name).Should(BeEquivalentTo("rabbit/hole2"))
+			Ω(x.Description).Should(BeEquivalentTo("rabbit/hole2 vhost"))
+			Ω(x.Tags).Should(Equal(tags))
 			Ω(x.Tracing).Should(Equal(false))
 
 			_, err = rmqc.DeleteVhost("rabbit/hole2")
@@ -964,7 +971,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("DELETE /vhosts/{name}", func() {
 		It("deletes a vhost", func() {
-			vs := VhostSettings{Tracing: false}
+			vs := VhostSettings{Description: "rabbit/hole2 vhost", Tags: VhostTags{"production", "eu-west-1"}, Tracing: false}
 			_, err := rmqc.PutVhost("rabbit/hole2", vs)
 			Ω(err).Should(BeNil())
 
