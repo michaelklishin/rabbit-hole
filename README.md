@@ -411,6 +411,27 @@ resp, err := rmqc.DeleteFederationUpstream("/", "name")
 
 ```
 
+### Managing Global Parameters
+``` go
+// list all global parameters
+params, err := rmqc.ListGlobalParameters()
+// => []GlobalRuntimeParameter, error
+
+// get a global parameter
+p, err := rmqc.GetGlobalParameter("name")
+// => *GlobalRuntimeParameter, error
+
+// declare or update a global parameter
+resp, err := rmqc.PutGlobalParameter("name", map[string]interface{
+    endpoints: "amqp://server-name",
+})
+// => *http.Response, error
+
+// delete a global parameter
+resp, err := rmqc.DeleteGlobalParameter("name")
+// => *http.Response, error
+```
+
 ### Operations on cluster name
 ``` go
 // Get cluster name

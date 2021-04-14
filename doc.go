@@ -251,6 +251,26 @@ Managing Federation Upstreams
         resp, err := rmqc.DeleteFederationUpstream("/", "upstream-name")
         // => *http.Response, error
 
+Managing Global Parameters
+
+        // list all global parameters
+        params, err := rmqc.ListGlobalParameters()
+        // => []GlobalRuntimeParameter, error
+
+        // get a global parameter
+        p, err := rmqc.GetGlobalParameter("name")
+        // => *GlobalRuntimeParameter, error
+
+        // declare or update a global parameter
+        resp, err := rmqc.PutGlobalParameter("name", map[string]interface{
+            endpoints: "amqp://server-name",
+        })
+        // => *http.Response, error
+
+        // delete a global parameter
+        resp, err := rmqc.DeleteGlobalParameter("name")
+        // => *http.Response, error
+
 Operations on cluster name
         // Get cluster name
         cn, err := rmqc.GetClusterName()

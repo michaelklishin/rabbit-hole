@@ -2753,4 +2753,77 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(foundClusterName).Should(Equal(true))
 		})
 	})
+
+	Context("Global parameters", func() {
+		Context("PUT /api/global-parameters/name/{value}", func() {
+			When("the parameter does not exist", func() {
+				It("works", func() {
+					By("creating the parameter")
+					name := "parameter-name"
+					value := map[string]interface{}{
+						"endpoints": []string{"amqp://server-name"},
+					}
+
+					_, err := rmqc.PutGlobalParameter(name, value)
+					Ω(err).Should(BeNil())
+
+					awaitEventPropagation()
+
+					By("getting the parameter")
+					p, err := rmqc.GetGlobalParameter(name)
+
+					Ω(err).Should(BeNil())
+					Ω(p.Name).Should(Equal(name))
+
+					v, ok := p.Value.(map[string]interface{})
+					Ω(ok).Should(BeTrue())
+					endpoints := v["endpoints"].([]interface{})
+					Ω(endpoints).To(HaveLen(1))
+					Ω(endpoints[0].(string)).Should(Equal("amqp://server-name"))
+
+					By("deleting the parameter")
+					_, err = rmqc.DeleteGlobalParameter(name)
+					Ω(err).Should(BeNil())
+				})
+			})
+		})
+
+		Context("GET /api/global-parameters", func() {
+			It("returns all global parameters", func() {
+				_, err := rmqc.PutGlobalParameter("a-name", "a-value")
+				Ω(err).Should(BeNil())
+				_, err = rmqc.PutGlobalParameter("another-name", []string{"another-value"})
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err := rmqc.ListGlobalParameters()
+				Ω(err).Should(BeNil())
+				Ω(list).To(SatisfyAll(
+					HaveLen(4), // cluster_name and internal_cluster_id are set by default by RabbitMQ
+					ContainElements(
+						GlobalRuntimeParameter{
+							Name:  "a-name",
+							Value: "a-value",
+						},
+						GlobalRuntimeParameter{
+							Name:  "another-name",
+							Value: []interface{}{"another-value"},
+						},
+					),
+				))
+
+				_, err = rmqc.DeleteGlobalParameter("a-name")
+				Ω(err).Should(BeNil())
+				_, err = rmqc.DeleteGlobalParameter("another-name")
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				list, err = rmqc.ListGlobalParameters()
+				Ω(err).Should(BeNil())
+				Ω(len(list)).Should(Equal(2)) // cluster_name and internal_cluster_id are set by default by RabbitMQ
+			})
+		})
+	})
 })
