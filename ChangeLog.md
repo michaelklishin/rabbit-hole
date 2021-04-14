@@ -1,6 +1,33 @@
-## Changes Between 2.7.0 and 2.8.0 (in development)
+## Changes Between 2.8.0 and 2.9.0 (in development)
 
 No changes yet.
+
+## Changes Between 2.7.0 and 2.8.0 (Apr 12, 2021)
+
+### Global Runtime Parameters
+
+The library now supports global runtime parameters:
+
+``` go
+// list all global parameters
+params, err := rmqc.ListGlobalParameters()
+// => []GlobalRuntimeParameter, error
+// get a global parameter
+p, err := rmqc.GetGlobalParameter("name")
+// => *GlobalRuntimeParameter, error
+// declare or update a global parameter
+resp, err := rmqc.PutGlobalParameter("name", map[string]interface{
+    endpoints: "amqp://server-name",
+})
+// => *http.Response, error
+// delete a global parameter
+resp, err := rmqc.DeleteGlobalParameter("name")
+// => *http.Response, error
+```
+
+Contributed by @ChunyiLyu.
+
+GitHub issue: [#180](https://github.com/michaelklishin/rabbit-hole/pull/180)
 
 ## Changes Between 2.6.0 and 2.7.0 (Mar 30, 2021)
 
