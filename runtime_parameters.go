@@ -19,14 +19,6 @@ type RuntimeParameter struct {
 // RuntimeParameterValue represents arbitrary parameter data.
 type RuntimeParameterValue map[string]interface{}
 
-// GlobalRuntimeParameter represents a vhost-scoped parameter.
-// Value is interface{} to support creating parameters directly from types such as
-// FederationUpstream and ShovelInfo.
-type GlobalRuntimeParameter struct {
-	Name  string      `json:"name"`
-	Value interface{} `json:"value"`
-}
-
 //
 // GET /api/parameters
 //
