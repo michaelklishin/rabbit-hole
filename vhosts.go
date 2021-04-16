@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 )
 
 //
@@ -41,6 +43,8 @@ import (
 //       "rate": 0
 //     },
 //     "name": "\/",
+//	   "description": "myvhost",
+//     "tags": "production,eu-west-1",
 //     "tracing": false
 //   },
 //   {
@@ -53,6 +57,10 @@ import (
 type VhostInfo struct {
 	// Virtual host name
 	Name string `json:"name"`
+	// Virtual host description
+	Description string `json:"description"`
+	// Virtual host tags
+	Tags VhostTags `json:"tags"`
 	// True if tracing is enabled for this virtual host
 	Tracing bool `json:"tracing"`
 
@@ -80,6 +88,35 @@ type VhostInfo struct {
 
 	// Cluster State
 	ClusterState map[string]string `json:"cluster_state"`
+}
+
+type VhostTags []string
+
+// MarshalJSON can marshal an array of strings or a comma-separated list in a string
+func (d VhostTags) MarshalJSON() ([]byte, error) {
+	return json.Marshal(strings.Join(d, ","))
+}
+
+// UnmarshalJSON can unmarshal an array of strings or a comma-separated list in a string
+func (d *VhostTags) UnmarshalJSON(b []byte) error {
+	// the value is a comma-separated string
+	t, _ := strconv.Unquote(string(b))
+	if b[0] == '"' {
+		quotedTags := strings.Split(t, ",")
+		tags := []string{}
+		for _, qt := range quotedTags {
+			tags = append(tags, qt)
+		}
+		*d = VhostTags(tags)
+		return nil
+	}
+	// the value is an array
+	var ary []string
+	if err := json.Unmarshal(b, &ary); err != nil {
+		return err
+	}
+	*d = VhostTags(ary)
+	return nil
 }
 
 // ListVhosts returns a list of virtual hosts.
@@ -120,6 +157,10 @@ func (c *Client) GetVhost(vhostname string) (rec *VhostInfo, err error) {
 
 // VhostSettings are properties used to create or modify virtual hosts.
 type VhostSettings struct {
+	// Virtual host description
+	Description string `json:"description"`
+	// Virtual host tags
+	Tags VhostTags `json:"tags"`
 	// True if tracing should be enabled.
 	Tracing bool `json:"tracing"`
 }
