@@ -21,9 +21,6 @@ jobs:
     steps:
     - name: CHECKOUT
       uses: actions/checkout@v2
-    - uses: gleam-lang/setup-erlang@v1.1.2
-      with:
-        otp-version: 23.2
     - name: Setup go
       uses: actions/setup-go@v1
       with:
