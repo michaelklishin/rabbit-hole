@@ -18,6 +18,7 @@ All versions require [RabbitMQ Management UI plugin](https://www.rabbitmq.com/ma
 
 ## Build Status
 
+[![Travis CI](https://travis-ci.org/michaelklishin/rabbit-hole.svg?branch=master)](https://travis-ci.org/michaelklishin/rabbit-hole.svg?branch=master)
 [![Tests](https://github.com/michaelklishin/rabbit-hole/actions/workflows/tests.yml/badge.svg)](https://github.com/michaelklishin/rabbit-hole/actions/workflows/tests.yml)
 
 ## Project Maturity
