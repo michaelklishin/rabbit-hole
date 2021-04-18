@@ -2,7 +2,7 @@
 
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get install curl gnupg debian-keyring debian-archive-keyring apt-transport-https -y
+apt-get install ca-certificates curl gnupg debian-keyring debian-archive-keyring apt-transport-https -y
 
 ## Team RabbitMQ's main signing key
 apt-key adv --keyserver "hkps://keys.openpgp.org" --recv-keys "0x0A9AF2115F4687BD29803A206B73A36E6026DFCA"
