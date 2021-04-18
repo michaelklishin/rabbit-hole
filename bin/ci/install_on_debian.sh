@@ -17,15 +17,15 @@ sudo tee /etc/apt/sources.list.d/rabbitmq.list <<EOF
 ##
 ## "bionic" as distribution name should work for any reasonably recent Ubuntu or Debian release.
 ## See the release to distribution mapping table in RabbitMQ doc guides to learn more.
-deb http://ppa.launchpad.net/rabbitmq/rabbitmq-erlang/ubuntu focal main
-deb-src http://ppa.launchpad.net/rabbitmq/rabbitmq-erlang/ubuntu focal main
+deb http://ppa.launchpad.net/rabbitmq/rabbitmq-erlang/ubuntu bionic main
+deb-src http://ppa.launchpad.net/rabbitmq/rabbitmq-erlang/ubuntu bionic main
 
 ## Provides RabbitMQ
 ##
 ## "bionic" as distribution name should work for any reasonably recent Ubuntu or Debian release.
 ## See the release to distribution mapping table in RabbitMQ doc guides to learn more.
-deb https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ focal main
-deb-src https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ focal main
+deb https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ bionic main
+deb-src https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ bionic main
 EOF
 
 ## Update package indices
