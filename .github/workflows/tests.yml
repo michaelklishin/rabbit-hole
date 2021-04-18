@@ -11,18 +11,28 @@ jobs:
           - 25672:25672
 
     runs-on: ubuntu-18.04
+    container:
+      # to make sure that CLI images are available
+      image: rabbitmq:latest
+
     strategy:
       matrix:
         go: ["1.15", "1.16"]
     steps:
     - name: CHECKOUT
       uses: actions/checkout@v2
+    - uses: gleam-lang/setup-erlang@v1.1.2
+      with:
+        otp-version: 23.2
     - name: Setup go
       uses: actions/setup-go@v1
       with:
         go-version: ${{ matrix.go }}
     - name: Print Go version
       run: go version
+    # via Debian package; the service isn't started
+    - name: Provision RabbitMQ CLI tools
+      run: ./bin/ci/install_on_debian.sh
     - name: Await node startup
       run: rabbitmqctl await_startup --timeout 60
     - name: Configure RabbitMQ

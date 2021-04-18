@@ -32,7 +32,3 @@ sudo apt-get install -y erlang-base \
 
 ## Install rabbitmq-server and its dependencies
 sudo apt-get install rabbitmq-server -y --fix-missing
-
-sudo service rabbitmq-server start
-
-sudo rabbitmqctl await_startup --timeout 120
