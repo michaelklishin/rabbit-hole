@@ -17,6 +17,10 @@ jobs:
       run: go version
     - name: Install RabbitMQ
       run: ./bin/ci/install_on_debian.sh
+    - name: Start RabbitMQ
+      run: service rabbitmq-server start
+    - name: Await node startup
+      run: rabbitmqctl await_startup --timeout 60
     - name: Configure RabbitMQ
       run: ./bin/ci/before_build.sh
     - name: Restart RabbitMQ
