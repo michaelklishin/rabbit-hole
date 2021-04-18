@@ -17,6 +17,8 @@ jobs:
         go-version: ${{ matrix.go }}
     - name: Print Go version
       run: go version
+    - name: Start RabbitMQ
+      run: "rabbitmq-server &"
     - name: Configure RabbitMQ
       run: ./bin/ci/before_build.sh
     - name: Restart RabbitMQ
