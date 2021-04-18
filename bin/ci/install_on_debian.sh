@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export DEBIAN_FRONTEND=noninteractive
+
 sudo apt-get install curl gnupg debian-keyring debian-archive-keyring apt-transport-https -y
 
 ## Team RabbitMQ's main signing key
