@@ -17,6 +17,8 @@ jobs:
         go-version: ${{ matrix.go }}
     - name: Print Go version
       run: go version
+    - name: Debug
+      run: which rabbitmq-server
     - name: Start RabbitMQ
       run: "rabbitmq-server &"
     - name: Await node startup
