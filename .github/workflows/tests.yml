@@ -2,13 +2,15 @@ name: Test
 on: push
 jobs:
   build:
+    services:
+      rabbitmq:
+        image: rabbitmq:latest
+        ports:
+          - 5672:5672
+          - 15672:15672
+          - 25672:25672
+
     runs-on: ubuntu-18.04
-    container:
-      image: "rabbitmq:latest"
-      ports:
-        - 5672
-        - 15672
-        - 25672
     strategy:
       matrix:
         go: ["1.15", "1.16"]
@@ -21,17 +23,9 @@ jobs:
         go-version: ${{ matrix.go }}
     - name: Print Go version
       run: go version
-    - name: Start RabbitMQ
-      run: "rabbitmq-server &"
     - name: Await node startup
       run: rabbitmqctl await_startup --timeout 60
     - name: Configure RabbitMQ
       run: ./bin/ci/before_build.sh
-    - name: Stop RabbitMQ
-      run: rabbitmqctl shutdown
-    - name: Restart RabbitMQ
-      run: "rabbitmq-server &"
-    - name: Await node startup
-      run: rabbitmqctl await_startup --timeout 60
     - name: Run tests
       run: make
