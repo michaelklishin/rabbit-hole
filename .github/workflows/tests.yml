@@ -3,6 +3,8 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-18.04
+    container:
+      image: "rabbitmq:latest"
     strategy:
       matrix:
         go: ["1.15", "1.16"]
@@ -15,8 +17,6 @@ jobs:
         go-version: ${{ matrix.go }}
     - name: Print Go version
       run: go version
-    - name: Install RabbitMQ
-      run: ./bin/ci/install_on_debian.sh
     - name: Configure RabbitMQ
       run: ./bin/ci/before_build.sh
     - name: Restart RabbitMQ
