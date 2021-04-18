@@ -1,7 +1,7 @@
 #!/bin/sh
 
-CTL=${RABBITHOLE_RABBITMQCTL:-"sudo rabbitmqctl"}
-PLUGINS=${RABBITHOLE_RABBITMQ_PLUGINS:-"sudo rabbitmq-plugins"}
+CTL=${RABBITHOLE_RABBITMQCTL:-"rabbitmqctl"}
+PLUGINS=${RABBITHOLE_RABBITMQ_PLUGINS:-"rabbitmq-plugins"}
 
 echo "Will use rabbitmqctl at ${CTL}"
 echo "Will use rabbitmq-plugins at ${PLUGINS}"

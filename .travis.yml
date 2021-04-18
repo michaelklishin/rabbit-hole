@@ -10,6 +10,8 @@ go:
 
 env:
   - GO111MODULE=on
+  - RABBITHOLE_RABBITMQCTL="sudo rabbitmqctl"
+  - RABBITHOLE_RABBITMQ_PLUGINS="sudo rabbitmq-plugins"
 
 services:
   - rabbitmq
