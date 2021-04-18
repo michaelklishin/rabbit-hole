@@ -2,7 +2,7 @@ name: Test
 on: push
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         go: ["1.15", "1.16"]
@@ -19,5 +19,9 @@ jobs:
       run: ./bin/ci/install_on_debian.sh
     - name: Configure RabbitMQ
       run: ./bin/ci/before_build.sh
+    - name: Restart RabbitMQ
+      run: service rabbitmq-server restart
+    - name: Await node startup
+      run: rabbitmqctl await_startup --timeout 60
     - name: Run tests
       run: make
