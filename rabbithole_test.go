@@ -2006,6 +2006,247 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
+	Context("GET /operator-policies", func() {
+		Context("when operator policy exists", func() {
+			It("returns decoded response", func() {
+				policy1 := OperatorPolicy{
+					Pattern:    "abc",
+					ApplyTo:    "queues",
+					Definition: PolicyDefinition{"expires": 100, "delivery-limit": 202},
+					Priority:   0,
+				}
+
+				policy2 := OperatorPolicy{
+					Pattern:    ".*",
+					ApplyTo:    "queues",
+					Definition: PolicyDefinition{"expires": 100, "delivery-limit": 202},
+					Priority:   0,
+				}
+
+				// prepare policies
+				_, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot1", policy1)
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.PutOperatorPolicy("rabbit/hole", "woot2", policy2)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				// test
+				pols, err := rmqc.ListOperatorPolicies()
+				Ω(err).Should(BeNil())
+				Ω(pols).ShouldNot(BeEmpty())
+				Ω(len(pols)).Should(BeNumerically(">=", 2))
+				Ω(pols[0].Name).ShouldNot(BeNil())
+				Ω(pols[1].Name).ShouldNot(BeNil())
+
+				// cleanup
+				_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot1")
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot2")
+				Ω(err).Should(BeNil())
+			})
+		})
+	})
+
+	Context("GET /operator-policies/{vhost}", func() {
+		Context("when operator policy exists", func() {
+			It("returns decoded response", func() {
+				policy1 := OperatorPolicy{
+					Pattern:    "abc",
+					ApplyTo:    "queues",
+					Definition: PolicyDefinition{"expires": 100, "delivery-limit": 202},
+					Priority:   0,
+				}
+
+				policy2 := OperatorPolicy{
+					Pattern:    ".*",
+					ApplyTo:    "queues",
+					Definition: PolicyDefinition{"expires": 100, "delivery-limit": 202},
+					Priority:   0,
+				}
+
+				// prepare policies
+				_, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot1", policy1)
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.PutOperatorPolicy("/", "woot2", policy2)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				// test
+				pols, err := rmqc.ListOperatorPoliciesIn("rabbit/hole")
+				Ω(err).Should(BeNil())
+				Ω(pols).ShouldNot(BeEmpty())
+				Ω(len(pols)).Should(Equal(1))
+				Ω(pols[0].Name).Should(Equal("woot1"))
+
+				// cleanup
+				_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot1")
+				Ω(err).Should(BeNil())
+
+				_, err = rmqc.DeleteOperatorPolicy("/", "woot2")
+				Ω(err).Should(BeNil())
+			})
+		})
+
+		Context("when no operator policies exist", func() {
+			It("returns decoded response", func() {
+				pols, err := rmqc.ListOperatorPoliciesIn("rabbit/hole")
+				Ω(err).Should(BeNil())
+				Ω(pols).Should(BeEmpty())
+			})
+		})
+	})
+
+	Context("GET /operator-policies/{vhost}/{name}", func() {
+		Context("when operator policy exists", func() {
+			It("returns decoded response", func() {
+				policy := OperatorPolicy{
+					Pattern:    ".*",
+					ApplyTo:    "queues",
+					Definition: PolicyDefinition{"expires": 100, "delivery-limit": 202},
+					Priority:   0,
+				}
+
+				_, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot", policy)
+				Ω(err).Should(BeNil())
+
+				awaitEventPropagation()
+
+				pol, err := rmqc.GetOperatorPolicy("rabbit/hole", "woot")
+				Ω(err).Should(BeNil())
+				Ω(pol.Vhost).Should(Equal("rabbit/hole"))
+				Ω(pol.Name).Should(Equal("woot"))
+				Ω(pol.ApplyTo).Should(Equal("queues"))
+				Ω(pol.Pattern).Should(Equal(".*"))
+				Ω(pol.Priority).Should(BeEquivalentTo(0))
+				Ω(pol.Definition).Should(BeAssignableToTypeOf(PolicyDefinition{}))
+				Ω(pol.Definition["expires"]).Should(BeEquivalentTo(100))
+				Ω(pol.Definition["delivery-limit"]).Should(Equal(float64(202)))
+
+				_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot")
+				Ω(err).Should(BeNil())
+			})
+		})
+
+		Context("when operator policy not found", func() {
+			It("returns decoded response", func() {
+				pol, err := rmqc.GetOperatorPolicy("rabbit/hole", "woot")
+				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				Ω(pol).Should(BeNil())
+			})
+		})
+	})
+
+	Context("DELETE /operator-policies/{vhost}/{name}", func() {
+		It("deletes the operator policy", func() {
+			policy := OperatorPolicy{
+				Pattern:    ".*",
+				ApplyTo:    "queues",
+				Definition: PolicyDefinition{"expires": 100, "delivery-limit": 202},
+				Priority:   0,
+			}
+
+			_, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot", policy)
+			Ω(err).Should(BeNil())
+			awaitEventPropagation()
+
+			resp, err := rmqc.DeleteOperatorPolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(HavePrefix("20"))
+		})
+	})
+
+	Context("PUT /policies/{vhost}/{name}", func() {
+		It("creates the operator policy", func() {
+			policy := OperatorPolicy{
+				Pattern: ".*",
+				ApplyTo: "all",
+				Definition: PolicyDefinition{
+					"expires":          100,
+					"delivery-limit":   202,
+					"max-length-bytes": 100000,
+				},
+				Priority: 0,
+			}
+
+			resp, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot", policy)
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(HavePrefix("20"))
+
+			awaitEventPropagation()
+			_, err = rmqc.GetOperatorPolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+
+			_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+		})
+
+		It("updates the operator policy", func() {
+			policy := OperatorPolicy{
+				Pattern:    ".*",
+				ApplyTo:    "queues",
+				Definition: PolicyDefinition{"expires": 100, "delivery-limit": 202},
+			}
+
+			// create policy
+			resp, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot", policy)
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(HavePrefix("20"))
+
+			awaitEventPropagation()
+
+			pol, err := rmqc.GetOperatorPolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+			Ω(pol.Vhost).Should(Equal("rabbit/hole"))
+			Ω(pol.Name).Should(Equal("woot"))
+			Ω(pol.Pattern).Should(Equal(".*"))
+			Ω(pol.ApplyTo).Should(Equal("queues"))
+			Ω(pol.Priority).Should(BeEquivalentTo(0))
+			Ω(pol.Definition).Should(BeAssignableToTypeOf(PolicyDefinition{}))
+			Ω(pol.Definition["delivery-limit"]).Should(Equal(float64(202)))
+			Ω(pol.Definition["expires"]).Should(BeEquivalentTo(100))
+
+			// update the policy
+			newPolicy := OperatorPolicy{
+				Pattern: "\\d+",
+				ApplyTo: "queues",
+				Definition: PolicyDefinition{
+					"max-length":       100,
+					"max-length-bytes": 100000,
+					"message-ttl":      606,
+				},
+				Priority: 1,
+			}
+
+			resp, err = rmqc.PutOperatorPolicy("rabbit/hole", "woot", newPolicy)
+			Ω(err).Should(BeNil())
+			Ω(resp.Status).Should(HavePrefix("20"))
+
+			awaitEventPropagation()
+
+			pol, err = rmqc.GetOperatorPolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+			Ω(pol.Vhost).Should(Equal("rabbit/hole"))
+			Ω(pol.Name).Should(Equal("woot"))
+			Ω(pol.Pattern).Should(Equal("\\d+"))
+			Ω(pol.ApplyTo).Should(Equal("queues"))
+			Ω(pol.Priority).Should(BeEquivalentTo(1))
+			Ω(pol.Definition).Should(BeAssignableToTypeOf(PolicyDefinition{}))
+			Ω(pol.Definition["max-length"]).Should(BeEquivalentTo(100))
+			Ω(pol.Definition["max-length-bytes"]).Should(Equal(float64(100000)))
+			Ω(pol.Definition["message-ttl"]).Should(Equal(float64(606)))
+			Ω(pol.Definition["expires"]).Should(BeNil())
+
+			// cleanup
+			_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot")
+			Ω(err).Should(BeNil())
+		})
+	})
+
 	Context("GET /api/parameters/federation-upstream", func() {
 		Context("when there are no upstreams", func() {
 			It("returns an empty response", func() {
