@@ -80,7 +80,7 @@ func (s *ShovelURISet) UnmarshalJSON(b []byte) error {
 		if err := json.Unmarshal(b, &uri); err != nil {
 			return err
 		}
-		*s = ShovelURISet([]string{uri})
+		*s = []string{uri}
 		return nil
 	}
 
@@ -89,7 +89,7 @@ func (s *ShovelURISet) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &uris); err != nil {
 		return err
 	}
-	*s = ShovelURISet(uris)
+	*s = uris
 	return nil
 }
 
