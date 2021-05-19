@@ -103,7 +103,7 @@ func (d *VhostTags) UnmarshalJSON(b []byte) error {
 	t, _ := strconv.Unquote(string(b))
 	if b[0] == '"' {
 		quotedTags := strings.Split(t, ",")
-		tags := []string{}
+		var tags []string
 		for _, qt := range quotedTags {
 			tags = append(tags, qt)
 		}
