@@ -2377,7 +2377,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(len(list)).Should(Equal(1))
 				Ω(err).Should(BeNil())
 
-				var link map[string]interface{} = list[0]
+				var link = list[0]
 				Ω(link["vhost"]).Should(Equal(vhost))
 				Ω(link["upstream"]).Should(Equal(upstreamName))
 				Ω(link["type"]).Should(Equal("exchange"))

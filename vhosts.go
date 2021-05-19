@@ -107,7 +107,7 @@ func (d *VhostTags) UnmarshalJSON(b []byte) error {
 		for _, qt := range quotedTags {
 			tags = append(tags, qt)
 		}
-		*d = VhostTags(tags)
+		*d = tags
 		return nil
 	}
 	// the value is an array
@@ -115,7 +115,7 @@ func (d *VhostTags) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &ary); err != nil {
 		return err
 	}
-	*d = VhostTags(ary)
+	*d = ary
 	return nil
 }
 

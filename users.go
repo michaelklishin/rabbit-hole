@@ -52,7 +52,7 @@ func (d *UserTags) UnmarshalJSON(b []byte) error {
 		for _, qt := range quotedTags {
 			tags = append(tags, qt)
 		}
-		*d = UserTags(tags)
+		*d = tags
 		return nil
 	}
 	// the value is an array
@@ -60,7 +60,7 @@ func (d *UserTags) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &ary); err != nil {
 		return err
 	}
-	*d = UserTags(ary)
+	*d = ary
 	return nil
 }
 
