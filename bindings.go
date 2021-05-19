@@ -212,7 +212,7 @@ func (c *Client) newBindingPath(vhost string, info BindingInfo) string {
 // DELETE /api/bindings/{vhost}/e/{source}/{destination_type}/{destination}/{props}
 //
 
-// DeleteBinding delets an individual binding
+// DeleteBinding deletes an individual binding
 func (c *Client) DeleteBinding(vhost string, info BindingInfo) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "bindings/"+url.PathEscape(vhost)+
 		"/e/"+url.PathEscape(info.Source)+"/"+url.PathEscape(string(info.DestinationType[0]))+

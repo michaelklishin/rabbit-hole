@@ -52,7 +52,7 @@ type QueueInfo struct {
 	Vhost string `json:"vhost"`
 	// Is this queue durable?
 	Durable bool `json:"durable"`
-	// Is this queue auto-delted?
+	// Is this queue auto-deleted?
 	AutoDelete bool `json:"auto_delete"`
 	// Extra queue arguments
 	Arguments map[string]interface{} `json:"arguments"`
@@ -300,6 +300,11 @@ func (c *Client) DeclareQueue(vhost, queue string, info QueueSettings) (res *htt
 	if info.Arguments == nil {
 		info.Arguments = make(map[string]interface{})
 	}
+	
+	if info.Type != "" {
+		info.Arguments["x-queue-type"] = info.Type
+	}
+
 	body, err := json.Marshal(info)
 	if err != nil {
 		return nil, err
