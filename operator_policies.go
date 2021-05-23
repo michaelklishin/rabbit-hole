@@ -76,7 +76,7 @@ func (c *Client) GetOperatorPolicy(vhost, name string) (rec *OperatorPolicy, err
 }
 
 //
-// PUT /api/policies/{vhost}/{name}
+// PUT /api/operator-policies/{vhost}/{name}
 //
 
 // PutOperatorPolicy creates or updates an operator policy.
@@ -102,7 +102,7 @@ func (c *Client) PutOperatorPolicy(vhost string, name string, operatorPolicy Ope
 // DELETE /api/operator-policies/{vhost}/{name}
 //
 
-// DeletePolicy deletes an operator policy.
+// DeleteOperatorPolicy deletes an operator policy.
 func (c *Client) DeleteOperatorPolicy(vhost, name string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "operator-policies/"+url.PathEscape(vhost)+"/"+url.PathEscape(name), nil)
 	if err != nil {
