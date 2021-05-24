@@ -15,7 +15,7 @@ type TopicPermissionInfo struct {
 	User  string `json:"user"`
 	Vhost string `json:"vhost"`
 
-	// Configuration topic-permisions
+	// Configuration topic-permissions
 	Exchange string `json:"exchange"`
 	// Write topic-permissions
 	Write string `json:"write"`

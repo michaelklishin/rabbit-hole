@@ -1634,18 +1634,19 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("PUT /queues/{vhost}/{queue}", func() {
 		It("declares a queue", func() {
 			vh := "rabbit/hole"
-			qn := "temporary"
+			qn := "temporary-declare"
 
-			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: true, Type: "quorum"})
 			Ω(err).Should(BeNil())
 
 			awaitEventPropagation()
 			x, err := rmqc.GetQueue(vh, qn)
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal(qn))
-			Ω(x.Durable).Should(Equal(false))
+			Ω(x.Durable).Should(Equal(true))
 			Ω(x.AutoDelete).Should(Equal(false))
 			Ω(x.Vhost).Should(Equal(vh))
+			Ω(x.Arguments).To(HaveKeyWithValue("x-queue-type", "quorum"))
 
 			_, err = rmqc.DeleteQueue(vh, qn)
 			Ω(err).Should(BeNil())
@@ -2376,7 +2377,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(len(list)).Should(Equal(1))
 				Ω(err).Should(BeNil())
 
-				var link map[string]interface{} = list[0]
+				var link = list[0]
 				Ω(link["vhost"]).Should(Equal(vhost))
 				Ω(link["upstream"]).Should(Equal(upstreamName))
 				Ω(link["type"]).Should(Equal("exchange"))
