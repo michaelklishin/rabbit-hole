@@ -2161,7 +2161,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
-	Context("PUT /policies/{vhost}/{name}", func() {
+	Context("PUT /operator-policies/{vhost}/{name}", func() {
 		It("creates the operator policy", func() {
 			policy := OperatorPolicy{
 				Pattern: ".*",
