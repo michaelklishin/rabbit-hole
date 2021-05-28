@@ -2260,13 +2260,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when there are upstreams", func() {
 			It("returns the list of upstreams", func() {
 				def1 := FederationDefinition{
-					Uri: "amqp://server-name/%2f",
+					Uri: []string{"amqp://server-name/%2f"},
 				}
 				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", def1)
 				Ω(err).Should(BeNil())
 
 				def2 := FederationDefinition{
-					Uri: "amqp://example.com/%2f",
+					Uri: []string{"amqp://example.com/%2f"},
 				}
 				_, err = rmqc.PutFederationUpstream("/", "upstream2", def2)
 				Ω(err).Should(BeNil())
@@ -2306,17 +2306,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				vh := "rabbit/hole"
 
 				def1 := FederationDefinition{
-					Uri: "amqp://server-name/%2f",
+					Uri: []string{"amqp://server-name/%2f"},
 				}
 
-				_, err := rmqc.PutFederationUpstream(vh, "upstream1", def1)
+				_, err := rmqc.PutFederationUpstream(vh, "vhost-upstream1", def1)
 				Ω(err).Should(BeNil())
 
 				def2 := FederationDefinition{
-					Uri: "amqp://example.com/%2f",
+					Uri: []string{"amqp://example.com/%2f"},
 				}
 
-				_, err = rmqc.PutFederationUpstream(vh, "upstream2", def2)
+				_, err = rmqc.PutFederationUpstream(vh, "vhost-upstream2", def2)
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
@@ -2325,8 +2325,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(err).Should(BeNil())
 				Ω(len(list)).Should(Equal(2))
 
-				// delete upstream1
-				_, err = rmqc.DeleteFederationUpstream(vh, "upstream1")
+				// delete vhost-upstream1
+				_, err = rmqc.DeleteFederationUpstream(vh, "vhost-upstream1")
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
@@ -2335,8 +2335,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(err).Should(BeNil())
 				Ω(len(list)).Should(Equal(1))
 
-				// delete upstream2
-				_, err = rmqc.DeleteFederationUpstream(vh, "upstream2")
+				// delete vhost-upstream2
+				_, err = rmqc.DeleteFederationUpstream(vh, "vhost-upstream2")
 				Ω(err).Should(BeNil())
 
 				awaitEventPropagation()
@@ -2352,7 +2352,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when the upstream does not exist", func() {
 			It("returns a 404 error", func() {
 				vh := "rabbit/hole"
-				name := "temporary"
+				name := "non-existing-upstream"
 
 				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(up).Should(BeNil())
@@ -2363,10 +2363,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when the upstream exists", func() {
 			It("returns the upstream", func() {
 				vh := "rabbit/hole"
-				name := "temporary"
+				name := "valid-upstream"
 
 				def := FederationDefinition{
-					Uri:            "amqp://127.0.0.1/%2f",
+					Uri:            []string{"amqp://127.0.0.1/%2f"},
 					PrefetchCount:  1000,
 					ReconnectDelay: 1,
 					AckMode:        "on-confirm",
@@ -2383,7 +2383,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(up.Vhost).Should(Equal(vh))
 				Ω(up.Name).Should(Equal(name))
 				Ω(up.Component).Should(Equal(FederationUpstreamComponent))
-				Ω(up.Definition.Uri).Should(Equal(def.Uri))
+				Ω(up.Definition.Uri).Should(ConsistOf(def.Uri))
 				Ω(up.Definition.PrefetchCount).Should(Equal(def.PrefetchCount))
 				Ω(up.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
 				Ω(up.Definition.AckMode).Should(Equal(def.AckMode))
@@ -2399,14 +2399,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when the upstream does not exist", func() {
 			It("creates the upstream", func() {
 				vh := "rabbit/hole"
-				name := "temporary"
+				name := "create-upstream"
 
 				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(up).Should(BeNil())
 				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 
 				def := FederationDefinition{
-					Uri:            "amqp://127.0.0.1/%2f",
+					Uri:            []string{"amqp://127.0.0.1/%2f"},
 					Expires:        1800000,
 					MessageTTL:     360000,
 					MaxHops:        1,
@@ -2428,7 +2428,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(up.Vhost).Should(Equal(vh))
 				Ω(up.Name).Should(Equal(name))
 				Ω(up.Component).Should(Equal(FederationUpstreamComponent))
-				Ω(up.Definition.Uri).Should(Equal(def.Uri))
+				Ω(up.Definition.Uri).Should(ConsistOf(def.Uri))
 				Ω(up.Definition.Expires).Should(Equal(def.Expires))
 				Ω(up.Definition.MessageTTL).Should(Equal(def.MessageTTL))
 				Ω(up.Definition.MaxHops).Should(Equal(def.MaxHops))
@@ -2447,11 +2447,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when the upstream exists", func() {
 			It("updates the upstream", func() {
 				vh := "rabbit/hole"
-				name := "temporary"
+				name := "update-upstream"
 
 				// create the upstream
 				def := FederationDefinition{
-					Uri:            "amqp://127.0.0.1/%2f",
+					Uri:            []string{"amqp://127.0.0.1/%2f"},
 					PrefetchCount:  1000,
 					ReconnectDelay: 1,
 					AckMode:        "on-confirm",
@@ -2468,7 +2468,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(up.Vhost).Should(Equal(vh))
 				Ω(up.Name).Should(Equal(name))
 				Ω(up.Component).Should(Equal(FederationUpstreamComponent))
-				Ω(up.Definition.Uri).Should(Equal(def.Uri))
+				Ω(up.Definition.Uri).Should(ConsistOf(def.Uri))
 				Ω(up.Definition.PrefetchCount).Should(Equal(def.PrefetchCount))
 				Ω(up.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
 				Ω(up.Definition.AckMode).Should(Equal(def.AckMode))
@@ -2476,7 +2476,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				// update the upstream
 				def2 := FederationDefinition{
-					Uri:            "amqp://127.0.0.1/%2f",
+					Uri:            []string{"amqp://128.0.0.1/%2f", "amqp://128.0.0.7/%2f"},
 					PrefetchCount:  500,
 					ReconnectDelay: 10,
 					AckMode:        "no-ack",
@@ -2493,7 +2493,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(up.Vhost).Should(Equal(vh))
 				Ω(up.Name).Should(Equal(name))
 				Ω(up.Component).Should(Equal(FederationUpstreamComponent))
-				Ω(up.Definition.Uri).Should(Equal(def2.Uri))
+				Ω(up.Definition.Uri).Should(ConsistOf(def2.Uri))
 				Ω(up.Definition.PrefetchCount).Should(Equal(def2.PrefetchCount))
 				Ω(up.Definition.ReconnectDelay).Should(Equal(def2.ReconnectDelay))
 				Ω(up.Definition.AckMode).Should(Equal(def2.AckMode))
@@ -2523,7 +2523,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when the upstream does not exist", func() {
 			It("returns a 404 error response", func() {
 				vh := "rabbit/hole"
-				name := "temporary"
+				name := "non-existing-upstream"
 
 				// an error is not returned by design
 				resp, err := rmqc.DeleteFederationUpstream(vh, name)
@@ -2535,10 +2535,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when the upstream exists", func() {
 			It("deletes the upstream", func() {
 				vh := "rabbit/hole"
-				name := "temporary"
+				name := "delete-upstream"
 
 				def := FederationDefinition{
-					Uri: "amqp://127.0.0.1/%2f",
+					Uri: []string{"amqp://127.0.0.1/%2f"},
 				}
 
 				_, err := rmqc.PutFederationUpstream(vh, name, def)
@@ -2591,7 +2591,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				// create upstream
 				upstreamName := "myUpsteam"
 				def := FederationDefinition{
-					Uri:     "amqp://localhost/%2f",
+					Uri:     []string{"amqp://localhost/%2f"},
 					Expires: 1800000,
 				}
 
@@ -2623,7 +2623,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(link["upstream"]).Should(Equal(upstreamName))
 				Ω(link["type"]).Should(Equal("exchange"))
 				Ω(link["exchange"]).Should(Equal("amq.topic"))
-				Ω(link["uri"]).Should(Equal(def.Uri))
+				Ω(link["uri"]).Should(Equal(def.Uri[0]))
 				Ω(link["status"]).Should(Equal("running"))
 
 				// cleanup
@@ -2889,7 +2889,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(err).Should(BeNil())
 
 				fDef := FederationDefinition{
-					Uri: "amqp://server-name/%2f",
+					Uri: []string{"amqp://server-name/%2f"},
 				}
 				_, err = rmqc.PutFederationUpstream("rabbit/hole", "upstream1", fDef)
 				Ω(err).Should(BeNil())
@@ -2930,19 +2930,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(err).Should(BeNil())
 				_, err = rmqc.DeleteQueue("/", "myDestQueue")
 				Ω(err).Should(BeNil())
-			})
-		})
-	})
-
-	Context("paramToUpstream", func() {
-		Context("when the parameter value is not initialized", func() {
-			It("returns an empty FederationUpstream", func() {
-				p := RuntimeParameter{} // p.Value is interface{}
-				up := paramToUpstream(&p)
-				Ω(up.Name).Should(BeEmpty())
-				Ω(up.Vhost).Should(BeEmpty())
-				Ω(up.Component).Should(BeEmpty())
-				Ω(up.Definition).Should(Equal(FederationDefinition{}))
 			})
 		})
 	})
