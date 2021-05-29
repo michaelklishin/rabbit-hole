@@ -1,6 +1,34 @@
 ## Changes Between 2.8.0 and 2.9.0 (in development)
 
-No changes yet.
+This release contains **minor breaking public API changes**.
+
+### Support for Lists of Federation Upstream URIs
+
+Federation definition now uses a dedicated type, `URISet`, to represent
+a set of URIs that will be tried sequentially until the link
+can successfully connect and authenticate:
+
+``` go
+def1 := FederationDefinition{
+            Uri: URISet{"amqp://hostname/%2f"},
+        }
+```
+
+`URISet` has now replaced `ShovelURISet`:
+
+``` go
+sDef := ShovelDefinition{
+            SourceURI:         URISet([]string{"amqp://127.0.0.1/%2f"}),
+            SourceQueue:       "mySourceQueue",
+            DestinationURI:    ShovelURISet([]string{"amqp://host1/%2f"}),
+            DestinationQueue:  "myDestQueue",
+            AddForwardHeaders: true,
+            AckMode:           "on-confirm",
+            DeleteAfter:       "never",
+        }
+```
+
+GitHub issues: [#193](https://github.com/michaelklishin/rabbit-hole/pull/193), [#194](https://github.com/michaelklishin/rabbit-hole/pull/194)
 
 ## Changes Between 2.7.0 and 2.8.0 (Apr 12, 2021)
 

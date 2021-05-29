@@ -8,7 +8,7 @@ import (
 // FederationDefinition represents settings
 // that will be used by federation links.
 type FederationDefinition struct {
-	Uri            []string `json:"uri"`
+	Uri            URISet `json:"uri"`
 	Expires        int    `json:"expires,omitempty"`
 	MessageTTL     int32  `json:"message-ttl"`
 	MaxHops        int    `json:"max-hops,omitempty"`
@@ -38,7 +38,7 @@ const FederationUpstreamComponent string = "federation-upstream"
 
 // ListFederationUpstreams returns a list of all federation upstreams.
 func (c *Client) ListFederationUpstreams() (ups []FederationUpstream, err error) {
-	req, err := newGETRequest(c, "parameters/" + FederationUpstreamComponent)
+	req, err := newGETRequest(c, "parameters/"+FederationUpstreamComponent)
 	if err != nil {
 		return []FederationUpstream{}, err
 	}
@@ -56,7 +56,7 @@ func (c *Client) ListFederationUpstreams() (ups []FederationUpstream, err error)
 
 // ListFederationUpstreamsIn returns a list of all federation upstreams in a vhost.
 func (c *Client) ListFederationUpstreamsIn(vhost string) (ups []FederationUpstream, err error) {
-	req, err := newGETRequest(c, "parameters/" + FederationUpstreamComponent + "/" + url.PathEscape(vhost))
+	req, err := newGETRequest(c, "parameters/"+FederationUpstreamComponent+"/"+url.PathEscape(vhost))
 	if err != nil {
 		return []FederationUpstream{}, err
 	}
@@ -74,7 +74,7 @@ func (c *Client) ListFederationUpstreamsIn(vhost string) (ups []FederationUpstre
 
 // GetFederationUpstream returns information about a federation upstream.
 func (c *Client) GetFederationUpstream(vhost, name string) (up *FederationUpstream, err error) {
-	req, err := newGETRequest(c, "parameters/" + FederationUpstreamComponent + "/" +url.PathEscape(vhost)+ "/" +url.PathEscape(name))
+	req, err := newGETRequest(c, "parameters/"+FederationUpstreamComponent+"/"+url.PathEscape(vhost)+"/"+url.PathEscape(name))
 	if err != nil {
 		return nil, err
 	}

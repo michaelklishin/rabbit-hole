@@ -26,23 +26,23 @@ var _ = Describe("Unit tests", func() {
 		})
 	})
 
-	Context("ShovelURISet marshalling", func() {
+	Context("URISet marshalling", func() {
 		It("unmarshalls a single string", func() {
-			var us ShovelURISet
+			var us URISet
 			bs := []byte("\"amqp://127.0.0.1:5672\"")
 			err := us.UnmarshalJSON(bs)
 			Ω(err).ShouldNot(HaveOccurred())
 
-			Ω(us).Should(Equal(ShovelURISet([]string{"amqp://127.0.0.1:5672"})))
+			Ω(us).Should(Equal(URISet([]string{"amqp://127.0.0.1:5672"})))
 		})
 
 		It("unmarshalls a list of strings", func() {
-			var us ShovelURISet
+			var us URISet
 			bs := []byte("[\"amqp://127.0.0.1:5672\", \"amqp://localhost:5672\"]")
 			err := us.UnmarshalJSON(bs)
 			Ω(err).ShouldNot(HaveOccurred())
 
-			Ω(us).Should(Equal(ShovelURISet([]string{"amqp://127.0.0.1:5672", "amqp://localhost:5672"})))
+			Ω(us).Should(Equal(URISet([]string{"amqp://127.0.0.1:5672", "amqp://localhost:5672"})))
 		})
 	})
 })
