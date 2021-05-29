@@ -1,6 +1,9 @@
 package rabbithole
 
-import "strconv"
+import (
+	"encoding/json"
+	"strconv"
+)
 
 // Properties are extra arguments as a map (on queues, bindings, etc)
 type Properties map[string]interface{}
@@ -8,7 +11,7 @@ type Properties map[string]interface{}
 // Port used by RabbitMQ or clients
 type Port int
 
-// UnmarshalJSON deserialises
+// UnmarshalJSON deserialises a port that can be an integer or string
 func (p *Port) UnmarshalJSON(b []byte) error {
 	stringValue := string(b)
 	var parsed int64
@@ -68,4 +71,31 @@ type MessageStats struct {
 	ReturnUnroutableDetails RateDetails `json:"return_unroutable_details"`
 	DropUnroutable          int64       `json:"drop_unroutable"`
 	DropUnroutableDetails   RateDetails `json:"drop_unroutable_details"`
+}
+
+// URISet represents a set of URIs used by Shovel, Federation, and so on.
+// The URIs from this set are tried until one of them succeeds
+// (a shovel or federation link successfully connects and authenticates with it)
+type URISet []string
+
+// UnmarshalJSON can unmarshal a single URI string or a list of
+// URI strings
+func (s *URISet) UnmarshalJSON(b []byte) error {
+	// the value is a single URI, a string
+	if b[0] == '"' {
+		var uri string
+		if err := json.Unmarshal(b, &uri); err != nil {
+			return err
+		}
+		*s = []string{uri}
+		return nil
+	}
+
+	// the value is a list
+	var uris []string
+	if err := json.Unmarshal(b, &uris); err != nil {
+		return err
+	}
+	*s = uris
+	return nil
 }

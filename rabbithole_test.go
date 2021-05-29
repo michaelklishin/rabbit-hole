@@ -2260,13 +2260,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when there are upstreams", func() {
 			It("returns the list of upstreams", func() {
 				def1 := FederationDefinition{
-					Uri: []string{"amqp://server-name/%2f"},
+					Uri: URISet{"amqp://server-name/%2f"},
 				}
 				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", def1)
 				Ω(err).Should(BeNil())
 
 				def2 := FederationDefinition{
-					Uri: []string{"amqp://example.com/%2f"},
+					Uri: URISet{"amqp://example.com/%2f"},
 				}
 				_, err = rmqc.PutFederationUpstream("/", "upstream2", def2)
 				Ω(err).Should(BeNil())
@@ -2306,14 +2306,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				vh := "rabbit/hole"
 
 				def1 := FederationDefinition{
-					Uri: []string{"amqp://server-name/%2f"},
+					Uri: URISet{"amqp://server-name/%2f"},
 				}
 
 				_, err := rmqc.PutFederationUpstream(vh, "vhost-upstream1", def1)
 				Ω(err).Should(BeNil())
 
 				def2 := FederationDefinition{
-					Uri: []string{"amqp://example.com/%2f"},
+					Uri: URISet{"amqp://example.com/%2f"},
 				}
 
 				_, err = rmqc.PutFederationUpstream(vh, "vhost-upstream2", def2)
@@ -2647,8 +2647,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
-			sdu := ShovelURISet([]string{"amqp://127.0.0.1/%2f", "amqp://localhost/%2f"})
+			ssu := URISet([]string{"amqp://127.0.0.1/%2f"})
+			sdu := URISet([]string{"amqp://127.0.0.1/%2f", "amqp://localhost/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:                     ssu,
@@ -2704,8 +2704,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
-			sdu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
+			ssu := URISet([]string{"amqp://127.0.0.1/%2f"})
+			sdu := URISet([]string{"amqp://127.0.0.1/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:         ssu,
@@ -2751,8 +2751,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
-			sdu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
+			ssu := URISet([]string{"amqp://127.0.0.1/%2f"})
+			sdu := URISet([]string{"amqp://127.0.0.1/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:         ssu,
@@ -2800,8 +2800,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
-			sdu := ShovelURISet([]string{"amqp://127.0.0.1/%2f"})
+			ssu := URISet([]string{"amqp://127.0.0.1/%2f"})
+			sdu := URISet([]string{"amqp://127.0.0.1/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:         ssu,
@@ -2895,9 +2895,9 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(err).Should(BeNil())
 
 				sDef := ShovelDefinition{
-					SourceURI:         ShovelURISet([]string{"amqp://127.0.0.1/%2f"}),
+					SourceURI:         URISet([]string{"amqp://127.0.0.1/%2f"}),
 					SourceQueue:       "mySourceQueue",
-					DestinationURI:    ShovelURISet([]string{"amqp://127.0.0.1/%2f"}),
+					DestinationURI:    URISet([]string{"amqp://127.0.0.1/%2f"}),
 					DestinationQueue:  "myDestQueue",
 					AddForwardHeaders: true,
 					AckMode:           "on-confirm",
