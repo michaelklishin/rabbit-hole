@@ -1,4 +1,4 @@
-## Changes Between 2.8.0 and 2.9.0 (in development)
+## Changes Between 2.8.0 and 2.9.0 (Jun 2, 2021)
 
 This release contains **minor breaking public API changes**.
 
