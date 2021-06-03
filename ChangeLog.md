@@ -30,6 +30,17 @@ sDef := ShovelDefinition{
 
 GitHub issues: [#193](https://github.com/michaelklishin/rabbit-hole/pull/193), [#194](https://github.com/michaelklishin/rabbit-hole/pull/194)
 
+### Support for Operator Policies
+
+Contributed by @MrLuje.
+
+GitHub issues: [#188](https://github.com/michaelklishin/rabbit-hole/issues/188), [#190](https://github.com/michaelklishin/rabbit-hole/pull/190)
+
+### Declared Queue Type is Correctly Propagated
+
+GitHub issue: [#189](https://github.com/michaelklishin/rabbit-hole/pull/189)
+
+
 ## Changes Between 2.7.0 and 2.8.0 (Apr 12, 2021)
 
 ### Global Runtime Parameters
