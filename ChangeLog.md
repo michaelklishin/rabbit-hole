@@ -1,3 +1,20 @@
+## Changes Between 2.10.0 and 2.11.0 (in development)
+
+No changes yet.
+
+
+## Changes Between 2.9.0 and 2.10.0 (Jun 3, 2021)
+
+This release contains very **minor breaking public API changes**.
+
+### `ShovelDefinition.SourceDeleteAfter` Now Matches That of `ShovelDefinition.DeleteAfter`
+
+`ShovelDefinition.SourceDeleteAfter` type has changed to match that of
+`ShovelDefinition.DeleteAfter`.
+
+GitHub issue: [#197](https://github.com/michaelklishin/rabbit-hole/pull/197)
+
+
 ## Changes Between 2.8.0 and 2.9.0 (Jun 2, 2021)
 
 This release contains **minor breaking public API changes**.
