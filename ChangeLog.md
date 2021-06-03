@@ -7,7 +7,7 @@ No changes yet.
 
 This release contains very **minor breaking public API changes**.
 
-### `ShovelDefinition.SourceDeleteAfter` Now Matches That of `ShovelDefinition.DeleteAfter`
+### `ShovelDefinition.SourceDeleteAfter` Type Now Matches That of `ShovelDefinition.DeleteAfter`
 
 `ShovelDefinition.SourceDeleteAfter` type has changed to match that of
 `ShovelDefinition.DeleteAfter`.
