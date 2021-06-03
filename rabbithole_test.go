@@ -2682,7 +2682,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(x.Definition.DestinationAddForwardHeaders).Should(Equal(true))
 			Ω(x.Definition.DestinationAddTimestampHeader).Should(Equal(true))
 			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
-			Ω(x.Definition.SourceDeleteAfter).Should(Equal("never"))
+			Ω(string(x.Definition.SourceDeleteAfter)).Should(Equal("never"))
 
 			_, err = rmqc.DeleteShovel(vh, sn)
 			Ω(err).Should(BeNil())

@@ -87,7 +87,7 @@ type ShovelDefinition struct {
 	PrefetchCount                    int         `json:"prefetch-count,omitempty"`
 	ReconnectDelay                   int         `json:"reconnect-delay,omitempty"`
 	SourceAddress                    string      `json:"src-address,omitempty"`
-	SourceDeleteAfter                string      `json:"src-delete-after,omitempty"`
+	SourceDeleteAfter                DeleteAfter `json:"src-delete-after,omitempty"`
 	SourceExchange                   string      `json:"src-exchange,omitempty"`
 	SourceExchangeKey                string      `json:"src-exchange-key,omitempty"`
 	SourcePrefetchCount              int         `json:"src-prefetch-count,omitempty"`
