@@ -75,12 +75,12 @@ type QueueDetail struct {
 }
 
 // GarbageCollectionDetail describe queue garbage collection information
-type GarbageCollectionDetail struct {
-	FullSweepAfter  uint `json:"fullsweep_after"`
-	MaxHeapSize     uint `json:"max_heap_size"`
-	MinBinVheapSize uint `json:"min_bin_vheap_size"`
-	MinHeapSize     uint `json:"min_heap_size"`
-	MinorGCs        uint `json:"minor_gcs"`
+type GarbageCollectionDetails struct {
+	FullSweepAfter  int `json:"fullsweep_after"`
+	MaxHeapSize     int `json:"max_heap_size"`
+	MinBinVheapSize int `json:"min_bin_vheap_size"`
+	MinHeapSize     int `json:"min_heap_size"`
+	MinorGCs        int `json:"minor_gcs"`
 }
 
 // QueueInfo represents a queue, its properties and key metrics.
@@ -122,7 +122,8 @@ type QueueInfo struct {
 	// If there is an exclusive consumer, its consumer tag
 	ExclusiveConsumerTag string `json:"exclusive_consumer_tag"`
 
-	GarbageCollection GarbageCollectionDetail `json:"garbage_collection"`
+	// GarbageCollection metrics
+	GarbageCollection GarbageCollectionDetails `json:"garbage_collection"`
 
 	// Policy applied to this queue, if any
 	Policy string `json:"policy"`
