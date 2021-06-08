@@ -7,11 +7,6 @@ import (
 // OsPid is an operating system process ID.
 type OsPid string
 
-// NodeMetricDetails .
-type NodeMetricDetails struct {
-	Rate float64 `rate`
-}
-
 // NameDescriptionEnabled represents a named entity with a description.
 type NameDescriptionEnabled struct {
 	Name        string `json:"name"`
@@ -50,10 +45,10 @@ type ClusterLink struct {
 
 // ClusterLinkStats is a stats field in ClusterLink
 type ClusterLinkStats struct {
-	SendBytes        uint64            `json:"send_bytes"`
-	SendBytesDetails NodeMetricDetails `json:"send_bytes_details"`
-	RecvBytes        uint64            `json:"recv_bytes"`
-	RecvBytesDetails NodeMetricDetails `json:"recv_bytes_details"`
+	SendBytes        uint64      `json:"send_bytes"`
+	SendBytesDetails RateDetails `json:"send_bytes_details"`
+	RecvBytes        uint64      `json:"recv_bytes"`
+	RecvBytesDetails RateDetails `json:"recv_bytes_details"`
 }
 
 // MetricsGCQueueLength is metrics of gc queuue length
@@ -75,85 +70,85 @@ type NodeInfo struct {
 	IsRunning bool   `json:"running"`
 	OsPid     OsPid  `json:"os_pid"`
 
-	FdUsed                  int               `json:"fd_used"`
-	FdUsedDetails           NodeMetricDetails `json:"fd_used_details"`
-	FdTotal                 int               `json:"fd_total"`
-	ProcUsed                int               `json:"proc_used"`
-	ProcUsedDetails         NodeMetricDetails `json:"proc_used_details"`
-	ProcTotal               int               `json:"proc_total"`
-	SocketsUsed             int               `json:"sockets_used"`
-	SocketsUsedDetails      NodeMetricDetails `json:"sockets_used_details"`
-	SocketsTotal            int               `json:"sockets_total"`
-	MemUsed                 int               `json:"mem_used"`
-	MemUsedDetails          NodeMetricDetails `json:"mem_used_details"`
-	MemLimit                int               `json:"mem_limit"`
-	MemAlarm                bool              `json:"mem_alarm"`
-	DiskFree                int               `json:"disk_free"`
-	DiskFreeDetails         NodeMetricDetails `json:"disk_free_details"`
-	DiskFreeLimit           int               `json:"disk_free_limit"`
-	DiskFreeAlarm           bool              `json:"disk_free_alarm"`
-	GCNum                   uint64            `json:"gc_num"`
-	GCNumDetails            NodeMetricDetails `json:"gc_num_details"`
-	GCBytesReclaimed        uint64            `json:"gc_bytes_reclaimed"`
-	GCBytesReclaimedDetails NodeMetricDetails `json:"gc_bytes_reclaimed_details"`
-	ContextSwitches         uint64            `json:"context_switches"`
-	ContextSwitchesDetails  NodeMetricDetails `json:"context_switches_details"`
+	FdUsed                  int         `json:"fd_used"`
+	FdUsedDetails           RateDetails `json:"fd_used_details"`
+	FdTotal                 int         `json:"fd_total"`
+	ProcUsed                int         `json:"proc_used"`
+	ProcUsedDetails         RateDetails `json:"proc_used_details"`
+	ProcTotal               int         `json:"proc_total"`
+	SocketsUsed             int         `json:"sockets_used"`
+	SocketsUsedDetails      RateDetails `json:"sockets_used_details"`
+	SocketsTotal            int         `json:"sockets_total"`
+	MemUsed                 int         `json:"mem_used"`
+	MemUsedDetails          RateDetails `json:"mem_used_details"`
+	MemLimit                int         `json:"mem_limit"`
+	MemAlarm                bool        `json:"mem_alarm"`
+	DiskFree                int         `json:"disk_free"`
+	DiskFreeDetails         RateDetails `json:"disk_free_details"`
+	DiskFreeLimit           int         `json:"disk_free_limit"`
+	DiskFreeAlarm           bool        `json:"disk_free_alarm"`
+	GCNum                   uint64      `json:"gc_num"`
+	GCNumDetails            RateDetails `json:"gc_num_details"`
+	GCBytesReclaimed        uint64      `json:"gc_bytes_reclaimed"`
+	GCBytesReclaimedDetails RateDetails `json:"gc_bytes_reclaimed_details"`
+	ContextSwitches         uint64      `json:"context_switches"`
+	ContextSwitchesDetails  RateDetails `json:"context_switches_details"`
 
-	ConnectionCreated        uint64            `json:"connection_created"`
-	ConnectionCreatedDetails NodeMetricDetails `json:"connection_created_details"`
-	ConnectionClosed         uint64            `json:"connection_closed"`
-	ConnectionClosedDetails  NodeMetricDetails `json:"connection_closed_details"`
-	ChannelCreated           uint64            `json:"channel_created"`
-	ChannelCreatedDetails    NodeMetricDetails `json:"channel_created_details"`
-	ChannelClosed            uint64            `json:"channel_closed"`
-	ChannelClosedDetails     NodeMetricDetails `json:"channel_closed_details"`
-	QueueDeclared            uint64            `json:"queue_declared"`
-	QueueDeclaredDetails     NodeMetricDetails `json:"queue_declared_details"`
-	QueueCreated             uint64            `json:"queue_created"`
-	QueueCreatedDetails      NodeMetricDetails `json:"queue_created_details"`
-	QueueDeleted             uint64            `json:"queue_deleted"`
-	QueueDeletedDetails      NodeMetricDetails `json:"queue_deleted_details"`
+	ConnectionCreated        uint64      `json:"connection_created"`
+	ConnectionCreatedDetails RateDetails `json:"connection_created_details"`
+	ConnectionClosed         uint64      `json:"connection_closed"`
+	ConnectionClosedDetails  RateDetails `json:"connection_closed_details"`
+	ChannelCreated           uint64      `json:"channel_created"`
+	ChannelCreatedDetails    RateDetails `json:"channel_created_details"`
+	ChannelClosed            uint64      `json:"channel_closed"`
+	ChannelClosedDetails     RateDetails `json:"channel_closed_details"`
+	QueueDeclared            uint64      `json:"queue_declared"`
+	QueueDeclaredDetails     RateDetails `json:"queue_declared_details"`
+	QueueCreated             uint64      `json:"queue_created"`
+	QueueCreatedDetails      RateDetails `json:"queue_created_details"`
+	QueueDeleted             uint64      `json:"queue_deleted"`
+	QueueDeletedDetails      RateDetails `json:"queue_deleted_details"`
 
-	IOReadCount                         uint64            `json:"io_read_count"`
-	IOReadCountDetails                  NodeMetricDetails `json:"io_read_count_details"`
-	IOReadBytes                         uint64            `json:"io_read_bytes"`
-	IOReadBytesDetails                  NodeMetricDetails `json:"io_read_bytes"`
-	IOReadAvgTime                       float64           `json:"io_read_avg_time"`
-	IOReadAvgTimeDetails                NodeMetricDetails `json:"io_read_avg_time_details"`
-	IOWriteCount                        uint64            `json:"io_write_count"`
-	IOWriteCountDetails                 NodeMetricDetails `json:"io_write_count_details"`
-	IOWriteBytes                        uint64            `json:"io_write_bytes"`
-	IOWriteBytesDetails                 NodeMetricDetails `json:"io_write_bytes_details"`
-	IOWriteAvgTime                      float64           `json:"io_write_avg_time"`
-	IOWriteAvgTimeDetails               NodeMetricDetails `json:"io_write_avg_time_details"`
-	IOSyncCount                         uint64            `json:"io_sync_count"`
-	IOSyncCountDetails                  NodeMetricDetails `json:"io_sync_count_details"`
-	IOSyncAvgTime                       float64           `json:"io_sync_avg_time"`
-	IOSyncAvgTimeDetails                NodeMetricDetails `json:"io_sync_avg_time_details"`
-	IOSeekCount                         uint64            `json:"io_seek_count"`
-	IOSeekCountDetails                  NodeMetricDetails `json:"io_seek_count_details"`
-	IOSeekAvgTime                       float64           `json:"io_seek_avg_time"`
-	IOSeekAvgTimeDetails                NodeMetricDetails `json:"io_seek_avg_time_details"`
-	IOReopenCount                       uint64            `json:"io_reopen_count"`
-	IOReopenCountDetails                NodeMetricDetails `json:"io_reopen_count_details"`
-	IOFileHandleOpenAttemptCount        uint64            `json:"io_file_handle_open_attempt_count"`
-	IOFileHandleOpenAttemptCountDetails NodeMetricDetails `json:"io_file_handle_open_attempt_count_details"`
+	IOReadCount                         uint64      `json:"io_read_count"`
+	IOReadCountDetails                  RateDetails `json:"io_read_count_details"`
+	IOReadBytes                         uint64      `json:"io_read_bytes"`
+	IOReadBytesDetails                  RateDetails `json:"io_read_bytes"`
+	IOReadAvgTime                       float64     `json:"io_read_avg_time"`
+	IOReadAvgTimeDetails                RateDetails `json:"io_read_avg_time_details"`
+	IOWriteCount                        uint64      `json:"io_write_count"`
+	IOWriteCountDetails                 RateDetails `json:"io_write_count_details"`
+	IOWriteBytes                        uint64      `json:"io_write_bytes"`
+	IOWriteBytesDetails                 RateDetails `json:"io_write_bytes_details"`
+	IOWriteAvgTime                      float64     `json:"io_write_avg_time"`
+	IOWriteAvgTimeDetails               RateDetails `json:"io_write_avg_time_details"`
+	IOSyncCount                         uint64      `json:"io_sync_count"`
+	IOSyncCountDetails                  RateDetails `json:"io_sync_count_details"`
+	IOSyncAvgTime                       float64     `json:"io_sync_avg_time"`
+	IOSyncAvgTimeDetails                RateDetails `json:"io_sync_avg_time_details"`
+	IOSeekCount                         uint64      `json:"io_seek_count"`
+	IOSeekCountDetails                  RateDetails `json:"io_seek_count_details"`
+	IOSeekAvgTime                       float64     `json:"io_seek_avg_time"`
+	IOSeekAvgTimeDetails                RateDetails `json:"io_seek_avg_time_details"`
+	IOReopenCount                       uint64      `json:"io_reopen_count"`
+	IOReopenCountDetails                RateDetails `json:"io_reopen_count_details"`
+	IOFileHandleOpenAttemptCount        uint64      `json:"io_file_handle_open_attempt_count"`
+	IOFileHandleOpenAttemptCountDetails RateDetails `json:"io_file_handle_open_attempt_count_details"`
 
-	MnesiaRamTxCount uint64 `json:"mnesia_ram_tx_count"`
+	MnesiaRAMTxCount uint64 `json:"mnesia_ram_tx_count"`
 
-	MnesiaRamTxCountDetails            NodeMetricDetails `json:"mnesia_ram_tx_count_details"`
-	MnesiaDiskTxCount                  uint64            `json:"mnesia_disk_tx_count"`
-	MnesiaDiskTxCountDetails           NodeMetricDetails `json:"mnesia_disk_tx_count_details"`
-	MsgStoreReadCount                  uint64            `json:"msg_store_read_count"`
-	MsgStoreReadCountDetails           NodeMetricDetails `json:"msg_store_read_count_details"`
-	MsgStoreWriteCount                 uint64            `json:"msg_store_write_count"`
-	MsgStoreWriteCountDetails          NodeMetricDetails `json:"msg_store_write_count_details"`
-	QueueIndexJournalWriteCount        uint64            `json:"queue_index_journal_write_count"`
-	QueueIndexJournalWriteCountDetails NodeMetricDetails `json:"queue_index_journal_write_count_details"`
-	QueueIndexWriteCount               uint64            `json:"queue_index_write_count"`
-	QueueIndexWriteCountDetails        NodeMetricDetails `json:"queue_index_write_count_details"`
-	QueueIndexReadCount                uint64            `json:"queue_index_read_count"`
-	QueueIndexReadCountDetails         NodeMetricDetails `json:"queue_index_read_count_details"`
+	MnesiaRAMTxCountDetails            RateDetails `json:"mnesia_ram_tx_count_details"`
+	MnesiaDiskTxCount                  uint64      `json:"mnesia_disk_tx_count"`
+	MnesiaDiskTxCountDetails           RateDetails `json:"mnesia_disk_tx_count_details"`
+	MsgStoreReadCount                  uint64      `json:"msg_store_read_count"`
+	MsgStoreReadCountDetails           RateDetails `json:"msg_store_read_count_details"`
+	MsgStoreWriteCount                 uint64      `json:"msg_store_write_count"`
+	MsgStoreWriteCountDetails          RateDetails `json:"msg_store_write_count_details"`
+	QueueIndexJournalWriteCount        uint64      `json:"queue_index_journal_write_count"`
+	QueueIndexJournalWriteCountDetails RateDetails `json:"queue_index_journal_write_count_details"`
+	QueueIndexWriteCount               uint64      `json:"queue_index_write_count"`
+	QueueIndexWriteCountDetails        RateDetails `json:"queue_index_write_count_details"`
+	QueueIndexReadCount                uint64      `json:"queue_index_read_count"`
+	QueueIndexReadCountDetails         RateDetails `json:"queue_index_read_count_details"`
 
 	// Erlang scheduler run queue length
 	RunQueueLength uint32 `json:"run_queue"`
