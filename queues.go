@@ -44,16 +44,59 @@ type OwnerPidDetails struct {
 	PeerHost string `json:"peer_host"`
 }
 
+// ConsumerDetail describe consumer information with a queue
+type ConsumerDetail struct {
+	Arguments      map[string]interface{} `json:"arguments"`
+	ChannelDetails ChannelDetails         `json:"channel_details"`
+	AckRequired    bool                   `json:"ack_required"`
+	Active         bool                   `json:"active"`
+	ActiveStatus   string                 `json:"active_status"`
+	ConsumerTag    string                 `json:"consumer_tag"`
+	Exclusive      bool                   `json:"exclusive"`
+	PrefetchCount  uint                   `json:"prefetch_count"`
+	Queue          QueueDetail            `json:"queue"`
+}
+
+// ChannelDetails describe channel information with a consumer
+type ChannelDetails struct {
+	ConnectionName string `json:"connection_name"`
+	Name           string `json:"name"`
+	Node           string `json:"node"`
+	Number         uint   `json:"number"`
+	PeerHost       string `json:"peer_host"`
+	PeerPort       uint   `json:"peer_port"`
+	User           string `json:"user"`
+}
+
+// QueueDetail describe queue information with a consumer
+type QueueDetail struct {
+	Name  string `json:"name"`
+	Vhost string `json:"vhost"`
+}
+
+// GarbageCollectionDetail describe queue garbage collection information
+type GarbageCollectionDetails struct {
+	FullSweepAfter  int `json:"fullsweep_after"`
+	MaxHeapSize     int `json:"max_heap_size"`
+	MinBinVheapSize int `json:"min_bin_vheap_size"`
+	MinHeapSize     int `json:"min_heap_size"`
+	MinorGCs        int `json:"minor_gcs"`
+}
+
 // QueueInfo represents a queue, its properties and key metrics.
 type QueueInfo struct {
 	// Queue name
 	Name string `json:"name"`
+	// Queue type
+	Type string `json:"type"`
 	// Virtual host this queue belongs to
 	Vhost string `json:"vhost"`
 	// Is this queue durable?
 	Durable bool `json:"durable"`
 	// Is this queue auto-deleted?
 	AutoDelete bool `json:"auto_delete"`
+	// Is this queue exclusive?
+	Exclusive bool `json:"exclusive"`
 	// Extra queue arguments
 	Arguments map[string]interface{} `json:"arguments"`
 
@@ -61,23 +104,36 @@ type QueueInfo struct {
 	Node string `json:"node"`
 	// Queue status
 	Status string `json:"state"`
+	// Queue leader when it is quorum queue
+	Leader string `json:"leader"`
+	// Queue members when it is quorum queue
+	Members []string `json:"members"`
+	// Queue online members when it is quorum queue
+	Online []string `json:"online"`
 
 	// Total amount of RAM used by this queue
 	Memory int64 `json:"memory"`
 	// How many consumers this queue has
 	Consumers int `json:"consumers"`
+	// Detail information of consumers
+	ConsumerDetails []ConsumerDetail `json:"consumer_details"`
 	// Utilisation of all the consumers
 	ConsumerUtilisation float64 `json:"consumer_utilisation"`
 	// If there is an exclusive consumer, its consumer tag
 	ExclusiveConsumerTag string `json:"exclusive_consumer_tag"`
 
+	// GarbageCollection metrics
+	GarbageCollection GarbageCollectionDetails `json:"garbage_collection"`
+
 	// Policy applied to this queue, if any
 	Policy string `json:"policy"`
 
 	// Total bytes of messages in this queues
-	MessagesBytes           int64 `json:"message_bytes"`
-	MessagesBytesPersistent int64 `json:"message_bytes_persistent"`
-	MessagesBytesRAM        int64 `json:"message_bytes_ram"`
+	MessagesBytes               int64 `json:"message_bytes"`
+	MessagesBytesPersistent     int64 `json:"message_bytes_persistent"`
+	MessagesBytesRAM            int64 `json:"message_bytes_ram"`
+	MessagesBytesReady          int64 `json:"message_bytes_ready"`
+	MessagesBytesUnacknowledged int64 `json:"message_bytes_unacknowledged"`
 
 	// Total number of messages in this queue
 	Messages           int         `json:"messages"`
@@ -300,7 +356,7 @@ func (c *Client) DeclareQueue(vhost, queue string, info QueueSettings) (res *htt
 	if info.Arguments == nil {
 		info.Arguments = make(map[string]interface{})
 	}
-	
+
 	if info.Type != "" {
 		info.Arguments["x-queue-type"] = info.Type
 	}
