@@ -989,6 +989,35 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
+	Context("vhost-limits", func() {
+		maxConnections := 1
+		It("returns an empty list of limits", func() {
+			xs, err := rmqc.GetVhostLimits("rabbit/hole")
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(0))
+		})
+		It("sets the max-connections limit", func() {
+			_, err := rmqc.PutVhostLimitsMaxConnections("rabbit/hole", maxConnections)
+			Ω(err).Should(BeNil())
+		})
+		It("returns the max-connections limit", func() {
+			xs, err := rmqc.GetVhostLimits("rabbit/hole")
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(1))
+			Ω(xs[0].Vhost).Should(Equal("rabbit/hole"))
+			Ω(xs[0].Value.MaxConnections).Should(Equal(maxConnections))
+		})
+		It("deletes the max-connections limit", func() {
+			_, err := rmqc.DeleteVhostLimitsMaxConnections("rabbit/hole")
+			Ω(err).Should(BeNil())
+		})
+		It("returns the max-connections limit", func() {
+			xs, err := rmqc.GetVhostLimits("rabbit/hole")
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(0))
+		})
+	})
+
 	Context("GET /bindings", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
