@@ -999,8 +999,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 		It("sets the limits", func() {
 			_, err := rmqc.PutVhostLimits("rabbit/hole", VhostLimitsValues{
-				"max-connections":maxConnections,
-				"max-queues":maxQueues,
+				"max-connections": maxConnections,
+				"max-queues":      maxQueues,
 			})
 			Ω(err).Should(BeNil())
 		})
