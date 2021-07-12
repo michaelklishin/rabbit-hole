@@ -6,21 +6,19 @@ import (
 	"net/url"
 )
 
-// VhostLimitsValue are properties used to modify virtual hosts limits.
-type VhostLimitsValue struct {
-	// Maximum number of connections
-	MaxConnections int `json:"max-connections"`
-}
+// VhostLimitsValues are properties used to modify virtual host limits (max-connections, max-queues)
+type VhostLimitsValues map[string]int
 
+// VhostLimits are properties used to delete virtual host limits (max-connections, max-queues)
+type VhostLimits []string
+
+// VhostLimitsInfo holds information about the current virtual host limits
 type VhostLimitsInfo struct {
-	Vhost string           `json:"vhost"`
-	Value VhostLimitsValue `json:"value"`
+	Vhost string            `json:"vhost"`
+	Value VhostLimitsValues `json:"value"`
 }
 
-type VhostLimitsMaxConnections struct {
-	Value int `json:"value"`
-}
-
+// GetVhostLimits gets a virtual host limits.
 func (c *Client) GetVhostLimits(vhostname string) (rec []VhostLimitsInfo, err error) {
 	req, err := newGETRequest(c, "vhost-limits/"+url.PathEscape(vhostname))
 	if err != nil {
@@ -34,32 +32,38 @@ func (c *Client) GetVhostLimits(vhostname string) (rec []VhostLimitsInfo, err er
 	return rec, nil
 }
 
-func (c *Client) PutVhostLimitsMaxConnections(vhostname string, maxConnections int) (res *http.Response, err error) {
-	body, err := json.Marshal(VhostLimitsMaxConnections{Value: maxConnections})
-	if err != nil {
-		return nil, err
-	}
+// PutVhostLimits puts limits of a virtual host.
+func (c *Client) PutVhostLimits(vhostname string, limits VhostLimitsValues) (res *http.Response, err error) {
+	for limitName, limitValue := range limits {
+		body, err := json.Marshal(struct{Value int `json:"value"`}{Value: limitValue})
+		if err != nil {
+			return nil, err
+		}
 
-	req, err := newRequestWithBody(c, "PUT", "vhost-limits/"+url.PathEscape(vhostname)+"/max-connections", body)
-	if err != nil {
-		return nil, err
-	}
+		req, err := newRequestWithBody(c, "PUT", "vhost-limits/"+url.PathEscape(vhostname)+"/"+limitName, body)
+		if err != nil {
+			return nil, err
+		}
 
-	if res, err = executeRequest(c, req); err != nil {
-		return nil, err
+		if res, err = executeRequest(c, req); err != nil {
+			return nil, err
+		}
 	}
 
 	return res, nil
 }
 
-func (c *Client) DeleteVhostLimitsMaxConnections(vhostname string) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "vhost-limits/"+url.PathEscape(vhostname)+"/max-connections", nil)
-	if err != nil {
-		return nil, err
-	}
+// DeleteVhostLimits deletes limits of a virtual host.
+func (c *Client) DeleteVhostLimits(vhostname string, limits VhostLimits) (res *http.Response, err error) {
+	for _, limit := range limits {
+		req, err := newRequestWithBody(c, "DELETE", "vhost-limits/"+url.PathEscape(vhostname)+"/"+limit, nil)
+		if err != nil {
+			return nil, err
+		}
 
-	if res, err = executeRequest(c, req); err != nil {
-		return nil, err
+		if res, err = executeRequest(c, req); err != nil {
+			return nil, err
+		}
 	}
 
 	return res, nil
