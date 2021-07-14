@@ -989,6 +989,40 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
+	Context("vhost-limits", func() {
+		maxConnections := 1
+		maxQueues := 2
+		It("returns an empty list of limits", func() {
+			xs, err := rmqc.GetVhostLimits("rabbit/hole")
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(0))
+		})
+		It("sets the limits", func() {
+			_, err := rmqc.PutVhostLimits("rabbit/hole", VhostLimitsValues{
+				"max-connections": maxConnections,
+				"max-queues":      maxQueues,
+			})
+			Ω(err).Should(BeNil())
+		})
+		It("returns the limits", func() {
+			xs, err := rmqc.GetVhostLimits("rabbit/hole")
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(1))
+			Ω(xs[0].Vhost).Should(Equal("rabbit/hole"))
+			Ω(xs[0].Value["max-connections"]).Should(Equal(maxConnections))
+			Ω(xs[0].Value["max-queues"]).Should(Equal(maxQueues))
+		})
+		It("deletes the limits", func() {
+			_, err := rmqc.DeleteVhostLimits("rabbit/hole", VhostLimits{"max-connections", "max-queues"})
+			Ω(err).Should(BeNil())
+		})
+		It("returns an empty list of limits", func() {
+			xs, err := rmqc.GetVhostLimits("rabbit/hole")
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(0))
+		})
+	})
+
 	Context("GET /bindings", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
