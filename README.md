@@ -433,6 +433,29 @@ resp, err := rmqc.DeleteGlobalParameter("name")
 // => *http.Response, error
 ```
 
+### Managing Policies
+```go
+mypolicy := Policy{
+	Vhost:      "/",
+	Pattern:    "^.*$",
+	ApplyTo:    "queues",
+	Name:       "mypolicy",
+	Priority:   0,
+	Definition: PolicyDefinition{
+		// map[string] interface{}
+		"max-length-bytes": 1048576,
+	},
+}
+resp, err := rmqc.PutPolicy("/", "mypolicy", mypolicy)
+// => *http.Response, error
+xs, err := rmqc.ListPolicies()
+// => []Policy, error
+x, err := rmqc.GetPolicy("/", "mypolicy")
+// => *Policy, error
+resp, err := rmqc.DeletePolicy("/", "mypolicy")
+// => *http.Response, error
+```
+
 ### Operations on cluster name
 ``` go
 // Get cluster name
