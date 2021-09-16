@@ -1,6 +1,69 @@
-## Changes Between 2.10.0 and 2.11.0 (in development)
+## Changes Between 2.10.0 and 2.11.0 (Sep 16, 2021)
 
-No changes yet.
+This release contains **minor breaking public API changes**.
+
+### Avoid returning empty queue and exchange properties
+
+struct values in `ExportedDefinitions`, `QueueInfo`, and `ExchangeInfo` have all been changed to pointers. This is to avoid having the empty struct values returned when exporting definitions and listing queues and exchanges.
+
+Updated [`ExportedDefinitions`](https://github.com/michaelklishin/rabbit-hole/blob/v2.11.0/definitions.go#L6), [`ExchangeInfo`](https://github.com/michaelklishin/rabbit-hole/blob/v2.11.0/exchanges.go#L23) and [`QueueInfo`](https://github.com/michaelklishin/rabbit-hole/blob/v2.11.0/queues.go#L87).
+
+Contributed by @mkuratczyk.
+
+PRs: [#208](https://github.com/michaelklishin/rabbit-hole/pull/208) and [#209](https://github.com/michaelklishin/rabbit-hole/pull/209)
+
+### Support for a special returned value of Queue and Exchange AutoDelete
+
+`QueueInfo` and `ExchangeInfo` now use a special type for `AutoDelete` because returned value from RabbitMQ server could be a boolean or a string value "undefined".
+
+```go
+// AutoDelete is a boolean but RabbitMQ may return the string "undefined"
+type AutoDelete bool
+
+// ExchangeInfo represents and exchange and its properties.
+type ExchangeInfo struct {
+	Name       string                 `json:"name"`
+	Vhost      string                 `json:"vhost,omitempty"`
+	Type       string                 `json:"type"`
+	Durable    bool                   `json:"durable"`
+	AutoDelete AutoDelete             `json:"auto_delete"`
+...
+}
+
+// QueueInfo represents a queue, its properties and key metrics.
+type QueueInfo struct {
+	// Queue name
+	Name string `json:"name"`
+	// Queue type
+	Type string `json:"type"`
+	// Virtual host this queue belongs to
+	Vhost string `json:"vhost,omitempty"`
+	// Is this queue auto-deleted?
+	AutoDelete AutoDelete `json:"auto_delete"`
+         ...
+}
+```
+Contributed by @mkuratczyk.
+
+PR: [#207](https://github.com/michaelklishin/rabbit-hole/pull/207)
+
+### Support listing definitions for a specific vhost
+
+Contributed by @mkuratczyk.
+
+PR: [#206](https://github.com/michaelklishin/rabbit-hole/pull/206)
+
+### Support for vhost limits
+
+Contributed by @Sauci.
+
+PR: [#200](https://github.com/michaelklishin/rabbit-hole/pull/200)
+
+### Return more fields for `NodeInfo` and `QueueInfo`
+
+Contributed by  @hjweddie.
+
+PR: [#198](https://github.com/michaelklishin/rabbit-hole/pull/198)
 
 
 ## Changes Between 2.9.0 and 2.10.0 (Jun 3, 2021)
