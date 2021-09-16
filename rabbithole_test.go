@@ -3008,6 +3008,23 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(defs.Policies).ShouldNot(BeNil())
 		})
 
+		It("returns definitions for a specific vhost", func() {
+			By("GET /definitions/vhost")
+			defs, err := rmqc.ListVhostDefinitions("rabbit/hole")
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(defs).ShouldNot(BeNil())
+
+			Ω(defs.RabbitMQVersion).ShouldNot(BeNil())
+
+			// /definitions/vhost does not export vhosts or users
+			Ω(defs.Vhosts).Should(BeNil())
+			Ω(defs.Users).Should(BeNil())
+
+			Ω(defs.Queues).ShouldNot(BeNil())
+			Ω(defs.Parameters).Should(BeEmpty())
+			Ω(defs.Policies).ShouldNot(BeNil())
+		})
+
 		It("returns exported global parameters", func() {
 			By("GET /definitions")
 			defs, err := rmqc.ListDefinitions()
