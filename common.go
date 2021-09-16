@@ -2,6 +2,7 @@ package rabbithole
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 )
 
@@ -97,5 +98,25 @@ func (s *URISet) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	*s = uris
+	return nil
+}
+
+// AutoDelete is a boolean but RabbitMQ may return the string "undefined"
+type AutoDelete bool
+
+// UnmarshalJSON can unmarshal a string or a boolean
+func (d *AutoDelete) UnmarshalJSON(b []byte) error {
+	switch string(b) {
+	case "\"undefined\"":
+		// auto_delete is "undefined", map it to true
+		*d = AutoDelete(true)
+	case "true":
+		*d = AutoDelete(true)
+	case "false":
+		*d = AutoDelete(false)
+	default:
+		return errors.New("Unknown value of auto_delete")
+	}
+
 	return nil
 }
