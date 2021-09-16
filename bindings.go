@@ -46,14 +46,14 @@ func (v BindingVertex) String() string {
 type BindingInfo struct {
 	// Binding source (exchange name)
 	Source string `json:"source"`
-	Vhost  string `json:"vhost"`
+	Vhost  string `json:"vhost,omitempty"`
 	// Binding destination (queue or exchange name)
 	Destination string `json:"destination"`
 	// Destination type, either "queue" or "exchange"
 	DestinationType string                 `json:"destination_type"`
 	RoutingKey      string                 `json:"routing_key"`
 	Arguments       map[string]interface{} `json:"arguments"`
-	PropertiesKey   string                 `json:"properties_key"`
+	PropertiesKey   string                 `json:"properties_key,omitempty"`
 }
 
 // ListBindings returns all bindings
