@@ -1,5 +1,7 @@
 package rabbithole
 
+import "net/url"
+
 // ExportedDefinitions represents definitions exported from a RabbitMQ cluster
 type ExportedDefinitions struct {
 	RabbitVersion    string `json:"rabbit_version"`
@@ -25,6 +27,24 @@ type ExportedDefinitions struct {
 // ListDefinitions returns a set of definitions exported from a RabbitMQ cluster.
 func (c *Client) ListDefinitions() (p *ExportedDefinitions, err error) {
 	req, err := newGETRequest(c, "definitions")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(c, req, &p); err != nil {
+		return nil, err
+	}
+
+	return p, nil
+}
+
+//
+// GET /api/definitions/vhost
+//
+
+// ListVhostDefinitions returns a set of definitions for a specific vhost.
+func (c *Client) ListVhostDefinitions(vhost string) (p *ExportedDefinitions, err error) {
+	req, err := newGETRequest(c, "definitions/"+url.QueryEscape(vhost))
 	if err != nil {
 		return nil, err
 	}
