@@ -452,7 +452,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal("amq.fanout"))
 			Ω(x.Durable).Should(Equal(true))
-			Ω(x.AutoDelete).Should(Equal(false))
+			Ω(bool(x.AutoDelete)).Should(Equal(false))
 			Ω(x.Internal).Should(Equal(false))
 			Ω(x.Type).Should(Equal("fanout"))
 			Ω(x.Vhost).Should(Equal("rabbit/hole"))
@@ -1637,7 +1637,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal(xn))
 			Ω(x.Durable).Should(Equal(false))
-			Ω(x.AutoDelete).Should(Equal(false))
+			Ω(bool(x.AutoDelete)).Should(Equal(false))
 			Ω(x.Type).Should(Equal("fanout"))
 			Ω(x.Vhost).Should(Equal(vh))
 
@@ -1678,7 +1678,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal(qn))
 			Ω(x.Durable).Should(Equal(true))
-			Ω(x.AutoDelete).Should(Equal(false))
+			Ω(bool(x.AutoDelete)).Should(Equal(false))
 			Ω(x.Vhost).Should(Equal(vh))
 			Ω(x.Arguments).To(HaveKeyWithValue("x-queue-type", "quorum"))
 

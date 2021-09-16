@@ -94,7 +94,7 @@ type QueueInfo struct {
 	// Is this queue durable?
 	Durable bool `json:"durable"`
 	// Is this queue auto-deleted?
-	AutoDelete bool `json:"auto_delete"`
+	AutoDelete AutoDelete `json:"auto_delete"`
 	// Is this queue exclusive?
 	Exclusive bool `json:"exclusive"`
 	// Extra queue arguments
