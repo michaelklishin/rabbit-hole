@@ -4,20 +4,20 @@ import "net/url"
 
 // ExportedDefinitions represents definitions exported from a RabbitMQ cluster
 type ExportedDefinitions struct {
-	RabbitVersion    string `json:"rabbit_version"`
-	RabbitMQVersion  string `json:"rabbitmq_version"`
-	ProductName      string `json:"product_name"`
-	ProductVersion   string `json:"product_version"`
-	Users            []UserInfo
-	Vhosts           []VhostInfo
-	Permissions      []Permissions
-	TopicPermissions []TopicPermissionInfo
-	Parameters       []RuntimeParameter
-	GlobalParameters []GlobalRuntimeParameter `json:"global_parameters"`
-	Policies         []PolicyDefinition
-	Queues           []QueueInfo
-	Exchanges        []ExchangeInfo
-	Bindings         []BindingInfo
+	RabbitVersion    string                    `json:"rabbit_version,omitempty"`
+	RabbitMQVersion  string                    `json:"rabbitmq_version,omitempty"`
+	ProductName      string                    `json:"product_name,omitempty"`
+	ProductVersion   string                    `json:"product_version,omitempty"`
+	Users            *[]UserInfo               `json:"users,omitempty"`
+	Vhosts           *[]VhostInfo              `json:"vhosts,omitempty"`
+	Permissions      *[]Permissions            `json:"permissions,omitempty"`
+	TopicPermissions *[]TopicPermissionInfo    `json:"topic_permissions,omitempty"`
+	Parameters       *[]RuntimeParameter       `json:"paramaters,omitempty"`
+	GlobalParameters *[]GlobalRuntimeParameter `json:"global_parameters,omitempty"`
+	Policies         *[]PolicyDefinition       `json:"policies"`
+	Queues           *[]QueueInfo              `json:"queues"`
+	Exchanges        *[]ExchangeInfo           `json:"exchanges"`
+	Bindings         *[]BindingInfo            `json:"bindings"`
 }
 
 //

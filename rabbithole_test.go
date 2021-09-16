@@ -3000,12 +3000,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			Ω(defs.RabbitMQVersion).ShouldNot(BeNil())
 
-			Ω(defs.Vhosts).ShouldNot(BeEmpty())
-			Ω(defs.Users).ShouldNot(BeEmpty())
+			Ω(*defs.Vhosts).ShouldNot(BeEmpty())
+			Ω(*defs.Users).ShouldNot(BeEmpty())
 
-			Ω(defs.Queues).ShouldNot(BeNil())
-			Ω(defs.Parameters).ShouldNot(BeNil())
-			Ω(defs.Policies).ShouldNot(BeNil())
+			Ω(*defs.Queues).ShouldNot(BeNil())
+			Ω(defs.Parameters).Should(BeNil())
+			Ω(*defs.Policies).ShouldNot(BeNil())
 		})
 
 		It("returns definitions for a specific vhost", func() {
@@ -3032,7 +3032,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(defs).ShouldNot(BeNil())
 
 			foundClusterName := false
-			for _, param := range defs.GlobalParameters {
+			for _, param := range *defs.GlobalParameters {
 				if param.Name == "cluster_name" {
 					foundClusterName = true
 				}

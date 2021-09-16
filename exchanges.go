@@ -12,24 +12,24 @@ import (
 
 // IngressEgressStats represents common message flow metrics.
 type IngressEgressStats struct {
-	PublishIn        int         `json:"publish_in"`
-	PublishInDetails RateDetails `json:"publish_in_details"`
+	PublishIn        int          `json:"publish_in,omitempty"`
+	PublishInDetails *RateDetails `json:"publish_in_details,omitempty"`
 
-	PublishOut        int         `json:"publish_out"`
-	PublishOutDetails RateDetails `json:"publish_out_details"`
+	PublishOut        int          `json:"publish_out,omitempty"`
+	PublishOutDetails *RateDetails `json:"publish_out_details,omitempty"`
 }
 
 // ExchangeInfo represents and exchange and its properties.
 type ExchangeInfo struct {
 	Name       string                 `json:"name"`
-	Vhost      string                 `json:"vhost"`
+	Vhost      string                 `json:"vhost,omitempty"`
 	Type       string                 `json:"type"`
 	Durable    bool                   `json:"durable"`
 	AutoDelete AutoDelete             `json:"auto_delete"`
 	Internal   bool                   `json:"internal"`
 	Arguments  map[string]interface{} `json:"arguments"`
 
-	MessageStats IngressEgressStats `json:"message_stats"`
+	MessageStats *IngressEgressStats `json:"message_stats,omitempty"`
 }
 
 // ExchangeSettings is a set of exchange properties. Use this type when declaring
