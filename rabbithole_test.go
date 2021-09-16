@@ -3020,9 +3020,9 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(defs.Vhosts).Should(BeNil())
 			Ω(defs.Users).Should(BeNil())
 
-			Ω(defs.Queues).ShouldNot(BeNil())
-			Ω(defs.Parameters).Should(BeEmpty())
-			Ω(defs.Policies).ShouldNot(BeNil())
+			Ω(*defs.Queues).ShouldNot(BeNil())
+			Ω(defs.Parameters).Should(BeNil())
+			Ω(*defs.Policies).ShouldNot(BeNil())
 		})
 
 		It("returns exported global parameters", func() {
