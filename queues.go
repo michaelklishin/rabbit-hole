@@ -52,7 +52,7 @@ type ConsumerDetail struct {
 	Active         bool                   `json:"active"`
 	ActiveStatus   string                 `json:"active_status"`
 	ConsumerTag    string                 `json:"consumer_tag"`
-	Exclusive      bool                   `json:"exclusive"`
+	Exclusive      bool                   `json:"exclusive,omitempty"`
 	PrefetchCount  uint                   `json:"prefetch_count"`
 	Queue          QueueDetail            `json:"queue"`
 }
@@ -88,7 +88,7 @@ type QueueInfo struct {
 	// Queue name
 	Name string `json:"name"`
 	// Queue type
-	Type string `json:"type"`
+	Type string `json:"type,omitempty"`
 	// Virtual host this queue belongs to
 	Vhost string `json:"vhost,omitempty"`
 	// Is this queue durable?
@@ -96,7 +96,7 @@ type QueueInfo struct {
 	// Is this queue auto-deleted?
 	AutoDelete AutoDelete `json:"auto_delete"`
 	// Is this queue exclusive?
-	Exclusive bool `json:"exclusive"`
+	Exclusive bool `json:"exclusive,omitempty"`
 	// Extra queue arguments
 	Arguments map[string]interface{} `json:"arguments"`
 
@@ -105,25 +105,25 @@ type QueueInfo struct {
 	// Queue status
 	Status string `json:"state,omitempty"`
 	// Queue leader when it is quorum queue
-	Leader string `json:"leader"`
+	Leader string `json:"leader,omitempty"`
 	// Queue members when it is quorum queue
-	Members []string `json:"members"`
+	Members []string `json:"members,omitempty"`
 	// Queue online members when it is quorum queue
-	Online []string `json:"online"`
+	Online []string `json:"online,omitempty"`
 
 	// Total amount of RAM used by this queue
 	Memory int64 `json:"memory,omitempty"`
 	// How many consumers this queue has
 	Consumers int `json:"consumers,omitempty"`
 	// Detail information of consumers
-	ConsumerDetails []ConsumerDetail `json:"consumer_details"`
+	ConsumerDetails *[]ConsumerDetail `json:"consumer_details,omitempty"`
 	// Utilisation of all the consumers
-	ConsumerUtilisation float64 `json:"consumer_utilisation"`
+	ConsumerUtilisation float64 `json:"consumer_utilisation,omitempty"`
 	// If there is an exclusive consumer, its consumer tag
-	ExclusiveConsumerTag string `json:"exclusive_consumer_tag"`
+	ExclusiveConsumerTag string `json:"exclusive_consumer_tag,omitempty"`
 
 	// GarbageCollection metrics
-	GarbageCollection GarbageCollectionDetails `json:"garbage_collection"`
+	GarbageCollection *GarbageCollectionDetails `json:"garbage_collection,omitempty"`
 
 	// Policy applied to this queue, if any
 	Policy string `json:"policy,omitempty"`
@@ -136,24 +136,24 @@ type QueueInfo struct {
 	MessagesBytesUnacknowledged int64 `json:"message_bytes_unacknowledged,omitempty"`
 
 	// Total number of messages in this queue
-	Messages           int         `json:"messages,omitempty"`
-	MessagesDetails    RateDetails `json:"messages_details,omitempty"`
-	MessagesPersistent int         `json:"messages_persistent,omitempty"`
-	MessagesRAM        int         `json:"messages_ram,omitempty"`
+	Messages           int          `json:"messages,omitempty"`
+	MessagesDetails    *RateDetails `json:"messages_details,omitempty"`
+	MessagesPersistent int          `json:"messages_persistent,omitempty"`
+	MessagesRAM        int          `json:"messages_ram,omitempty"`
 
 	// Number of messages ready to be delivered
-	MessagesReady        int         `json:"messages_ready,omitempty"`
-	MessagesReadyDetails RateDetails `json:"messages_ready_details,omitempty"`
+	MessagesReady        int          `json:"messages_ready,omitempty"`
+	MessagesReadyDetails *RateDetails `json:"messages_ready_details,omitempty"`
 
 	// Number of messages delivered and pending acknowledgements from consumers
-	MessagesUnacknowledged        int         `json:"messages_unacknowledged,omitempty"`
-	MessagesUnacknowledgedDetails RateDetails `json:"messages_unacknowledged_details,omitempty"`
+	MessagesUnacknowledged        int          `json:"messages_unacknowledged,omitempty"`
+	MessagesUnacknowledgedDetails *RateDetails `json:"messages_unacknowledged_details,omitempty"`
 
-	MessageStats MessageStats `json:"message_stats,omitempty"`
+	MessageStats *MessageStats `json:"message_stats,omitempty"`
 
-	OwnerPidDetails OwnerPidDetails `json:"owner_pid_details,omitempty"`
+	OwnerPidDetails *OwnerPidDetails `json:"owner_pid_details,omitempty"`
 
-	BackingQueueStatus BackingQueueStatus `json:"backing_queue_status,omitempty"`
+	BackingQueueStatus *BackingQueueStatus `json:"backing_queue_status,omitempty"`
 
 	ActiveConsumers int64 `json:"active_consumers,omitempty"`
 }
