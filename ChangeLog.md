@@ -1,3 +1,8 @@
+## Changes Between 2.11.0 and 2.12.0 (unreleased)
+
+No changes yet.
+
+
 ## Changes Between 2.10.0 and 2.11.0 (Sep 16, 2021)
 
 This release contains **minor breaking public API changes**.
