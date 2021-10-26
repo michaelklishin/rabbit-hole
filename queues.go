@@ -269,9 +269,38 @@ func (c *Client) ListQueuesWithParameters(params url.Values) (rec []QueueInfo, e
 	return rec, nil
 }
 
+// ListQueuesWithParametersIs lists queues with a list of query string values in the vhost vhost.
+func (c *Client) ListQueuesWithParametersIn(vhost string, params url.Values) (rec []QueueInfo, err error) {
+	req, err := newGETRequestWithParameters(c, "queues/"+url.PathEscape(vhost), params)
+	if err != nil {
+		return []QueueInfo{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return []QueueInfo{}, err
+	}
+
+	return rec, nil
+}
+
 // PagedListQueuesWithParameters lists queues with pagination.
 func (c *Client) PagedListQueuesWithParameters(params url.Values) (rec PagedQueueInfo, err error) {
 	req, err := newGETRequestWithParameters(c, "queues", params)
+	if err != nil {
+		return PagedQueueInfo{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return PagedQueueInfo{}, err
+	}
+
+	return rec, nil
+
+}
+
+// PagedListQueuesWithParameters lists queues with pagination in the vhost vhost.
+func (c *Client) PagedListQueuesWithParametersIn(vhost string, params url.Values) (rec PagedQueueInfo, err error) {
+	req, err := newGETRequestWithParameters(c, "queues/"+url.PathEscape(vhost), params)
 	if err != nil {
 		return PagedQueueInfo{}, err
 	}
