@@ -559,7 +559,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			params.Add("lengths_age", "1800")
 			params.Add("lengths_incr", "30")
 
-			qs, err := rmqc.ListQueuesWithParametersIn("", params)
+			qs, err := rmqc.ListQueuesWithParametersIn("rabbit/hole", params)
 			Ω(err).Should(BeNil())
 
 			q := qs[0]
