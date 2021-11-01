@@ -5,7 +5,7 @@ all: test
 
 .PHONY: test
 test:
-	go test -race -v
+	go test -v
 .PHONY: tests
 tests: test
 
@@ -19,8 +19,8 @@ cover:
 
 .PHONY: ginkgo
 ginkgo:
-	command -v ginkgo || go install github.com/onsi/ginkgo/ginkgo
-	ginkgo -race -v
+	command -v ginkgo || go get -u github.com/onsi/ginkgo/ginkgo
+	ginkgo -v
 
 .PHONY: docker
 docker:

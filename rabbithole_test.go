@@ -989,6 +989,36 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
+	Context("GET /vhosts/{name}/connections", func() {
+		It("returns decoded response", func() {
+
+			conn := openConnection("rabbit/hole")
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			err = ch.Publish("",
+				"",
+				false,
+				false,
+				amqp.Publishing{Body: []byte("")})
+			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			xs, err := rmqc.ListVhostConnections("rabbit/hole")
+			Ω(err).Should(BeNil())
+
+			c1 := xs[0]
+			Ω(c1.Protocol).Should(Equal("AMQP 0-9-1"))
+			Ω(c1.User).Should(Equal("guest"))
+		})
+	})
+
 	Context("vhost-limits", func() {
 		maxConnections := 1
 		maxQueues := 2
