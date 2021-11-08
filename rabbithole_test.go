@@ -1116,6 +1116,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			})
 			Ω(err).Should(BeNil())
 		})
+		It("returns all the limits", func() {
+			xs, err := rmqc.GetAllVhostLimits()
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(1))
+			Ω(xs[0].Vhost).Should(Equal("rabbit/hole"))
+			Ω(xs[0].Value["max-connections"]).Should(Equal(maxConnections))
+			Ω(xs[0].Value["max-queues"]).Should(Equal(maxQueues))
+		})
 		It("returns the limits", func() {
 			xs, err := rmqc.GetVhostLimits("rabbit/hole")
 			Ω(err).Should(BeNil())
@@ -1130,6 +1138,48 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 		It("returns an empty list of limits", func() {
 			xs, err := rmqc.GetVhostLimits("rabbit/hole")
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(0))
+		})
+	})
+
+	Context("user-limits", func() {
+		maxConnections := 1
+		maxChannels := 2
+		It("returns an empty list of limits", func() {
+			xs, err := rmqc.GetUserLimits("guest")
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(0))
+		})
+		It("sets the limits", func() {
+			_, err := rmqc.PutUserLimits("guest", UserLimitsValues{
+				"max-connections": maxConnections,
+				"max-channels":    maxChannels,
+			})
+			Ω(err).Should(BeNil())
+		})
+		It("returns the limits", func() {
+			xs, err := rmqc.GetUserLimits("guest")
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(1))
+			Ω(xs[0].User).Should(Equal("guest"))
+			Ω(xs[0].Value["max-connections"]).Should(Equal(maxConnections))
+			Ω(xs[0].Value["max-channels"]).Should(Equal(maxChannels))
+		})
+		It("returns all the limits", func() {
+			xs, err := rmqc.GetAllUserLimits()
+			Ω(err).Should(BeNil())
+			Ω(xs).Should(HaveLen(1))
+			Ω(xs[0].User).Should(Equal("guest"))
+			Ω(xs[0].Value["max-connections"]).Should(Equal(maxConnections))
+			Ω(xs[0].Value["max-channels"]).Should(Equal(maxChannels))
+		})
+		It("deletes the limits", func() {
+			_, err := rmqc.DeleteUserLimits("guest", UserLimits{"max-connections", "max-channels"})
+			Ω(err).Should(BeNil())
+		})
+		It("returns an empty list of limits", func() {
+			xs, err := rmqc.GetUserLimits("guest")
 			Ω(err).Should(BeNil())
 			Ω(xs).Should(HaveLen(0))
 		})

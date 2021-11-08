@@ -18,6 +18,20 @@ type VhostLimitsInfo struct {
 	Value VhostLimitsValues `json:"value"`
 }
 
+// GetAllVhostLimits gets all virtual hosts limits.
+func (c *Client) GetAllVhostLimits() (rec []VhostLimitsInfo, err error) {
+	req, err := newGETRequest(c, "vhost-limits")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
+	}
+
+	return rec, nil
+}
+
 // GetVhostLimits gets a virtual host limits.
 func (c *Client) GetVhostLimits(vhostname string) (rec []VhostLimitsInfo, err error) {
 	req, err := newGETRequest(c, "vhost-limits/"+url.PathEscape(vhostname))
@@ -35,7 +49,9 @@ func (c *Client) GetVhostLimits(vhostname string) (rec []VhostLimitsInfo, err er
 // PutVhostLimits puts limits of a virtual host.
 func (c *Client) PutVhostLimits(vhostname string, limits VhostLimitsValues) (res *http.Response, err error) {
 	for limitName, limitValue := range limits {
-		body, err := json.Marshal(struct{Value int `json:"value"`}{Value: limitValue})
+		body, err := json.Marshal(struct {
+			Value int `json:"value"`
+		}{Value: limitValue})
 		if err != nil {
 			return nil, err
 		}
