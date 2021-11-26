@@ -3265,4 +3265,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			})
 		})
 	})
+	Context("POST /api/definitions", func() {
+		It("should create queues and exchanges as specified in the definitions", func() {
+			defs := &ExportedDefinitions{
+				Queues:    &[]QueueInfo{{Name: "definitions_test_queue", Vhost: "/", Durable: true}},
+				Exchanges: &[]ExchangeInfo{{Name: "definitions_test_exchange", Vhost: "/", Durable: true}},
+				Bindings:  &[]BindingInfo{{Source: "definitions_test_exchange", Vhost: "/", DestinationType: "queue", Destination: "definitions_test_exchange"}},
+			}
+			err := rmqc.UploadDefinitions(defs)
+			Expect(err).Should(BeNil())
+		})
+	})
 })

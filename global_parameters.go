@@ -14,7 +14,6 @@ type GlobalRuntimeParameter struct {
 	Value interface{} `json:"value"`
 }
 
-
 //
 // GET /api/global-parameters
 //
@@ -58,8 +57,8 @@ func (c *Client) GetGlobalParameter(name string) (p *GlobalRuntimeParameter, err
 // PutRuntimeParameter creates or updates a runtime parameter.
 func (c *Client) PutGlobalParameter(name string, value interface{}) (res *http.Response, err error) {
 	p := GlobalRuntimeParameter{
-		Name:      name,
-		Value:     value,
+		Name:  name,
+		Value: value,
 	}
 
 	body, err := json.Marshal(p)
@@ -96,4 +95,3 @@ func (c *Client) DeleteGlobalParameter(name string) (res *http.Response, err err
 
 	return res, nil
 }
-
