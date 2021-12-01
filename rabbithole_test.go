@@ -3272,7 +3272,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Exchanges: &[]ExchangeInfo{{Name: "definitions_test_exchange", Vhost: "/", Durable: true}},
 				Bindings:  &[]BindingInfo{{Source: "definitions_test_exchange", Vhost: "/", DestinationType: "queue", Destination: "definitions_test_exchange"}},
 			}
-			err := rmqc.UploadDefinitions(defs)
+			_, err := rmqc.UploadDefinitions(defs)
 			Expect(err).Should(BeNil())
 		})
 	})
