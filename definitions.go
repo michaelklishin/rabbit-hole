@@ -2,6 +2,7 @@ package rabbithole
 
 import (
 	"encoding/json"
+	"net/http"
 	"net/url"
 )
 
@@ -64,18 +65,18 @@ func (c *Client) ListVhostDefinitions(vhost string) (p *ExportedDefinitions, err
 //
 
 // UploadDefinitions uploads a set of definitions and returns an error indicating if the operation was a failure
-func (c *Client) UploadDefinitions(p *ExportedDefinitions) error {
+func (c *Client) UploadDefinitions(p *ExportedDefinitions) (res *http.Response, err error) {
 	body, err := json.Marshal(p)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req, err := newRequestWithBody(c, "POST", "definitions", body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if err = executeAndParseRequest(c, req, struct{}{}); err != nil {
-		return err
+	if res, err = executeRequest(c, req); err != nil {
+		return nil, err
 	}
-	return nil
+	return res, nil
 }
