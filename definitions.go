@@ -70,7 +70,7 @@ func (c *Client) UploadDefinitions(p *ExportedDefinitions) (res *http.Response, 
 	if err != nil {
 		return nil, err
 	}
-	req, err := newRequestWithBody(c, "POST", "definitions", body)
+	req, err := newRequestWithBody(c, http.MethodPost, "definitions", body)
 	if err != nil {
 		return nil, err
 	}
