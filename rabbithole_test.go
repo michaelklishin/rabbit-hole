@@ -3266,14 +3266,48 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 	Context("POST /api/definitions", func() {
+		queueName, exchangeName := "definitions_test_queue", "definitions_test_exchange"
+		bi := BindingInfo{
+			Source:          exchangeName,
+			Vhost:           "/",
+			DestinationType: "queue",
+			Destination:     queueName,
+			Arguments:       map[string]interface{}{},
+		}
 		It("should create queues and exchanges as specified in the definitions", func() {
-			defs := &ExportedDefinitions{
-				Queues:    &[]QueueInfo{{Name: "definitions_test_queue", Vhost: "/", Durable: true}},
-				Exchanges: &[]ExchangeInfo{{Name: "definitions_test_exchange", Vhost: "/", Durable: true}},
-				Bindings:  &[]BindingInfo{{Source: "definitions_test_exchange", Vhost: "/", DestinationType: "queue", Destination: "definitions_test_exchange"}},
+			defsToUpload := &ExportedDefinitions{
+				Policies: &[]PolicyDefinition{},
+				Queues: &[]QueueInfo{{
+					Name:      queueName,
+					Vhost:     "/",
+					Durable:   true,
+					Arguments: map[string]interface{}{},
+				}},
+				Exchanges: &[]ExchangeInfo{{
+					Name:      exchangeName,
+					Vhost:     "/",
+					Durable:   true,
+					Type:      "direct",
+					Arguments: map[string]interface{}{},
+				}},
+				Bindings: &[]BindingInfo{bi},
 			}
-			_, err := rmqc.UploadDefinitions(defs)
+			_, err := rmqc.UploadDefinitions(defsToUpload)
 			Expect(err).Should(BeNil())
+
+			defs, err := rmqc.ListDefinitions()
+			Expect(err).Should(BeNil())
+
+			queueDefs := defs.Queues
+			exchangeDefs := defs.Exchanges
+			bindingDefs := defs.Bindings
+			Expect(queueDefs).Should(BeEquivalentTo(defsToUpload.Queues))
+			Expect(exchangeDefs).Should(BeEquivalentTo(defsToUpload.Exchanges))
+			Expect(bindingDefs).Should(BeEquivalentTo(defs.Bindings))
+
+			_, _ = rmqc.DeleteExchange("/", exchangeName)
+			_, _ = rmqc.DeleteQueue("/", queueName)
+			_, _ = rmqc.DeleteBinding("/", bi)
 		})
 	})
 })
