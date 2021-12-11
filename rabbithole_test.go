@@ -75,7 +75,7 @@ func listConnectionsUntil(c *Client, i int) {
 }
 
 func awaitEventPropagation() {
-	time.Sleep(1150 * time.Millisecond)
+	time.Sleep(5000 * time.Millisecond)
 }
 
 type portTestStruct struct {
