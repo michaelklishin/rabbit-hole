@@ -1,5 +1,11 @@
 ## Changes Between 2.11.0 and 2.12.0 (unreleased)
 
+### Support for Definition Uploads
+
+GitHub issue: [#220](https://github.com/michaelklishin/rabbit-hole/pull/220)
+
+contributed by @shubhang93.
+
 ### Support to User Limits
 
 GitHub issue: [#217](https://github.com/michaelklishin/rabbit-hole/pull/217)
