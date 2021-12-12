@@ -23,6 +23,26 @@ func FindQueueByName(sl []QueueInfo, name string) (q QueueInfo) {
 	return q
 }
 
+func FindExchangeByName(sl []ExchangeInfo, name string) (x ExchangeInfo) {
+	for _, i := range sl {
+		if name == i.Name {
+			x = i
+			break
+		}
+	}
+	return x
+}
+
+func FindBindingBySourceAndDestinationNames(sl []BindingInfo, sourceName string, destinationName string) (b BindingInfo) {
+	for _, i := range sl {
+		if sourceName == i.Source && destinationName == i.Destination {
+			b = i
+			break
+		}
+	}
+	return b
+}
+
 func FindUserByName(sl []UserInfo, name string) (u UserInfo) {
 	for _, i := range sl {
 		if name == i.Name {
@@ -3265,6 +3285,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			})
 		})
 	})
+
 	Context("POST /api/definitions", func() {
 		queueName, exchangeName := "definitions_test_queue", "definitions_test_exchange"
 		bi := BindingInfo{
@@ -3274,6 +3295,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Destination:     queueName,
 			Arguments:       map[string]interface{}{},
 		}
+
 		It("should create queues and exchanges as specified in the definitions", func() {
 			defsToUpload := &ExportedDefinitions{
 				Policies: &[]PolicyDefinition{},
@@ -3299,11 +3321,16 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Expect(err).Should(BeNil())
 
 			queueDefs := defs.Queues
+			q := FindQueueByName(*queueDefs, queueName)
+			Ω(q).ShouldNot(BeNil())
+
 			exchangeDefs := defs.Exchanges
+			x := FindExchangeByName(*exchangeDefs, exchangeName)
+			Ω(x).ShouldNot(BeNil())
+
 			bindingDefs := defs.Bindings
-			Expect(queueDefs).Should(BeEquivalentTo(defsToUpload.Queues))
-			Expect(exchangeDefs).Should(BeEquivalentTo(defsToUpload.Exchanges))
-			Expect(bindingDefs).Should(BeEquivalentTo(defs.Bindings))
+			b := FindBindingBySourceAndDestinationNames(*bindingDefs, exchangeName, queueName)
+			Ω(b).ShouldNot(BeNil())
 
 			_, _ = rmqc.DeleteExchange("/", exchangeName)
 			_, _ = rmqc.DeleteQueue("/", queueName)
