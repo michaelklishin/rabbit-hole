@@ -1,6 +1,10 @@
 package rabbithole
 
-import "net/url"
+import (
+	"encoding/json"
+	"net/http"
+	"net/url"
+)
 
 // ExportedDefinitions represents definitions exported from a RabbitMQ cluster
 type ExportedDefinitions struct {
@@ -54,4 +58,25 @@ func (c *Client) ListVhostDefinitions(vhost string) (p *ExportedDefinitions, err
 	}
 
 	return p, nil
+}
+
+//
+// POST /api/definitions
+//
+
+// UploadDefinitions uploads a set of definitions and returns an error indicating if the operation was a failure
+func (c *Client) UploadDefinitions(p *ExportedDefinitions) (res *http.Response, err error) {
+	body, err := json.Marshal(p)
+	if err != nil {
+		return nil, err
+	}
+	req, err := newRequestWithBody(c, http.MethodPost, "definitions", body)
+	if err != nil {
+		return nil, err
+	}
+
+	if res, err = executeRequest(c, req); err != nil {
+		return nil, err
+	}
+	return res, nil
 }
