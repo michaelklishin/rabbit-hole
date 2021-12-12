@@ -22,6 +22,11 @@ GitHub issue: [#217](https://github.com/michaelklishin/rabbit-hole/pull/217)
 
 Contributed by @aitorpazos.
 
+### Listing of Connection in a Virtual Host
+
+GitHub issue: [#211](https://github.com/michaelklishin/rabbit-hole/pull/211)
+
+Contributed by @needsaholiday.
 
 ## Changes Between 2.10.0 and 2.11.0 (Sep 16, 2021)
 
