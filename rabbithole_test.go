@@ -3,9 +3,12 @@ package rabbithole
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
+	"strconv"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -65,7 +68,7 @@ func openConnection(vhost string) *amqp.Connection {
 }
 
 func ensureNonZeroMessageRate(ch *amqp.Channel) {
-	for i := 0; i < 2000; i++ {
+	for i := 0; i < 1000; i++ {
 		q, _ := ch.QueueDeclare(
 			"",    // name
 			false, // durable
@@ -94,8 +97,23 @@ func listConnectionsUntil(c *Client, i int) {
 	}
 }
 
+func computeEventPropagationInterval() int64 {
+	es, _ := os.LookupEnv("RABBITMQ_EVENT_PROPAGATION_INTERVAL")
+	fallback := int64(5000)
+
+	val, ok := strconv.ParseInt(es, 10, 64)
+
+	if ok != nil {
+		val = fallback
+	}
+
+	return val
+}
+
 func awaitEventPropagation() {
-	time.Sleep(5000 * time.Millisecond)
+	val := computeEventPropagationInterval()
+
+	time.Sleep(time.Duration(val) * time.Millisecond)
 }
 
 type portTestStruct struct {
@@ -106,6 +124,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	var (
 		rmqc *Client
 	)
+
+	BeforeSuite(func() {
+		val := computeEventPropagationInterval()
+		log.Printf("Using event propagation interval of %d ms", val)
+	})
 
 	BeforeEach(func() {
 		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
@@ -555,18 +578,20 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("GET /queues/{vhost} with arguments", func() {
 		It("returns decoded response", func() {
-			conn := openConnection("rabbit/hole")
+			vh := "rabbit/hole"
+			conn := openConnection(vh)
 			defer conn.Close()
 
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
 			defer ch.Close()
 
+			qn := "rabbit-hole.queues/in.vhost.with.arguments"
 			_, err = ch.QueueDeclare(
-				"",    // name
+				qn,    // name
 				false, // durable
 				false, // auto delete
-				true,  // exclusive
+				false, // exclusive
 				false,
 				nil)
 			Ω(err).Should(BeNil())
@@ -579,13 +604,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			params.Add("lengths_age", "1800")
 			params.Add("lengths_incr", "30")
 
-			qs, err := rmqc.ListQueuesWithParametersIn("rabbit/hole", params)
+			qs, err := rmqc.ListQueuesWithParametersIn(vh, params)
 			Ω(err).Should(BeNil())
 
-			q := qs[0]
+			q := FindQueueByName(qs, qn)
 			Ω(q.Name).ShouldNot(Equal(""))
 			Ω(q.Node).ShouldNot(BeNil())
-			Ω(q.Vhost).Should(Equal("rabbit/hole"))
+			Ω(q.Vhost).Should(Equal(vh))
 			Ω(q.Durable).ShouldNot(BeNil())
 			Ω(q.Status).ShouldNot(BeEmpty())
 			Ω(q.MessagesDetails.Samples[0]).ShouldNot(BeNil())
@@ -594,18 +619,20 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("GET /queues paged with arguments", func() {
 		It("returns decoded response", func() {
-			conn := openConnection("/")
+			vh := "/"
+			conn := openConnection(vh)
 			defer conn.Close()
 
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
 			defer ch.Close()
 
+			qn := "rabbit-hole.queues/paged.with.arguments"
 			_, err = ch.QueueDeclare(
-				"",    // name
+				qn,    // name
 				false, // durable
 				false, // auto delete
-				true,  // exclusive
+				false,  // exclusive
 				false,
 				nil)
 			Ω(err).Should(BeNil())
@@ -620,8 +647,9 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			qs, err := rmqc.PagedListQueuesWithParameters(params)
 			Ω(err).Should(BeNil())
 
-			q := qs.Items[0]
-			Ω(q.Name).ShouldNot(Equal(""))
+			q := FindQueueByName(qs.Items, qn)
+
+			Ω(q.Name).Should(Equal(qn))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
 			Ω(q.Status).ShouldNot(BeEmpty())
@@ -631,23 +659,28 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(qs.PageSize).Should(Equal(100))
 			Ω(qs.TotalCount).ShouldNot(BeNil())
 			Ω(qs.FilteredCount).ShouldNot(BeNil())
+
+			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
+			Ω(err).Should(BeNil())
 		})
 	})
 
 	Context("GET /queues/{vhost} paged with arguments", func() {
 		It("returns decoded response", func() {
-			conn := openConnection("rabbit/hole")
+			vh := "rabbit/hole"
+			conn := openConnection(vh)
 			defer conn.Close()
 
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
 			defer ch.Close()
 
+			qn := "rabbit-hole.queues./.paged"
 			_, err = ch.QueueDeclare(
-				"",    // name
+				qn,    // name
 				false, // durable
 				false, // auto delete
-				true,  // exclusive
+				false,  // exclusive
 				false,
 				nil)
 			Ω(err).Should(BeNil())
@@ -659,11 +692,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			params := url.Values{}
 			params.Add("page", "1")
 
-			qs, err := rmqc.PagedListQueuesWithParameters(params)
+			qs, err := rmqc.PagedListQueuesWithParametersIn(vh, params)
 			Ω(err).Should(BeNil())
 
-			q := qs.Items[0]
-			Ω(q.Name).ShouldNot(Equal(""))
+			q := FindQueueByName(qs.Items, qn)
+
+			Ω(q.Name).Should(Equal(qn))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
 			Ω(q.Status).ShouldNot(BeEmpty())
@@ -673,85 +707,26 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(qs.PageSize).Should(Equal(100))
 			Ω(qs.TotalCount).ShouldNot(BeNil())
 			Ω(qs.FilteredCount).ShouldNot(BeNil())
-			Ω(q.Vhost).Should(Equal("rabbit/hole"))
+			Ω(q.Vhost).Should(Equal(vh))
+
+			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
+			Ω(err).Should(BeNil())
 		})
 	})
 
 	Context("GET /queues/{vhost}", func() {
 		It("returns decoded response", func() {
-			conn := openConnection("rabbit/hole")
+			vh := "rabbit/hole"
+			conn := openConnection(vh)
 			defer conn.Close()
 
 			ch, err := conn.Channel()
 			Ω(err).Should(BeNil())
 			defer ch.Close()
 
+			qn := "rabbit-hole.queues.in.a.vhost"
 			_, err = ch.QueueDeclare(
-				"q2",  // name
-				false, // durable
-				false, // auto delete
-				true,  // exclusive
-				false,
-				nil)
-			Ω(err).Should(BeNil())
-
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
-
-			qs, err := rmqc.ListQueuesIn("rabbit/hole")
-			Ω(err).Should(BeNil())
-
-			q := FindQueueByName(qs, "q2")
-			Ω(q.Name).Should(Equal("q2"))
-			Ω(q.Vhost).Should(Equal("rabbit/hole"))
-			Ω(q.Durable).Should(Equal(false))
-			Ω(q.Status).ShouldNot(BeEmpty())
-		})
-	})
-
-	Context("GET /queues/{vhost}/{name}", func() {
-		It("returns decoded response", func() {
-			conn := openConnection("rabbit/hole")
-			defer conn.Close()
-
-			ch, err := conn.Channel()
-			Ω(err).Should(BeNil())
-			defer ch.Close()
-
-			_, err = ch.QueueDeclare(
-				"q3",  // name
-				false, // durable
-				false, // auto delete
-				true,  // exclusive
-				false,
-				nil)
-			Ω(err).Should(BeNil())
-
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
-
-			q, err := rmqc.GetQueue("rabbit/hole", "q3")
-			Ω(err).Should(BeNil())
-
-			Ω(q.Vhost).Should(Equal("rabbit/hole"))
-			Ω(q.Durable).Should(Equal(false))
-			Ω(q.Status).ShouldNot(BeEmpty())
-		})
-	})
-
-	Context("DELETE /queues/{vhost}/{name}", func() {
-		It("deletes a queue", func() {
-			conn := openConnection("rabbit/hole")
-			defer conn.Close()
-
-			ch, err := conn.Channel()
-			Ω(err).Should(BeNil())
-			defer ch.Close()
-
-			q, err := ch.QueueDeclare(
-				"",    // name
+				qn,    // name
 				false, // durable
 				false, // auto delete
 				false, // exclusive
@@ -763,13 +738,87 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			// handled
 			awaitEventPropagation()
 
-			_, err = rmqc.GetQueue("rabbit/hole", q.Name)
+			qs, err := rmqc.ListQueuesIn(vh)
 			Ω(err).Should(BeNil())
 
-			_, err = rmqc.DeleteQueue("rabbit/hole", q.Name)
+			q := FindQueueByName(qs, qn)
+			Ω(q.Name).Should(Equal(qn))
+			Ω(q.Vhost).Should(Equal(vh))
+			Ω(q.Durable).Should(Equal(false))
+			Ω(q.Status).ShouldNot(BeEmpty())
+
+			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
+			Ω(err).Should(BeNil())
+		})
+	})
+
+	Context("GET /queues/{vhost}/{name}", func() {
+		It("returns decoded response", func() {
+			vh := "rabbit/hole"
+			conn := openConnection(vh)
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			qn := "rabbit-hole.queues.in.a.vhost/named"
+			_, err = ch.QueueDeclare(
+				qn,    // name
+				false, // durable
+				false, // auto delete
+				false, // exclusive
+				false,
+				nil)
 			Ω(err).Should(BeNil())
 
-			qi2, err := rmqc.GetQueue("rabbit/hole", q.Name)
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			q, err := rmqc.GetQueue(vh, qn)
+			Ω(err).Should(BeNil())
+
+			Ω(q.Vhost).Should(Equal("rabbit/hole"))
+			Ω(q.Durable).Should(Equal(false))
+			Ω(q.Status).ShouldNot(BeEmpty())
+
+			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
+			Ω(err).Should(BeNil())
+		})
+	})
+
+	Context("DELETE /queues/{vhost}/{name}", func() {
+		It("deletes a queue", func() {
+			vh := "rabbit/hole"
+			conn := openConnection(vh)
+			defer conn.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			qn := "rabbit-hole.queues.in.a.vhost/to.be.deleted"
+			q, err := ch.QueueDeclare(
+				qn,    // name
+				false, // durable
+				false, // auto delete
+				false, // exclusive
+				false,
+				nil)
+			Ω(err).Should(BeNil())
+
+			// give internal events a moment to be
+			// handled
+			awaitEventPropagation()
+
+			_, err = rmqc.GetQueue(vh, q.Name)
+			Ω(err).Should(BeNil())
+
+			_, err = rmqc.DeleteQueue(vh, q.Name)
+			Ω(err).Should(BeNil())
+
+			qi2, err := rmqc.GetQueue(vh, q.Name)
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 			Ω(qi2).Should(BeNil())
 		})
@@ -1126,19 +1175,23 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		maxQueues := 2
 
 		It("returns an empty list of limits", func() {
-			_, err := rmqc.DeleteVhostLimits("rabbit/hole", VhostLimits{"max-connections", "max-queues"})
+			vh := "rabbit/hole"
+			_, err := rmqc.DeleteVhostLimits(vh, VhostLimits{"max-connections", "max-queues"})
 			Ω(err).Should(BeNil())
 
-			xs, err2 := rmqc.GetVhostLimits("rabbit/hole")
+			xs, err2 := rmqc.GetVhostLimits(vh)
 			Ω(err2).Should(BeNil())
 			Ω(xs).Should(HaveLen(0))
+
+			rmqc.DeleteVhostLimits(vh, VhostLimits{"max-connections", "max-queues"})
 		})
 
 		It("sets the limits", func() {
-			_, err := rmqc.DeleteVhostLimits("rabbit/hole", VhostLimits{"max-connections", "max-queues"})
+			vh := "rabbit/hole"
+			_, err := rmqc.DeleteVhostLimits(vh, VhostLimits{"max-connections", "max-queues"})
 			Ω(err).Should(BeNil())
 
-			_, err2 := rmqc.PutVhostLimits("rabbit/hole", VhostLimitsValues{
+			_, err2 := rmqc.PutVhostLimits(vh, VhostLimitsValues{
 				"max-connections": maxConnections,
 				"max-queues":      maxQueues,
 			})
@@ -1147,9 +1200,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			xs, err3 := rmqc.GetAllVhostLimits()
 			Ω(err3).Should(BeNil())
 			Ω(xs).Should(HaveLen(1))
-			Ω(xs[0].Vhost).Should(Equal("rabbit/hole"))
+			Ω(xs[0].Vhost).Should(Equal(vh))
 			Ω(xs[0].Value["max-connections"]).Should(Equal(maxConnections))
 			Ω(xs[0].Value["max-queues"]).Should(Equal(maxQueues))
+
+			rmqc.DeleteVhostLimits(vh, VhostLimits{"max-connections", "max-queues"})
 		})
 	})
 
@@ -1293,7 +1348,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("POST /bindings/{vhost}/e/{source}/q/{destination}", func() {
 		It("adds a binding to a queue", func() {
 			vh := "rabbit/hole"
-			qn := "test.bindings.post.queue"
+			qn := "rabbit-hole.test.bindings.post.queue"
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{})
 			Ω(err).Should(BeNil())
@@ -1840,7 +1895,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("PUT /queues/{vhost}/{queue}", func() {
 		It("declares a queue", func() {
 			vh := "rabbit/hole"
-			qn := "temporary-declare"
+			qn := "rabbit-hole.temporary-declare"
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: true, Type: "quorum"})
 			Ω(err).Should(BeNil())
@@ -1862,7 +1917,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("DELETE /queues/{vhost}/{queue}", func() {
 		It("deletes a queue", func() {
 			vh := "rabbit/hole"
-			qn := "temporary"
+			qn := "rabbit-hole.temporary/to.be.deleted"
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
@@ -1879,7 +1934,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 		It("accepts IfEmpty option", func() {
 			vh := "rabbit/hole"
-			qn := "temporary"
+			qn := "rabbit-hole.temporary/if.empty"
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
@@ -1896,7 +1951,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 		It("accepts IfUnused option", func() {
 			vh := "rabbit/hole"
-			qn := "temporary"
+			qn := "rabbit-hole.temporary/if.unused"
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
@@ -1915,7 +1970,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("DELETE /queues/{vhost}/{queue}/contents", func() {
 		It("purges a queue", func() {
 			vh := "rabbit/hole"
-			qn := "temporary"
+			qn := "rabbit-hole.temporary/contents"
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
@@ -1939,7 +1994,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("POST /queues/{vhost}/{queue}/actions", func() {
 		It("synchronises queue", func() {
 			vh := "rabbit/hole"
-			qn := "temporary"
+			qn := "rabbit-hole.temporary/sync"
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
@@ -1955,7 +2010,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 		It("cancels queue synchronisation", func() {
 			vh := "rabbit/hole"
-			qn := "temporary"
+			qn := "rabbit-hole.temporary/cancel.sync"
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())

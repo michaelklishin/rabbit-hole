@@ -10,9 +10,10 @@ Older versions may work but this is not guaranteed.
 
 ## Supported RabbitMQ Versions
 
- * [RabbitMQ `3.8.x`](https://www.rabbitmq.com/changelog.html) will be the only supported release series starting with Rabbit Hole 3.0
- * Almost all API operations work against RabbitMQ `3.7.x` nodes. Some metrics and stats may be missing.
- * RabbitMQ `3.7.x` and older versions have [reached end of life](https://www.rabbitmq.com/versions.html)
+ * All [currently supported RabbitMQ versions](https://www.rabbitmq.com/versions.html)
+ * [RabbitMQ `3.9.x`](https://www.rabbitmq.com/changelog.html) will be the minimum supported release series starting with Rabbit Hole 3.0
+ * Almost all API operations work against RabbitMQ `3.8.x` nodes. Some metrics and stats may be missing.
+ * RabbitMQ `3.8.x` and older versions have [reached end of general support](https://www.rabbitmq.com/versions.html)
 
 All versions require [RabbitMQ Management UI plugin](https://www.rabbitmq.com/management.html) to be installed and enabled.
 
@@ -500,4 +501,4 @@ See [CONTRIBUTING.md](https://github.com/michaelklishin/rabbit-hole/blob/master/
 
 2-clause BSD license.
 
-(c) Michael S. Klishin and contributors, 2013-2021.
+(c) Michael S. Klishin and contributors, 2013-2022.

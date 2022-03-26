@@ -19,9 +19,14 @@ The test suite assumes you have a RabbitMQ node running on localhost with `rabbi
 
 To enable the plugins:
 
-    rabbitmq-plugins enable rabbitmq_management rabbitmq_shovel_management
+``` shell
+./bin/ci/before_build.sh
+# tests that have to wait for event emission on RabbitMQ node(s)
+# will do that for 1.1s
+export RABBITMQ_EVENT_PROPAGATION_INTERVAL=1100
+```
 
-That will enable `rabbitmq_shovel` as a dependency.
+That will enable dependencies and reduce node's stats emission interval.
 
 ### Setting Up Virtual Hosts and Permissions
 
