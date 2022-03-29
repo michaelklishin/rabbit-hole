@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -632,7 +632,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				qn,    // name
 				false, // durable
 				false, // auto delete
-				false,  // exclusive
+				false, // exclusive
 				false,
 				nil)
 			Ω(err).Should(BeNil())
@@ -680,7 +680,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				qn,    // name
 				false, // durable
 				false, // auto delete
-				false,  // exclusive
+				false, // exclusive
 				false,
 				nil)
 			Ω(err).Should(BeNil())
@@ -1197,6 +1197,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			})
 			Ω(err2).Should(BeNil())
 
+			awaitEventPropagation()
+
 			xs, err3 := rmqc.GetAllVhostLimits()
 			Ω(err3).Should(BeNil())
 			Ω(xs).Should(HaveLen(1))
@@ -1211,42 +1213,41 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("user-limits", func() {
 		maxConnections := 1
 		maxChannels := 2
+
 		It("returns an empty list of limits", func() {
-			xs, err := rmqc.GetUserLimits("guest")
+			u := "guest"
+			_, err := rmqc.DeleteUserLimits(u, UserLimits{"max-connections", "max-channels"})
+
+			xs, err := rmqc.GetUserLimits(u)
 			Ω(err).Should(BeNil())
 			Ω(xs).Should(HaveLen(0))
 		})
+
 		It("sets the limits", func() {
-			_, err := rmqc.PutUserLimits("guest", UserLimitsValues{
+			u := "guest"
+			rmqc.DeleteUserLimits(u, UserLimits{"max-connections", "max-channels"})
+
+			_, err := rmqc.PutUserLimits(u, UserLimitsValues{
 				"max-connections": maxConnections,
 				"max-channels":    maxChannels,
 			})
 			Ω(err).Should(BeNil())
-		})
-		It("returns the limits", func() {
-			xs, err := rmqc.GetUserLimits("guest")
-			Ω(err).Should(BeNil())
+
+			xs, err2 := rmqc.GetUserLimits(u)
+			Ω(err2).Should(BeNil())
 			Ω(xs).Should(HaveLen(1))
-			Ω(xs[0].User).Should(Equal("guest"))
+			Ω(xs[0].User).Should(Equal(u))
 			Ω(xs[0].Value["max-connections"]).Should(Equal(maxConnections))
 			Ω(xs[0].Value["max-channels"]).Should(Equal(maxChannels))
-		})
-		It("returns all the limits", func() {
-			xs, err := rmqc.GetAllUserLimits()
-			Ω(err).Should(BeNil())
-			Ω(xs).Should(HaveLen(1))
-			Ω(xs[0].User).Should(Equal("guest"))
-			Ω(xs[0].Value["max-connections"]).Should(Equal(maxConnections))
-			Ω(xs[0].Value["max-channels"]).Should(Equal(maxChannels))
-		})
-		It("deletes the limits", func() {
-			_, err := rmqc.DeleteUserLimits("guest", UserLimits{"max-connections", "max-channels"})
-			Ω(err).Should(BeNil())
-		})
-		It("returns an empty list of limits", func() {
-			xs, err := rmqc.GetUserLimits("guest")
-			Ω(err).Should(BeNil())
-			Ω(xs).Should(HaveLen(0))
+
+			xs3, err3 := rmqc.GetAllUserLimits()
+			Ω(err3).Should(BeNil())
+			Ω(xs3).Should(HaveLen(1))
+			Ω(xs3[0].User).Should(Equal("guest"))
+			Ω(xs3[0].Value["max-connections"]).Should(Equal(maxConnections))
+			Ω(xs3[0].Value["max-channels"]).Should(Equal(maxChannels))
+
+			rmqc.DeleteUserLimits(u, UserLimits{"max-connections", "max-channels"})
 		})
 	})
 
@@ -2885,7 +2886,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(link["type"]).Should(Equal("exchange"))
 				Ω(link["exchange"]).Should(Equal("amq.topic"))
 				Ω(link["uri"]).Should(Equal(def.Uri[0]))
-				Ω(link["status"]).Should(Equal("running"))
+				Ω([]string{"running", "starting"}).Should(ContainElement(link["status"]))
 
 				// cleanup
 				_, err = rmqc.DeletePolicy(vhost, policyName)
