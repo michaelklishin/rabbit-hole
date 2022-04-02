@@ -843,7 +843,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
-	FContext("DELETE /queues/{vhost}/{name}", func() {
+	Context("DELETE /queues/{vhost}/{name}", func() {
 		It("deletes a queue", func() {
 			vh := "rabbit/hole"
 			conn := openConnection(vh)
