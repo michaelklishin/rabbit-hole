@@ -565,7 +565,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			params.Add("lengths_age", "1800")
 			params.Add("lengths_incr", "30")
 
-			shortSleep()
+			mediumSleep()
 			Eventually(func(g Gomega) []QueueInfo {
 				xs, err := rmqc.ListQueuesWithParameters(params)
 				Ω(err).Should(BeNil())
