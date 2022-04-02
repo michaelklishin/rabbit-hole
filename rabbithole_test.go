@@ -508,6 +508,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("GET /queues", func() {
 		It("returns decoded response", func() {
+			qs, _ := rmqc.ListQueues()
+			for _, q := range qs {
+				rmqc.DeleteQueue(q.Vhost, q.Name, QueueDeleteOptions{IfEmpty: false})
+			}
+
 			conn := openConnection("/")
 			defer conn.Close()
 
@@ -532,14 +537,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				return xs
 			}).ShouldNot(BeEmpty())
 
-			qs, err := rmqc.ListQueues()
+			qs2, err := rmqc.ListQueues()
 			Ω(err).Should(BeNil())
 
-			q := qs[0]
+			q := qs2[0]
 			Ω(q.Name).ShouldNot(Equal(""))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
-			Ω(q.Status).ShouldNot(BeEmpty())
+
+			for _, q = range qs2 {
+				rmqc.DeleteQueue(q.Vhost, q.Name, QueueDeleteOptions{IfEmpty: false})
+			}
 		})
 	})
 
@@ -580,7 +588,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(q.Name).ShouldNot(Equal(""))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
-			Ω(q.Status).ShouldNot(BeEmpty())
 			Ω(q.MessagesDetails.Samples[0]).ShouldNot(BeNil())
 		})
 	})
@@ -596,6 +603,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			defer ch.Close()
 
 			qn := "rabbit-hole.queues/in.vhost.with.arguments"
+			rmqc.DeleteQueue(vh, qn)
 			_, err = ch.QueueDeclare(
 				qn,    // name
 				false, // durable
@@ -625,8 +633,9 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Vhost).Should(Equal(vh))
 			Ω(q.Durable).ShouldNot(BeNil())
-			Ω(q.Status).ShouldNot(BeEmpty())
 			Ω(q.MessagesDetails.Samples[0]).ShouldNot(BeNil())
+
+			rmqc.DeleteQueue(vh, qn)
 		})
 	})
 
@@ -669,7 +678,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(q.Name).Should(Equal(qn))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
-			Ω(q.Status).ShouldNot(BeEmpty())
 			Ω(qs.Page).Should(Equal(1))
 			Ω(qs.PageCount).Should(Equal(1))
 			Ω(qs.ItemCount).ShouldNot(BeNil())
@@ -769,7 +777,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(q.Name).Should(Equal(qn))
 			Ω(q.Vhost).Should(Equal(vh))
 			Ω(q.Durable).Should(Equal(false))
-			Ω(q.Status).ShouldNot(BeEmpty())
 
 			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
 			Ω(err).Should(BeNil())
@@ -931,7 +938,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				amqp.Table{})
 			Ω(err).Should(BeNil())
 
-			shortSleep()
+			mediumSleep()
 			Eventually(func(g Gomega) []ConsumerInfo {
 				xs, err := rmqc.ListConsumers()
 				Ω(err).Should(BeNil())
@@ -1451,6 +1458,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		It("adds a binding to a queue", func() {
 			vh := "rabbit/hole"
 			qn := "rabbit-hole.test.bindings.post.queue"
+			rmqc.DeleteQueue(vh, qn)
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{})
 			Ω(err).Should(BeNil())
@@ -1492,6 +1500,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err = rmqc.DeleteBinding(vh, b)
 			Ω(err).Should(BeNil())
+
+			rmqc.DeleteQueue(vh, qn)
 		})
 	})
 
