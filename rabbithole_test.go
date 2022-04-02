@@ -747,7 +747,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(q.Name).Should(Equal(qn))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
-			Ω(q.Status).ShouldNot(BeEmpty())
 			Ω(qs.Page).Should(Equal(1))
 			Ω(qs.PageCount).Should(Equal(1))
 			Ω(qs.ItemCount).ShouldNot(BeNil())
@@ -836,7 +835,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			Ω(q.Vhost).Should(Equal(vh))
 			Ω(q.Durable).Should(Equal(false))
-			Ω(q.Status).ShouldNot(BeEmpty())
 
 			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
 			Ω(err).Should(BeNil())
