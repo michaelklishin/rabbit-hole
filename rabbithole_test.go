@@ -2833,7 +2833,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err := rmqc.PutOperatorPolicy(vh, name, policy)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetOperatorPolicy(vh, name)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(name))
 
 			resp, err := rmqc.DeleteOperatorPolicy(vh, name)
 			Ω(err).Should(BeNil())
@@ -2927,7 +2933,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetOperatorPolicy(vh, name)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(name))
 
 			pol, err = rmqc.GetOperatorPolicy(vh, name)
 			Ω(err).Should(BeNil())
@@ -3120,7 +3131,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.PutFederationUpstream(vh, name, def)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) string {
+					x, err := rmqc.GetFederationUpstream(vh, name)
+					Ω(err).Should(BeNil())
+
+					return x.Name
+				}).Should(Equal(name))
 
 				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
@@ -3135,6 +3151,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
+
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreamsIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 	})
@@ -3165,7 +3188,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err = rmqc.PutFederationUpstream(vh, name, def)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) string {
+					x, err := rmqc.GetFederationUpstream(vh, name)
+					Ω(err).Should(BeNil())
+
+					return x.Name
+				}).Should(Equal(name))
 
 				up, err = rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
@@ -3185,6 +3213,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
+
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreamsIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 
@@ -3205,7 +3240,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.PutFederationUpstream(vh, name, def)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) string {
+					x, err := rmqc.GetFederationUpstream(vh, name)
+					Ω(err).Should(BeNil())
+
+					return x.Name
+				}).Should(Equal(name))
 
 				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
@@ -3230,7 +3270,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err = rmqc.PutFederationUpstream(vh, name, def2)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) string {
+					x, err := rmqc.GetFederationUpstream(vh, name)
+					Ω(err).Should(BeNil())
+
+					return x.Name
+				}).Should(Equal(name))
 
 				up, err = rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
@@ -3245,6 +3290,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
+
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreamsIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 
@@ -3288,7 +3340,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.PutFederationUpstream(vh, name, def)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) string {
+					x, err := rmqc.GetFederationUpstream(vh, name)
+					Ω(err).Should(BeNil())
+
+					return x.Name
+				}).Should(Equal(name))
 
 				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
@@ -3298,9 +3355,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
 
-				up, err = rmqc.GetFederationUpstream(vh, name)
-				Ω(up).Should(BeNil())
-				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreamsIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 	})
@@ -3330,7 +3390,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				// upstream exchange: amq.topic
 				// downstream vhost: 'rabbit-hole'
 				// downstream exchange: amq.topic
-				vhost := "rabbit/hole"
+				vh := "rabbit/hole"
 
 				// create upstream
 				upstreamName := "myUpsteam"
@@ -3339,7 +3399,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					Expires: 1800000,
 				}
 
-				_, err := rmqc.PutFederationUpstream(vhost, upstreamName, def)
+				_, err := rmqc.PutFederationUpstream(vh, upstreamName, def)
 				Ω(err).Should(BeNil())
 
 				// create policy to match upstream
@@ -3352,18 +3412,23 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					},
 				}
 
-				_, err = rmqc.PutPolicy(vhost, policyName, policy)
+				_, err = rmqc.PutPolicy(vh, policyName, policy)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) FederationLinkMap {
+					xs, err := rmqc.ListFederationLinksIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).ShouldNot(BeEmpty())
 
 				// assertions
-				list, err := rmqc.ListFederationLinksIn(vhost)
+				list, err := rmqc.ListFederationLinksIn(vh)
 				Ω(len(list)).Should(Equal(1))
 				Ω(err).Should(BeNil())
 
 				var link = list[0]
-				Ω(link["vhost"]).Should(Equal(vhost))
+				Ω(link["vhost"]).Should(Equal(vh))
 				Ω(link["upstream"]).Should(Equal(upstreamName))
 				Ω(link["type"]).Should(Equal("exchange"))
 				Ω(link["exchange"]).Should(Equal("amq.topic"))
@@ -3371,17 +3436,18 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω([]string{"running", "starting"}).Should(ContainElement(link["status"]))
 
 				// cleanup
-				_, err = rmqc.DeletePolicy(vhost, policyName)
+				_, err = rmqc.DeletePolicy(vh, policyName)
 				Ω(err).Should(BeNil())
 
-				_, err = rmqc.DeleteFederationUpstream(vhost, upstreamName)
+				_, err = rmqc.DeleteFederationUpstream(vh, upstreamName)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) FederationLinkMap {
+					xs, err := rmqc.ListFederationLinksIn(vh)
+					Ω(err).Should(BeNil())
 
-				list, err = rmqc.ListFederationLinksIn(vhost)
-				Ω(len(list)).Should(Equal(0))
-				Ω(err).Should(BeNil())
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 	})
@@ -3410,7 +3476,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetShovel(vh, sn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(sn))
+
 			x, err := rmqc.GetShovel(vh, sn)
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal(sn))
@@ -3430,7 +3502,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err = rmqc.DeleteShovel(vh, sn)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
 
 			_, err = rmqc.DeleteQueue("/", "mySourceQueue")
 			Ω(err).Should(BeNil())
@@ -3438,8 +3509,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			x, err = rmqc.GetShovel(vh, sn)
-			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetShovel(vh, sn)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
