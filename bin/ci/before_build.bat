@@ -29,3 +29,5 @@ call %RABBITHOLE_RABBITMQ_PLUGINS% enable rabbitmq_shovel_management
 REM Enable shovel plugin
 call %RABBITHOLE_RABBITMQ_PLUGINS% enable rabbitmq_federation
 call %RABBITHOLE_RABBITMQ_PLUGINS% enable rabbitmq_federation_management
+
+set GOMEGA_DEFAULT_EVENTUALLY_TIMEOUT=5s

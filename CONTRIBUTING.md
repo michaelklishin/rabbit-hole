@@ -23,7 +23,7 @@ To enable the plugins:
 ./bin/ci/before_build.sh
 # tests that have to wait for event emission on RabbitMQ node(s)
 # will do that for 1.1s
-export RABBITMQ_EVENT_PROPAGATION_INTERVAL=1100
+export GOMEGA_DEFAULT_EVENTUALLY_TIMEOUT="5s"
 ```
 
 That will enable dependencies and reduce node's stats emission interval.
