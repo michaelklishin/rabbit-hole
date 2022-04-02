@@ -635,7 +635,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			params.Add("lengths_age", "1800")
 			params.Add("lengths_incr", "30")
 
-			shortSleep()
+			mediumSleep()
 			Eventually(func(g Gomega) []QueueInfo {
 				xs, err := rmqc.ListQueuesWithParametersIn(vh, params)
 				Ω(err).Should(BeNil())
@@ -1894,9 +1894,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err = rmqc.ClearPermissionsIn("/", u)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
-			_, err = rmqc.GetPermissionsIn("/", u)
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetPermissionsIn("/", u)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 
 			_, err = rmqc.DeleteUser(u)
 			Ω(err).Should(BeNil())
@@ -2752,6 +2755,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when no operator policies exist", func() {
 			It("returns decoded response", func() {
 				vh := "rabbit/hole"
+
 				Eventually(func(g Gomega) []OperatorPolicy {
 					xs, err := rmqc.ListOperatorPoliciesIn(vh)
 					Ω(err).Should(BeNil())
@@ -2772,15 +2776,23 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					Priority:   0,
 				}
 
-				_, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot", policy)
+				vh := "rabbit/hole"
+				name := "woot"
+
+				_, err := rmqc.PutOperatorPolicy(vh, name, policy)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) string {
+					x, err := rmqc.GetOperatorPolicy(vh, name)
+					Ω(err).Should(BeNil())
 
-				pol, err := rmqc.GetOperatorPolicy("rabbit/hole", "woot")
+					return x.Name
+				}).Should(Equal(name))
+
+				pol, err := rmqc.GetOperatorPolicy(vh, name)
 				Ω(err).Should(BeNil())
-				Ω(pol.Vhost).Should(Equal("rabbit/hole"))
-				Ω(pol.Name).Should(Equal("woot"))
+				Ω(pol.Vhost).Should(Equal(vh))
+				Ω(pol.Name).Should(Equal(name))
 				Ω(pol.ApplyTo).Should(Equal("queues"))
 				Ω(pol.Pattern).Should(Equal(".*"))
 				Ω(pol.Priority).Should(BeEquivalentTo(0))
@@ -2788,16 +2800,23 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(pol.Definition["expires"]).Should(BeEquivalentTo(100))
 				Ω(pol.Definition["delivery-limit"]).Should(Equal(float64(202)))
 
-				_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot")
+				_, err = rmqc.DeleteOperatorPolicy(vh, name)
 				Ω(err).Should(BeNil())
 			})
 		})
 
 		Context("when operator policy not found", func() {
 			It("returns decoded response", func() {
-				pol, err := rmqc.GetOperatorPolicy("rabbit/hole", "woot")
-				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
-				Ω(pol).Should(BeNil())
+				vh := "rabbit/hole"
+				name := "woot"
+
+				rmqc.DeleteOperatorPolicy(vh, name)
+
+				Eventually(func(g Gomega) error {
+					_, err := rmqc.GetOperatorPolicy(vh, name)
+
+					return err
+				}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 			})
 		})
 	})
@@ -2811,13 +2830,22 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Priority:   0,
 			}
 
-			_, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot", policy)
+			vh := "rabbit/hole"
+			name := "woot"
+
+			_, err := rmqc.PutOperatorPolicy(vh, name, policy)
 			Ω(err).Should(BeNil())
 			awaitEventPropagation()
 
-			resp, err := rmqc.DeleteOperatorPolicy("rabbit/hole", "woot")
+			resp, err := rmqc.DeleteOperatorPolicy(vh, name)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
+
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetOperatorPolicy(vh, name)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -2834,15 +2862,21 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Priority: 0,
 			}
 
-			resp, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot", policy)
+			vh := "rabbit/hole"
+			name := "woot"
+
+			resp, err := rmqc.PutOperatorPolicy(vh, name, policy)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
-			awaitEventPropagation()
-			_, err = rmqc.GetOperatorPolicy("rabbit/hole", "woot")
-			Ω(err).Should(BeNil())
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetOperatorPolicy(vh, name)
+				Ω(err).Should(BeNil())
 
-			_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot")
+				return x.Name
+			}).Should(Equal(name))
+
+			_, err = rmqc.DeleteOperatorPolicy(vh, name)
 			Ω(err).Should(BeNil())
 		})
 
@@ -2853,17 +2887,25 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Definition: PolicyDefinition{"expires": 100, "delivery-limit": 202},
 			}
 
-			// create policy
-			resp, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot", policy)
+			vh := "rabbit/hole"
+			name := "woot"
+
+			// create a policy
+			resp, err := rmqc.PutOperatorPolicy(vh, name, policy)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetOperatorPolicy(vh, name)
+				Ω(err).Should(BeNil())
 
-			pol, err := rmqc.GetOperatorPolicy("rabbit/hole", "woot")
+				return x.Name
+			}).Should(Equal(name))
+
+			pol, err := rmqc.GetOperatorPolicy(vh, name)
 			Ω(err).Should(BeNil())
-			Ω(pol.Vhost).Should(Equal("rabbit/hole"))
-			Ω(pol.Name).Should(Equal("woot"))
+			Ω(pol.Vhost).Should(Equal(vh))
+			Ω(pol.Name).Should(Equal(name))
 			Ω(pol.Pattern).Should(Equal(".*"))
 			Ω(pol.ApplyTo).Should(Equal("queues"))
 			Ω(pol.Priority).Should(BeEquivalentTo(0))
@@ -2883,16 +2925,16 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Priority: 1,
 			}
 
-			resp, err = rmqc.PutOperatorPolicy("rabbit/hole", "woot", newPolicy)
+			resp, err = rmqc.PutOperatorPolicy(vh, name, newPolicy)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
 			awaitEventPropagation()
 
-			pol, err = rmqc.GetOperatorPolicy("rabbit/hole", "woot")
+			pol, err = rmqc.GetOperatorPolicy(vh, name)
 			Ω(err).Should(BeNil())
-			Ω(pol.Vhost).Should(Equal("rabbit/hole"))
-			Ω(pol.Name).Should(Equal("woot"))
+			Ω(pol.Vhost).Should(Equal(vh))
+			Ω(pol.Name).Should(Equal(name))
 			Ω(pol.Pattern).Should(Equal("\\d+"))
 			Ω(pol.ApplyTo).Should(Equal("queues"))
 			Ω(pol.Priority).Should(BeEquivalentTo(1))
@@ -2903,17 +2945,26 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(pol.Definition["expires"]).Should(BeNil())
 
 			// cleanup
-			_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot")
+			_, err = rmqc.DeleteOperatorPolicy(vh, name)
 			Ω(err).Should(BeNil())
+
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetOperatorPolicy(vh, name)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
 	Context("GET /api/parameters/federation-upstream", func() {
 		Context("when there are no upstreams", func() {
 			It("returns an empty response", func() {
-				list, err := rmqc.ListFederationUpstreams()
-				Ω(err).Should(BeNil())
-				Ω(list).Should(BeEmpty())
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreams()
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 
