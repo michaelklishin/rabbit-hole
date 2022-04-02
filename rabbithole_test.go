@@ -2956,7 +2956,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
-	Context("GET /api/parameters/federation-upstream", func() {
+	FContext("GET /api/parameters/federation-upstream", func() {
 		Context("when there are no upstreams", func() {
 			It("returns an empty response", func() {
 				Eventually(func(g Gomega) []FederationUpstream {
@@ -2973,32 +2973,51 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				def1 := FederationDefinition{
 					Uri: URISet{"amqp://server-name/%2f"},
 				}
-				_, err := rmqc.PutFederationUpstream("rabbit/hole", "upstream1", def1)
+
+				vh := "rabbit/hole"
+				name1 := "upstream1"
+				name2 := "upstream2"
+
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreams()
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).Should(BeEmpty())
+
+				_, err := rmqc.PutFederationUpstream(vh, name1, def1)
 				Ω(err).Should(BeNil())
 
 				def2 := FederationDefinition{
 					Uri: URISet{"amqp://example.com/%2f"},
 				}
-				_, err = rmqc.PutFederationUpstream("/", "upstream2", def2)
+				_, err = rmqc.PutFederationUpstream("/", name2, def2)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreams()
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).ShouldNot(BeEmpty())
 
 				list, err := rmqc.ListFederationUpstreams()
 				Ω(err).Should(BeNil())
 				Ω(len(list)).Should(Equal(2))
 
-				_, err = rmqc.DeleteFederationUpstream("rabbit/hole", "upstream1")
+				_, err = rmqc.DeleteFederationUpstream(vh, name1)
 				Ω(err).Should(BeNil())
 
-				_, err = rmqc.DeleteFederationUpstream("/", "upstream2")
+				_, err = rmqc.DeleteFederationUpstream("/", name2)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreams()
+					Ω(err).Should(BeNil())
 
-				list, err = rmqc.ListFederationUpstreams()
-				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(0))
+					return xs
+				}).Should(BeEmpty())
+
 			})
 		})
 	})
@@ -3006,9 +3025,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("GET /api/parameters/federation-upstream/{vhost}", func() {
 		Context("when there are no upstreams", func() {
 			It("returns an empty response", func() {
-				list, err := rmqc.ListFederationUpstreamsIn("rabbit/hole")
-				Ω(err).Should(BeNil())
-				Ω(list).Should(BeEmpty())
+				vh := "rabbit/hole"
+
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreamsIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 
@@ -3030,7 +3054,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err = rmqc.PutFederationUpstream(vh, "vhost-upstream2", def2)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreamsIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).ShouldNot(BeEmpty())
 
 				list, err := rmqc.ListFederationUpstreamsIn(vh)
 				Ω(err).Should(BeNil())
@@ -3040,7 +3069,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err = rmqc.DeleteFederationUpstream(vh, "vhost-upstream1")
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreamsIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).ShouldNot(BeEmpty())
 
 				list, err = rmqc.ListFederationUpstreamsIn(vh)
 				Ω(err).Should(BeNil())
@@ -3050,11 +3084,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err = rmqc.DeleteFederationUpstream(vh, "vhost-upstream2")
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []FederationUpstream {
+					xs, err := rmqc.ListFederationUpstreamsIn(vh)
+					Ω(err).Should(BeNil())
 
-				list, err = rmqc.ListFederationUpstreamsIn(vh)
-				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(0))
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 	})
