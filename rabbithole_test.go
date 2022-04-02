@@ -1982,7 +1982,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []TopicPermissionInfo {
+				xs, _ := rmqc.GetTopicPermissionsIn("/", u)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
 			fetched, err := rmqc.GetTopicPermissionsIn("/", u)
 			Ω(err).Should(BeNil())
 			x := fetched[0]
@@ -2006,11 +2012,22 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []TopicPermissionInfo {
+				xs, _ := rmqc.ListTopicPermissionsOf(u)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			_, err = rmqc.ClearTopicPermissionsIn("/", u)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetTopicPermissionsIn("/", u)
+
+				return err
+			}).ShouldNot(BeNil())
+
 			_, err = rmqc.GetTopicPermissionsIn("/", u)
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 
@@ -2026,7 +2043,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err := rmqc.PutUser(u, UserSettings{Password: "s3krE7"})
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
 			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
@@ -2034,15 +2050,20 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
 			_, err = rmqc.DeleteTopicPermissionsIn("/", u, "foobar")
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []TopicPermissionInfo {
+				xs, err := rmqc.ListTopicPermissionsOf(u)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
 			xs, err := rmqc.ListTopicPermissionsOf(u)
 			Ω(err).Should(BeNil())
 
-			Ω(len(xs)).Should(BeEquivalentTo(1))
+			Ω(len(xs)).Should(Equal(1))
 
 			_, err = rmqc.DeleteUser(u)
 			Ω(err).Should(BeNil())
@@ -2057,7 +2078,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err := rmqc.DeclareExchange(vh, xn, ExchangeSettings{Type: "fanout", Durable: false})
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetExchange(vh, xn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(xn))
+
 			x, err := rmqc.GetExchange(vh, xn)
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal(xn))
@@ -2082,11 +2109,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.DeleteExchange(vh, xn)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetExchange(vh, xn)
 
-			x, err := rmqc.GetExchange(vh, xn)
-			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -2098,7 +2125,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: true, Type: "quorum"})
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetQueue(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(qn))
+
 			x, err := rmqc.GetQueue(vh, qn)
 			Ω(err).Should(BeNil())
 			Ω(x.Name).Should(Equal(qn))
@@ -2119,15 +2152,22 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetQueue(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(qn))
 
 			_, err = rmqc.DeleteQueue(vh, qn)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
 
-			x, err := rmqc.GetQueue(vh, qn)
-			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetQueue(vh, qn)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 
 		It("accepts IfEmpty option", func() {
@@ -2136,11 +2176,16 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetQueue(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(qn))
 
 			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
 
 			x, err := rmqc.GetQueue(vh, qn)
 			Ω(x).Should(BeNil())
@@ -2153,15 +2198,22 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetQueue(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(qn))
 
 			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfUnused: true})
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
 
-			x, err := rmqc.GetQueue(vh, qn)
-			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetQueue(vh, qn)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -2172,20 +2224,25 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetQueue(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(qn))
 
 			_, err = rmqc.PurgeQueue(vh, qn)
-			awaitEventPropagation()
 			Ω(err).Should(BeNil())
 
 			_, err = rmqc.DeleteQueue(vh, qn)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
 
-			x, err := rmqc.GetQueue(vh, qn)
-			awaitEventPropagation()
-			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetQueue(vh, qn)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -2196,7 +2253,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetQueue(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(qn))
 
 			// it would be better to test this in a cluster configuration
 			x, err := rmqc.SyncQueue(vh, qn)
@@ -2204,6 +2267,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(x.StatusCode).Should(Equal(204))
 			_, err = rmqc.DeleteQueue(vh, qn)
 			Ω(err).Should(BeNil())
+
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetQueue(vh, qn)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 
 		It("cancels queue synchronisation", func() {
@@ -2212,7 +2281,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetQueue(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(qn))
 
 			// it would be better to test this in a cluster configuration
 			x, err := rmqc.CancelSyncQueue(vh, qn)
@@ -2220,6 +2294,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(x.StatusCode).Should(Equal(204))
 			_, err = rmqc.DeleteQueue(vh, qn)
 			Ω(err).Should(BeNil())
+
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetQueue(vh, qn)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
