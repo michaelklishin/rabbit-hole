@@ -13,7 +13,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func FindQueueByName(sl []QueueInfo, name string) (q QueueInfo) {
@@ -116,6 +116,14 @@ func awaitEventPropagation() {
 	time.Sleep(time.Duration(val) * time.Millisecond)
 }
 
+func shortSleep() {
+	time.Sleep(time.Duration(700) * time.Millisecond)
+}
+
+func mediumSleep() {
+	time.Sleep(time.Duration(1100) * time.Millisecond)
+}
+
 type portTestStruct struct {
 	Port Port `json:"port"`
 }
@@ -127,7 +135,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	BeforeSuite(func() {
 		val := computeEventPropagationInterval()
-		log.Printf("Using event propagation interval of %d ms", val)
+		log.Printf("Using event propagation timeout of %d ms", val)
 	})
 
 	BeforeEach(func() {
@@ -171,9 +179,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			listConnectionsUntil(rmqc, 0)
 			conn := openConnection("/")
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []ConnectionInfo {
+				xs, err := rmqc.ListConnections()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
 			xs, err := rmqc.ListConnections()
-			Ω(err).Should(BeNil())
 
 			closeEvents := make(chan *amqp.Error)
 			conn.NotifyClose(closeEvents)
@@ -285,11 +298,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			resp, err := rmqc.SetClusterName(cn)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(Equal("204 No Content"))
-			awaitEventPropagation()
 
-			cn2, err := rmqc.GetClusterName()
-			Ω(err).Should(BeNil())
-			Ω(cn2.Name).Should(Equal(cnStr))
+			Eventually(func(g Gomega) string {
+				cn2, err := rmqc.GetClusterName()
+				Ω(err).Should(BeNil())
+				return cn2.Name
+			}).Should(Equal(cnStr))
+
 			// Restore cluster name
 			resp, err = rmqc.SetClusterName(*previousClusterName)
 			Ω(resp.Status).Should(Equal("204 No Content"))
@@ -325,9 +340,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []ConnectionInfo {
+				xs, err := rmqc.ListConnections()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			xs, err := rmqc.ListConnections()
 			Ω(err).Should(BeNil())
@@ -374,9 +392,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []ChannelInfo {
+				xs, err := rmqc.ListChannels()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			xs, err := rmqc.ListChannels()
 			Ω(err).Should(BeNil())
@@ -412,9 +433,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []ConnectionInfo {
+				xs, err := rmqc.ListConnections()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			xs, err := rmqc.ListConnections()
 			Ω(err).Should(BeNil())
@@ -443,9 +467,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []ChannelInfo {
+				xs, err := rmqc.ListChannels()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			xs, err := rmqc.ListChannels()
 			Ω(err).Should(BeNil())
@@ -523,9 +550,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			shortSleep()
+			Eventually(func(g Gomega) []QueueInfo {
+				xs, err := rmqc.ListQueues()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			qs, err := rmqc.ListQueues()
 			Ω(err).Should(BeNil())
@@ -556,13 +587,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
-
 			params := url.Values{}
 			params.Add("lengths_age", "1800")
 			params.Add("lengths_incr", "30")
+
+			shortSleep()
+			Eventually(func(g Gomega) []QueueInfo {
+				xs, err := rmqc.ListQueuesWithParameters(params)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			qs, err := rmqc.ListQueuesWithParameters(params)
 			Ω(err).Should(BeNil())
@@ -596,13 +631,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
-
 			params := url.Values{}
 			params.Add("lengths_age", "1800")
 			params.Add("lengths_incr", "30")
+
+			shortSleep()
+			Eventually(func(g Gomega) []QueueInfo {
+				xs, err := rmqc.ListQueuesWithParametersIn(vh, params)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			qs, err := rmqc.ListQueuesWithParametersIn(vh, params)
 			Ω(err).Should(BeNil())
@@ -637,12 +676,16 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
-
 			params := url.Values{}
 			params.Add("page", "1")
+
+			mediumSleep()
+			Eventually(func(g Gomega) []QueueInfo {
+				page, err := rmqc.PagedListQueuesWithParameters(params)
+				Ω(err).Should(BeNil())
+
+				return page.Items
+			}).ShouldNot(BeEmpty())
 
 			qs, err := rmqc.PagedListQueuesWithParameters(params)
 			Ω(err).Should(BeNil())
@@ -685,12 +728,16 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
-
 			params := url.Values{}
 			params.Add("page", "1")
+
+			shortSleep()
+			Eventually(func(g Gomega) []QueueInfo {
+				page, err := rmqc.PagedListQueuesWithParametersIn(vh, params)
+				Ω(err).Should(BeNil())
+
+				return page.Items
+			}).ShouldNot(BeEmpty())
 
 			qs, err := rmqc.PagedListQueuesWithParametersIn(vh, params)
 			Ω(err).Should(BeNil())
@@ -734,9 +781,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			mediumSleep()
+			Eventually(func(g Gomega) []QueueInfo {
+				qs, err := rmqc.ListQueuesIn(vh)
+				Ω(err).Should(BeNil())
+
+				return qs
+			}).ShouldNot(BeEmpty())
 
 			qs, err := rmqc.ListQueuesIn(vh)
 			Ω(err).Should(BeNil())
@@ -772,14 +823,18 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			shortSleep()
+			Eventually(func(g Gomega) string {
+				q, err := rmqc.GetQueue(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return q.Vhost
+			}).Should(Equal(vh))
 
 			q, err := rmqc.GetQueue(vh, qn)
 			Ω(err).Should(BeNil())
 
-			Ω(q.Vhost).Should(Equal("rabbit/hole"))
+			Ω(q.Vhost).Should(Equal(vh))
 			Ω(q.Durable).Should(Equal(false))
 			Ω(q.Status).ShouldNot(BeEmpty())
 
@@ -788,7 +843,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
-	Context("DELETE /queues/{vhost}/{name}", func() {
+	FContext("DELETE /queues/{vhost}/{name}", func() {
 		It("deletes a queue", func() {
 			vh := "rabbit/hole"
 			conn := openConnection(vh)
@@ -808,9 +863,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			shortSleep()
+			Eventually(func(g Gomega) string {
+				q, err := rmqc.GetQueue(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return q.Name
+			}).Should(Equal(qn))
 
 			_, err = rmqc.GetQueue(vh, q.Name)
 			Ω(err).Should(BeNil())
