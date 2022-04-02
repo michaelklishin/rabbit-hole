@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -97,25 +96,6 @@ func listConnectionsUntil(c *Client, i int) {
 	}
 }
 
-func computeEventPropagationInterval() int64 {
-	es, _ := os.LookupEnv("RABBITMQ_EVENT_PROPAGATION_INTERVAL")
-	fallback := int64(5000)
-
-	val, ok := strconv.ParseInt(es, 10, 64)
-
-	if ok != nil {
-		val = fallback
-	}
-
-	return val
-}
-
-func awaitEventPropagation() {
-	val := computeEventPropagationInterval()
-
-	time.Sleep(time.Duration(val) * time.Millisecond)
-}
-
 func shortSleep() {
 	time.Sleep(time.Duration(600) * time.Millisecond)
 }
@@ -134,8 +114,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	)
 
 	BeforeSuite(func() {
-		val := computeEventPropagationInterval()
-		log.Printf("Using event propagation timeout of %d ms", val)
+		val, _ := os.LookupEnv("GOMEGA_DEFAULT_EVENTUALLY_TIMEOUT")
+		log.Printf("Using Gomega Eventually matcher timeout of %s", val)
 	})
 
 	BeforeEach(func() {
@@ -3537,7 +3517,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
 			Ω(err).Should(BeNil(), "Error declaring shovel")
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetShovel(vh, sn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(sn))
+
 			x, err := rmqc.GetShovel(vh, sn)
 			Ω(err).Should(BeNil(), "Error getting shovel")
 			Ω(x.Name).Should(Equal(sn))
@@ -3553,16 +3539,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err = rmqc.DeleteShovel(vh, sn)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
 
 			_, err = rmqc.DeleteQueue("/", "mySourceQueue")
 			Ω(err).Should(BeNil())
 			_, err = rmqc.DeleteQueue("/", "myDestQueue")
 			Ω(err).Should(BeNil())
 
-			x, err = rmqc.GetShovel(vh, sn)
-			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetShovel(vh, sn)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 
 		It("declares a shovel with a numeric delete-after value", func() {
@@ -3584,7 +3571,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
 			Ω(err).Should(BeNil(), "Error declaring shovel")
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetShovel(vh, sn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(sn))
+
 			x, err := rmqc.GetShovel(vh, sn)
 			Ω(err).Should(BeNil(), "Error getting shovel")
 			Ω(x.Name).Should(Equal(sn))
@@ -3600,16 +3593,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err = rmqc.DeleteShovel(vh, sn)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
 
 			_, err = rmqc.DeleteQueue("/", "mySourceQueue")
 			Ω(err).Should(BeNil())
 			_, err = rmqc.DeleteQueue("/", "myDestQueue")
 			Ω(err).Should(BeNil())
 
-			x, err = rmqc.GetShovel(vh, sn)
-			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetShovel(vh, sn)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -3633,19 +3627,26 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
 			Ω(err).Should(BeNil(), "Error declaring shovel")
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []ShovelStatus {
+				xs, err := rmqc.ListShovelStatus(vh)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
 			xs, err := rmqc.ListShovelStatus(vh)
 			Ω(err).Should(BeNil(), "Error getting shovel")
-			Ω(xs).ShouldNot(BeEmpty())
 			Expect(xs[0].Vhost).To(Equal(vh))
 
 			_, err = rmqc.DeleteShovel(vh, sn)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
 
-			x, err := rmqc.ListShovelStatus(vh)
-			Ω(err).Should(BeNil())
-			Ω(x).Should(BeEmpty())
+			Eventually(func(g Gomega) []ShovelStatus {
+				xs, err := rmqc.ListShovelStatus(vh)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).Should(BeEmpty())
 		})
 	})
 
@@ -3653,7 +3654,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when the parameter does not exist", func() {
 			It("creates the parameter", func() {
 				component := FederationUpstreamComponent
-				vhost := "rabbit/hole"
+				vh := "rabbit/hole"
 				name := "temporary"
 
 				pv := RuntimeParameterValue{
@@ -3664,16 +3665,21 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					"trust-user-id":   false,
 				}
 
-				_, err := rmqc.PutRuntimeParameter(component, vhost, name, pv)
+				_, err := rmqc.PutRuntimeParameter(component, vh, name, pv)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) string {
+					x, err := rmqc.GetRuntimeParameter(component, vh, name)
+					Ω(err).Should(BeNil())
 
-				p, err := rmqc.GetRuntimeParameter(component, vhost, name)
+					return x.Name
+				}).Should(Equal(name))
+
+				p, err := rmqc.GetRuntimeParameter(component, vh, name)
 
 				Ω(err).Should(BeNil())
 				Ω(p.Component).Should(Equal(FederationUpstreamComponent))
-				Ω(p.Vhost).Should(Equal(vhost))
+				Ω(p.Vhost).Should(Equal(vh))
 				Ω(p.Name).Should(Equal(name))
 
 				// we need to convert from interface{}
@@ -3683,8 +3689,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(v["prefetch-count"]).Should(BeNumerically("==", pv["prefetch-count"]))
 				Ω(v["reconnect-delay"]).Should(BeNumerically("==", pv["reconnect-delay"]))
 
-				_, err = rmqc.DeleteRuntimeParameter(component, vhost, name)
+				_, err = rmqc.DeleteRuntimeParameter(component, vh, name)
 				Ω(err).Should(BeNil())
+
+				Eventually(func(g Gomega) []RuntimeParameter {
+					xs, err := rmqc.ListRuntimeParametersIn(component, vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 	})
@@ -3709,7 +3722,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				fDef := FederationDefinition{
 					Uri: []string{"amqp://server-name/%2f"},
 				}
-				_, err = rmqc.PutFederationUpstream("rabbit/hole", "upstream1", fDef)
+
+				vh := "rabbit/hole"
+				name := "upstream1"
+
+				_, err = rmqc.PutFederationUpstream(vh, name, fDef)
 				Ω(err).Should(BeNil())
 
 				sDef := ShovelDefinition{
@@ -3725,23 +3742,29 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err = rmqc.DeclareShovel("/", "shovel1", sDef)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []RuntimeParameter {
+					xs, err := rmqc.ListRuntimeParameters()
+					Ω(err).Should(BeNil())
 
-				list, err := rmqc.ListRuntimeParameters()
+					return xs
+				}).ShouldNot(BeEmpty())
+
+				ps, err := rmqc.ListRuntimeParameters()
 				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(2))
+				Ω(len(ps)).Should(Equal(2))
 
-				_, err = rmqc.DeleteFederationUpstream("rabbit/hole", "upstream1")
+				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
 
 				_, err = rmqc.DeleteShovel("/", "shovel1")
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []RuntimeParameter {
+					xs, err := rmqc.ListRuntimeParameters()
+					Ω(err).Should(BeNil())
 
-				list, err = rmqc.ListRuntimeParameters()
-				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(0))
+					return xs
+				}).Should(BeEmpty())
 
 				// cleanup
 				_, err = rmqc.DeleteQueue("/", "mySourceQueue")
@@ -3838,7 +3861,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					_, err := rmqc.PutGlobalParameter(name, value)
 					Ω(err).Should(BeNil())
 
-					awaitEventPropagation()
+					Eventually(func(g Gomega) string {
+						x, err := rmqc.GetGlobalParameter(name)
+						Ω(err).Should(BeNil())
+
+						return x.Name
+					}).Should(Equal(name))
 
 					By("getting the parameter")
 					p, err := rmqc.GetGlobalParameter(name)
@@ -3861,12 +3889,20 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 		Context("GET /api/global-parameters", func() {
 			It("returns all global parameters", func() {
-				_, err := rmqc.PutGlobalParameter("a-name", "a-value")
+				name1 := "a-name"
+				name2 := "another-name"
+
+				_, err := rmqc.PutGlobalParameter(name1, "a-value")
 				Ω(err).Should(BeNil())
-				_, err = rmqc.PutGlobalParameter("another-name", []string{"another-value"})
+				_, err = rmqc.PutGlobalParameter(name2, []string{"another-value"})
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) string {
+					x, err := rmqc.GetGlobalParameter(name1)
+					Ω(err).Should(BeNil())
+
+					return x.Name
+				}).Should(Equal(name1))
 
 				list, err := rmqc.ListGlobalParameters()
 				Ω(err).Should(BeNil())
@@ -3889,11 +3925,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err = rmqc.DeleteGlobalParameter("another-name")
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) int {
+					xs, err := rmqc.ListGlobalParameters()
+					Ω(err).Should(BeNil())
 
-				list, err = rmqc.ListGlobalParameters()
-				Ω(err).Should(BeNil())
-				Ω(len(list)).Should(Equal(2)) // cluster_name and internal_cluster_id are set by default by RabbitMQ
+					return len(xs)
+				}).Should(Equal(2))
 			})
 		})
 	})
