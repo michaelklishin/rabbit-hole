@@ -117,7 +117,7 @@ func awaitEventPropagation() {
 }
 
 func shortSleep() {
-	time.Sleep(time.Duration(700) * time.Millisecond)
+	time.Sleep(time.Duration(600) * time.Millisecond)
 }
 
 func mediumSleep() {
@@ -911,9 +911,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				amqp.Table{})
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			mediumSleep()
+			Eventually(func(g Gomega) []ConsumerInfo {
+				xs, err := rmqc.ListConsumers()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			cs, err := rmqc.ListConsumers()
 			Ω(err).Should(BeNil())
@@ -955,9 +959,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				amqp.Table{})
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			shortSleep()
+			Eventually(func(g Gomega) []ConsumerInfo {
+				xs, err := rmqc.ListConsumers()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			cs, err := rmqc.ListConsumers()
 			Ω(err).Should(BeNil())
@@ -1009,11 +1017,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			shortSleep()
+			Eventually(func(g Gomega) string {
+				u, err := rmqc.GetUser(username)
+				Ω(err).Should(BeNil())
 
-			u, err := rmqc.GetUser("rabbithole")
+				return u.Name
+			}).Should(Equal(username))
+
+			u, err := rmqc.GetUser(username)
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).ShouldNot(BeNil())
@@ -1043,9 +1055,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.UpdatePermissionsIn("/", username, permissions)
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			shortSleep()
+			Eventually(func(g Gomega) string {
+				u, err := rmqc.GetUser(username)
+				Ω(err).Should(BeNil())
+
+				return u.Name
+			}).Should(Equal(username))
 
 			u, err := rmqc.GetUser(username)
 			Ω(err).Should(BeNil())
@@ -1087,45 +1103,55 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		It("updates the user with no password", func() {
 			tags := UserTags{"policymaker", "management"}
 			info := UserSettings{Tags: tags}
-			uname := "rabbithole-passwordless"
-			rmqc.DeleteUser(uname)
-			resp, err := rmqc.PutUserWithoutPassword(uname, info)
+			username := "rabbithole-passwordless"
+			rmqc.DeleteUser(username)
+			resp, err := rmqc.PutUserWithoutPassword(username, info)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			shortSleep()
+			Eventually(func(g Gomega) string {
+				u, err := rmqc.GetUser(username)
+				Ω(err).Should(BeNil())
 
-			u, err := rmqc.GetUser(uname)
+				return u.Name
+			}).Should(Equal(username))
+
+			u, err := rmqc.GetUser(username)
 			Ω(err).Should(BeNil())
 
 			Ω(u.PasswordHash).Should(BeEquivalentTo(""))
 			Ω(u.Tags).Should(Equal(tags))
 
 			// cleanup
-			_, err = rmqc.DeleteUser(uname)
+			_, err = rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 		})
 	})
 
 	Context("DELETE /users/{name}", func() {
 		It("deletes the user", func() {
+			username := "rabbithole"
 			info := UserSettings{Password: "s3krE7", Tags: UserTags{"management", "policymaker"}}
 			_, err := rmqc.PutUser("rabbithole", info)
 			Ω(err).Should(BeNil())
 
-			u, err := rmqc.GetUser("rabbithole")
+			u, err := rmqc.GetUser(username)
 			Ω(err).Should(BeNil())
 			Ω(u).ShouldNot(BeNil())
 
-			resp, err := rmqc.DeleteUser("rabbithole")
+			resp, err := rmqc.DeleteUser(username)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
-			awaitEventPropagation()
+			shortSleep()
+			Eventually(func(g Gomega) *UserInfo {
+				u, _ := rmqc.GetUser(username)
 
-			u2, err := rmqc.GetUser("rabbithole")
+				return u
+			}).Should(BeNil())
+
+			u2, err := rmqc.GetUser(username)
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 			Ω(u2).Should(BeNil())
 		})
@@ -1160,40 +1186,56 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("PUT /vhosts/{name}", func() {
 		It("creates a vhost", func() {
+			vh := "rabbit/hole2"
 			tags := VhostTags{"production", "eu-west-1"}
 			vs := VhostSettings{Description: "rabbit/hole2 vhost", Tags: tags, Tracing: false}
-			_, err := rmqc.PutVhost("rabbit/hole2", vs)
+			_, err := rmqc.PutVhost(vh, vs)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
-			x, err := rmqc.GetVhost("rabbit/hole2")
+			shortSleep()
+			Eventually(func(g Gomega) string {
+				v, _ := rmqc.GetVhost(vh)
+				Ω(err).Should(BeNil())
+
+				return v.Name
+			}).Should(Equal(vh))
+
+			x, err := rmqc.GetVhost(vh)
 			Ω(err).Should(BeNil())
 
-			Ω(x.Name).Should(BeEquivalentTo("rabbit/hole2"))
+			Ω(x.Name).Should(BeEquivalentTo(vh))
 			Ω(x.Description).Should(BeEquivalentTo("rabbit/hole2 vhost"))
 			Ω(x.Tags).Should(Equal(tags))
 			Ω(x.Tracing).Should(Equal(false))
 
-			_, err = rmqc.DeleteVhost("rabbit/hole2")
+			_, err = rmqc.DeleteVhost(vh)
 			Ω(err).Should(BeNil())
 		})
 	})
 
 	Context("DELETE /vhosts/{name}", func() {
 		It("deletes a vhost", func() {
+			vh := "rabbit/hole2"
 			vs := VhostSettings{Description: "rabbit/hole2 vhost", Tags: VhostTags{"production", "eu-west-1"}, Tracing: false}
-			_, err := rmqc.PutVhost("rabbit/hole2", vs)
+			_, err := rmqc.PutVhost(vh, vs)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
-			x, err := rmqc.GetVhost("rabbit/hole2")
+			shortSleep()
+			Eventually(func(g Gomega) string {
+				v, _ := rmqc.GetVhost(vh)
+				Ω(err).Should(BeNil())
+
+				return v.Name
+			}).Should(Equal(vh))
+
+			x, err := rmqc.GetVhost(vh)
 			Ω(err).Should(BeNil())
 			Ω(x).ShouldNot(BeNil())
 
-			_, err = rmqc.DeleteVhost("rabbit/hole2")
+			_, err = rmqc.DeleteVhost(vh)
 			Ω(err).Should(BeNil())
 
-			x2, err := rmqc.GetVhost("rabbit/hole2")
+			x2, err := rmqc.GetVhost(vh)
 			Ω(x2).Should(BeNil())
 			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
@@ -1201,8 +1243,9 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("GET /vhosts/{name}/connections", func() {
 		It("returns decoded response", func() {
+			vh := "rabbit/hole"
 
-			conn := openConnection("rabbit/hole")
+			conn := openConnection(vh)
 			defer conn.Close()
 
 			ch, err := conn.Channel()
@@ -1216,11 +1259,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				amqp.Publishing{Body: []byte("")})
 			Ω(err).Should(BeNil())
 
-			// give internal events a moment to be
-			// handled
-			awaitEventPropagation()
+			shortSleep()
+			Eventually(func(g Gomega) []ConnectionInfo {
+				xs, _ := rmqc.ListVhostConnections(vh)
+				Ω(err).Should(BeNil())
 
-			xs, err := rmqc.ListVhostConnections("rabbit/hole")
+				return xs
+			}).ShouldNot(BeEmpty())
+
+			xs, err := rmqc.ListVhostConnections(vh)
 			Ω(err).Should(BeNil())
 
 			c1 := xs[0]
@@ -1256,7 +1303,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			})
 			Ω(err2).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []VhostLimitsInfo {
+				xs, _ := rmqc.GetAllVhostLimits()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			xs, err3 := rmqc.GetAllVhostLimits()
 			Ω(err3).Should(BeNil())
@@ -1329,7 +1381,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			err = ch.QueueBind(q.Name, "", "amq.topic", false, nil)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListBindings()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
 			bs, err := rmqc.ListBindings()
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
@@ -1362,7 +1420,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			err = ch.QueueBind(q.Name, "", "amq.topic", false, nil)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListBindingsIn("/")
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
 			bs, err := rmqc.ListBindingsIn("/")
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
@@ -1391,7 +1455,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				nil)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListQueueBindings("/", q.Name)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
 			bs, err := rmqc.ListQueueBindings("/", q.Name)
 			Ω(err).Should(BeNil())
 
@@ -1429,7 +1499,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			// Grab the Location data from the POST response {destination}/{propertiesKey}
 			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListQueueBindings(vh, qn)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
 			bs, err := rmqc.ListQueueBindings(vh, qn)
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
@@ -1466,7 +1542,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			err = ch.QueueBind(q, "#", x, false, nil)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListQueueBindingsBetween(vh, x, q)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			bindings, err := rmqc.ListQueueBindingsBetween(vh, x, q)
 			Ω(err).Should(BeNil())
@@ -1504,7 +1586,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			err = ch.ExchangeBind(dx, "#", sx, false, nil)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListExchangeBindingsBetween(vh, sx, dx)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			bindings, err := rmqc.ListExchangeBindingsBetween(vh, sx, dx)
 			Ω(err).Should(BeNil())
@@ -1542,7 +1630,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			err = ch.ExchangeBind(dx, "#", sx, false, nil)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListExchangeBindingsWithSource(vh, sx)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			bindings, err := rmqc.ListExchangeBindingsWithSource(vh, sx)
 			Ω(err).Should(BeNil())
@@ -1578,7 +1672,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			err = ch.ExchangeBind(dx, "#", sx, false, nil)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListExchangeBindingsWithDestination(vh, dx)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			bindings, err := rmqc.ListExchangeBindingsWithDestination(vh, dx)
 			Ω(err).Should(BeNil())
@@ -1621,7 +1721,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			// Grab the Location data from the POST response {destination}/{propertiesKey}
 			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListExchangeBindingsBetween(vh, "amq.topic", xn)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
 			bs, err := rmqc.ListExchangeBindingsBetween(vh, "amq.topic", xn)
 			Ω(err).Should(BeNil())
 			Ω(bs).ShouldNot(BeEmpty())
@@ -1664,7 +1770,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			res, err := rmqc.DeclareBinding(vh, info)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListExchangeBindingsWithDestination(vh, xn)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			// Grab the Location data from the POST response {destination}/{propertiesKey}
 			propertiesKey, _ := url.QueryUnescape(strings.Split(res.Header.Get("Location"), "/")[1])
@@ -1672,7 +1783,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err = rmqc.DeleteBinding(vh, info)
 			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+
+			Eventually(func(g Gomega) []BindingInfo {
+				xs, _ := rmqc.ListExchangeBindingsWithDestination(vh, xn)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).Should(BeEmpty())
 
 			bs, err := rmqc.ListExchangeBindingsWithDestination(vh, xn)
 			Ω(bs).Should(BeEmpty())
@@ -1739,7 +1856,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.UpdatePermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				p, _ := rmqc.GetPermissionsIn("/", u)
+				Ω(err).Should(BeNil())
+
+				return p.User
+			}).Should(Equal(u))
+
 			fetched, err := rmqc.GetPermissionsIn("/", u)
 			Ω(err).Should(BeNil())
 			Ω(fetched.Configure).Should(Equal(permissions.Configure))
@@ -1762,7 +1885,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.UpdatePermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				p, _ := rmqc.GetPermissionsIn("/", u)
+				Ω(err).Should(BeNil())
+
+				return p.User
+			}).Should(Equal(u))
 
 			_, err = rmqc.ClearPermissionsIn("/", u)
 			Ω(err).Should(BeNil())
@@ -1786,7 +1914,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []TopicPermissionInfo {
+				xs, _ := rmqc.ListTopicPermissions()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
 
 			xs, err := rmqc.ListTopicPermissions()
 			Ω(err).Should(BeNil())
@@ -1815,9 +1948,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) []TopicPermissionInfo {
+				xs, _ := rmqc.ListTopicPermissionsOf(u)
+				Ω(err).Should(BeNil())
 
-			xs, err := rmqc.ListTopicPermissionsOf("temporary")
+				return xs
+			}).ShouldNot(BeEmpty())
+
+			xs, err := rmqc.ListTopicPermissionsOf(u)
 			Ω(err).Should(BeNil())
 
 			x := xs[0]
