@@ -2956,7 +2956,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
-	FContext("GET /api/parameters/federation-upstream", func() {
+	Context("GET /api/parameters/federation-upstream", func() {
 		Context("when there are no upstreams", func() {
 			It("returns an empty response", func() {
 				Eventually(func(g Gomega) []FederationUpstream {
