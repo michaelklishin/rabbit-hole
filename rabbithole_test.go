@@ -138,6 +138,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("DELETE /api/connections/{name}", func() {
 		It("closes the connection", func() {
+			xs, _ := rmqc.ListConnections()
+			for _, c := range xs {
+				rmqc.CloseConnection(c.Name)
+			}
+
 			Eventually(func(g Gomega) []ConnectionInfo {
 				xs, err := rmqc.ListConnections()
 				Ω(err).Should(BeNil())
