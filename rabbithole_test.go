@@ -2126,19 +2126,19 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
-				x, err := rmqc.GetQueue(vh, qn)
+				q, err := rmqc.GetQueue(vh, qn)
 				Ω(err).Should(BeNil())
 
-				return x.Name
+				return q.Name
 			}).Should(Equal(qn))
 
-			x, err := rmqc.GetQueue(vh, qn)
+			q, err := rmqc.GetQueue(vh, qn)
 			Ω(err).Should(BeNil())
-			Ω(x.Name).Should(Equal(qn))
-			Ω(x.Durable).Should(Equal(true))
-			Ω(bool(x.AutoDelete)).Should(Equal(false))
-			Ω(x.Vhost).Should(Equal(vh))
-			Ω(x.Arguments).To(HaveKeyWithValue("x-queue-type", "quorum"))
+			Ω(q.Name).Should(Equal(qn))
+			Ω(q.Durable).Should(Equal(true))
+			Ω(bool(q.AutoDelete)).Should(Equal(false))
+			Ω(q.Vhost).Should(Equal(vh))
+			Ω(q.Arguments).To(HaveKeyWithValue("x-queue-type", "quorum"))
 
 			_, err = rmqc.DeleteQueue(vh, qn)
 			Ω(err).Should(BeNil())
@@ -2154,10 +2154,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
-				x, err := rmqc.GetQueue(vh, qn)
+				q, err := rmqc.GetQueue(vh, qn)
 				Ω(err).Should(BeNil())
 
-				return x.Name
+				return q.Name
 			}).Should(Equal(qn))
 
 			_, err = rmqc.DeleteQueue(vh, qn)
@@ -2178,18 +2178,20 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
-				x, err := rmqc.GetQueue(vh, qn)
+				q, err := rmqc.GetQueue(vh, qn)
 				Ω(err).Should(BeNil())
 
-				return x.Name
+				return q.Name
 			}).Should(Equal(qn))
 
 			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
 			Ω(err).Should(BeNil())
 
-			x, err := rmqc.GetQueue(vh, qn)
-			Ω(x).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetQueue(vh, qn)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 
 		It("accepts IfUnused option", func() {
@@ -2200,10 +2202,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
-				x, err := rmqc.GetQueue(vh, qn)
+				q, err := rmqc.GetQueue(vh, qn)
 				Ω(err).Should(BeNil())
 
-				return x.Name
+				return q.Name
 			}).Should(Equal(qn))
 
 			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfUnused: true})
@@ -2226,10 +2228,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
-				x, err := rmqc.GetQueue(vh, qn)
+				q, err := rmqc.GetQueue(vh, qn)
 				Ω(err).Should(BeNil())
 
-				return x.Name
+				return q.Name
 			}).Should(Equal(qn))
 
 			_, err = rmqc.PurgeQueue(vh, qn)
@@ -2255,10 +2257,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
-				x, err := rmqc.GetQueue(vh, qn)
+				q, err := rmqc.GetQueue(vh, qn)
 				Ω(err).Should(BeNil())
 
-				return x.Name
+				return q.Name
 			}).Should(Equal(qn))
 
 			// it would be better to test this in a cluster configuration
@@ -2282,10 +2284,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
 			Ω(err).Should(BeNil())
 			Eventually(func(g Gomega) string {
-				x, err := rmqc.GetQueue(vh, qn)
+				q, err := rmqc.GetQueue(vh, qn)
 				Ω(err).Should(BeNil())
 
-				return x.Name
+				return q.Name
 			}).Should(Equal(qn))
 
 			// it would be better to test this in a cluster configuration
@@ -2327,7 +2329,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err = rmqc.PutPolicy("rabbit/hole", "woot2", policy2)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []Policy {
+					xs, err := rmqc.ListPolicies()
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).ShouldNot(BeEmpty())
 
 				// test
 				pols, err := rmqc.ListPolicies()
@@ -2343,6 +2350,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				_, err = rmqc.DeletePolicy("rabbit/hole", "woot2")
 				Ω(err).Should(BeNil())
+
+				Eventually(func(g Gomega) []Policy {
+					xs, _ := rmqc.ListPolicies()
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 	})
@@ -2364,36 +2377,52 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					Priority:   0,
 				}
 
+				vh := "rabbit/hole"
+
 				// prepare policies
-				_, err := rmqc.PutPolicy("rabbit/hole", "woot1", policy1)
+				_, err := rmqc.PutPolicy(vh, "woot1", policy1)
 				Ω(err).Should(BeNil())
 
 				_, err = rmqc.PutPolicy("/", "woot2", policy2)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []Policy {
+					xs, err := rmqc.ListPolicies()
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).ShouldNot(BeEmpty())
 
 				// test
-				pols, err := rmqc.ListPoliciesIn("rabbit/hole")
+				pols, err := rmqc.ListPoliciesIn(vh)
 				Ω(err).Should(BeNil())
 				Ω(pols).ShouldNot(BeEmpty())
 				Ω(len(pols)).Should(Equal(1))
 				Ω(pols[0].Name).Should(Equal("woot1"))
 
 				// cleanup
-				_, err = rmqc.DeletePolicy("rabbit/hole", "woot1")
+				_, err = rmqc.DeletePolicy(vh, "woot1")
 				Ω(err).Should(BeNil())
 
 				_, err = rmqc.DeletePolicy("/", "woot2")
 				Ω(err).Should(BeNil())
+
+				Eventually(func(g Gomega) []Policy {
+					xs, _ := rmqc.ListPolicies()
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 
 		Context("when no policies exist", func() {
 			It("returns decoded response", func() {
-				pols, err := rmqc.ListPoliciesIn("rabbit/hole")
-				Ω(err).Should(BeNil())
-				Ω(pols).Should(BeEmpty())
+				vh := "rabbit/hole"
+				Eventually(func(g Gomega) []Policy {
+					xs, _ := rmqc.ListPoliciesIn(vh)
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 	})
@@ -2404,36 +2433,48 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				policy := Policy{
 					Pattern:    ".*",
 					ApplyTo:    "all",
-					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Definition: PolicyDefinition{"expires": 100},
 					Priority:   0,
 				}
 
-				_, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
+				vh := "rabbit/hole"
+				name := "woot"
+
+				_, err := rmqc.PutPolicy(vh, name, policy)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) string {
+					x, err := rmqc.GetPolicy(vh, name)
+					Ω(err).Should(BeNil())
 
-				pol, err := rmqc.GetPolicy("rabbit/hole", "woot")
+					return x.Name
+				}).ShouldNot(BeEmpty())
+
+				pol, err := rmqc.GetPolicy(vh, name)
 				Ω(err).Should(BeNil())
-				Ω(pol.Vhost).Should(Equal("rabbit/hole"))
-				Ω(pol.Name).Should(Equal("woot"))
+				Ω(pol.Vhost).Should(Equal(vh))
+				Ω(pol.Name).Should(Equal(name))
 				Ω(pol.ApplyTo).Should(Equal("all"))
 				Ω(pol.Pattern).Should(Equal(".*"))
 				Ω(pol.Priority).Should(BeEquivalentTo(0))
 				Ω(pol.Definition).Should(BeAssignableToTypeOf(PolicyDefinition{}))
 				Ω(pol.Definition["expires"]).Should(BeEquivalentTo(100))
-				Ω(pol.Definition["ha-mode"]).Should(Equal("all"))
 
-				_, err = rmqc.DeletePolicy("rabbit/hole", "woot")
+				_, err = rmqc.DeletePolicy(vh, name)
 				Ω(err).Should(BeNil())
 			})
 		})
 
 		Context("when policy not found", func() {
 			It("returns decoded response", func() {
-				pol, err := rmqc.GetPolicy("rabbit/hole", "woot")
-				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
-				Ω(pol).Should(BeNil())
+				vh := "rabbit/hole"
+				name := "woot"
+
+				Eventually(func(g Gomega) error {
+					_, err := rmqc.GetPolicy(vh, name)
+
+					return err
+				}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 			})
 		})
 	})
@@ -2447,13 +2488,28 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Priority:   0,
 			}
 
-			_, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
-			Ω(err).Should(BeNil())
-			awaitEventPropagation()
+			vh := "rabbit/hole"
+			name := "woot"
 
-			resp, err := rmqc.DeletePolicy("rabbit/hole", "woot")
+			_, err := rmqc.PutPolicy(vh, name, policy)
+			Ω(err).Should(BeNil())
+
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetPolicy(vh, name)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).ShouldNot(BeEmpty())
+
+			resp, err := rmqc.DeletePolicy(vh, name)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
+
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetPolicy(vh, name)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -2470,16 +2526,28 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Priority: 0,
 			}
 
-			resp, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
+			vh := "rabbit/hole"
+			name := "woot"
+
+			resp, err := rmqc.PutPolicy(vh, name, policy)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
-			awaitEventPropagation()
-			_, err = rmqc.GetPolicy("rabbit/hole", "woot")
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetPolicy(vh, name)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(name))
+
+			_, err = rmqc.DeletePolicy(vh, name)
 			Ω(err).Should(BeNil())
 
-			_, err = rmqc.DeletePolicy("rabbit/hole", "woot")
-			Ω(err).Should(BeNil())
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetPolicy(vh, name)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 
 		It("updates the policy", func() {
@@ -2489,17 +2557,25 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
 			}
 
+			vh := "rabbit/hole"
+			name := "woot"
+
 			// create policy
-			resp, err := rmqc.PutPolicy("rabbit/hole", "woot", policy)
+			resp, err := rmqc.PutPolicy(vh, name, policy)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetPolicy(vh, name)
+				Ω(err).Should(BeNil())
 
-			pol, err := rmqc.GetPolicy("rabbit/hole", "woot")
+				return x.Name
+			}).Should(Equal(name))
+
+			pol, err := rmqc.GetPolicy(vh, name)
 			Ω(err).Should(BeNil())
-			Ω(pol.Vhost).Should(Equal("rabbit/hole"))
-			Ω(pol.Name).Should(Equal("woot"))
+			Ω(pol.Vhost).Should(Equal(vh))
+			Ω(pol.Name).Should(Equal(name))
 			Ω(pol.Pattern).Should(Equal(".*"))
 			Ω(pol.ApplyTo).Should(Equal("exchanges"))
 			Ω(pol.Priority).Should(BeEquivalentTo(0))
@@ -2519,15 +2595,20 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Priority: 1,
 			}
 
-			resp, err = rmqc.PutPolicy("rabbit/hole", "woot", newPolicy)
+			resp, err = rmqc.PutPolicy(vh, name, newPolicy)
 			Ω(err).Should(BeNil())
 			Ω(resp.Status).Should(HavePrefix("20"))
 
-			awaitEventPropagation()
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetPolicy(vh, name)
+				Ω(err).Should(BeNil())
 
-			pol, err = rmqc.GetPolicy("rabbit/hole", "woot")
+				return x.Name
+			}).Should(Equal(name))
+
+			pol, err = rmqc.GetPolicy(vh, name)
 			Ω(err).Should(BeNil())
-			Ω(pol.Vhost).Should(Equal("rabbit/hole"))
+			Ω(pol.Vhost).Should(Equal(vh))
 			Ω(pol.Name).Should(Equal("woot"))
 			Ω(pol.Pattern).Should(Equal("\\d+"))
 			Ω(pol.ApplyTo).Should(Equal("all"))
@@ -2541,8 +2622,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(pol.Definition["expires"]).Should(BeNil())
 
 			// cleanup
-			_, err = rmqc.DeletePolicy("rabbit/hole", "woot")
+			_, err = rmqc.DeletePolicy(vh, name)
 			Ω(err).Should(BeNil())
+
+			Eventually(func(g Gomega) error {
+				_, err := rmqc.GetPolicy(vh, name)
+
+				return err
+			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 		})
 	})
 
@@ -2563,14 +2650,23 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					Priority:   0,
 				}
 
+				vh := "rabbit/hole"
+				name1 := "woot1"
+				name2 := "woot2"
+
 				// prepare policies
-				_, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot1", policy1)
+				_, err := rmqc.PutOperatorPolicy(vh, name1, policy1)
 				Ω(err).Should(BeNil())
 
-				_, err = rmqc.PutOperatorPolicy("rabbit/hole", "woot2", policy2)
+				_, err = rmqc.PutOperatorPolicy(vh, name2, policy2)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []OperatorPolicy {
+					xs, err := rmqc.ListOperatorPolicies()
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).ShouldNot(BeEmpty())
 
 				// test
 				pols, err := rmqc.ListOperatorPolicies()
@@ -2581,11 +2677,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(pols[1].Name).ShouldNot(BeNil())
 
 				// cleanup
-				_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot1")
+				_, err = rmqc.DeleteOperatorPolicy(vh, name1)
 				Ω(err).Should(BeNil())
 
-				_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot2")
+				_, err = rmqc.DeleteOperatorPolicy(vh, name2)
 				Ω(err).Should(BeNil())
+
+				Eventually(func(g Gomega) []OperatorPolicy {
+					xs, _ := rmqc.ListOperatorPolicies()
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 	})
@@ -2607,36 +2709,55 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					Priority:   0,
 				}
 
+				vh := "rabbit/hole"
+				name1 := "woot1"
+				name2 := "woot2"
+
 				// prepare policies
-				_, err := rmqc.PutOperatorPolicy("rabbit/hole", "woot1", policy1)
+				_, err := rmqc.PutOperatorPolicy(vh, name1, policy1)
 				Ω(err).Should(BeNil())
 
-				_, err = rmqc.PutOperatorPolicy("/", "woot2", policy2)
+				_, err = rmqc.PutOperatorPolicy("/", name2, policy2)
 				Ω(err).Should(BeNil())
 
-				awaitEventPropagation()
+				Eventually(func(g Gomega) []OperatorPolicy {
+					xs, err := rmqc.ListOperatorPoliciesIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).ShouldNot(BeEmpty())
 
 				// test
-				pols, err := rmqc.ListOperatorPoliciesIn("rabbit/hole")
+				pols, err := rmqc.ListOperatorPoliciesIn(vh)
 				Ω(err).Should(BeNil())
 				Ω(pols).ShouldNot(BeEmpty())
 				Ω(len(pols)).Should(Equal(1))
-				Ω(pols[0].Name).Should(Equal("woot1"))
+				Ω(pols[0].Name).Should(Equal(name1))
 
 				// cleanup
-				_, err = rmqc.DeleteOperatorPolicy("rabbit/hole", "woot1")
+				_, err = rmqc.DeleteOperatorPolicy(vh, name1)
 				Ω(err).Should(BeNil())
 
-				_, err = rmqc.DeleteOperatorPolicy("/", "woot2")
+				_, err = rmqc.DeleteOperatorPolicy("/", name2)
 				Ω(err).Should(BeNil())
+
+				Eventually(func(g Gomega) []OperatorPolicy {
+					xs, _ := rmqc.ListOperatorPolicies()
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 
 		Context("when no operator policies exist", func() {
 			It("returns decoded response", func() {
-				pols, err := rmqc.ListOperatorPoliciesIn("rabbit/hole")
-				Ω(err).Should(BeNil())
-				Ω(pols).Should(BeEmpty())
+				vh := "rabbit/hole"
+				Eventually(func(g Gomega) []OperatorPolicy {
+					xs, err := rmqc.ListOperatorPoliciesIn(vh)
+					Ω(err).Should(BeNil())
+
+					return xs
+				}).Should(BeEmpty())
 			})
 		})
 	})
