@@ -2,7 +2,6 @@ package rabbithole
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -79,23 +78,6 @@ func ensureNonZeroMessageRate(ch *amqp.Channel) {
 	}
 }
 
-// Wait for the list of connections to reach the expected length
-func listConnectionsUntil(c *Client, i int) {
-	xs, _ := c.ListConnections()
-	// Avoid infinity loops by breaking it after 30s
-	breakLoop := 0
-	for i != len(xs) {
-		if breakLoop == 300 {
-			fmt.Printf("Stopping listConnectionsUntil loop: expected %v obtained %v", i, len(xs))
-			break
-		}
-		breakLoop++
-		// Wait between calls
-		time.Sleep(100 * time.Millisecond)
-		xs, _ = c.ListConnections()
-	}
-}
-
 func shortSleep() {
 	time.Sleep(time.Duration(600) * time.Millisecond)
 }
@@ -156,8 +138,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("DELETE /api/connections/{name}", func() {
 		It("closes the connection", func() {
-			listConnectionsUntil(rmqc, 0)
+			Eventually(func(g Gomega) []ConnectionInfo {
+				xs, err := rmqc.ListConnections()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).Should(BeEmpty())
+
 			conn := openConnection("/")
+			defer conn.Close()
 
 			Eventually(func(g Gomega) []ConnectionInfo {
 				xs, err := rmqc.ListConnections()
