@@ -333,6 +333,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("GET /channels when there are active connections with open channels", func() {
 		It("returns decoded response", func() {
+			cs, _ := rmqc.ListConnections()
+			for _, c := range cs {
+				rmqc.CloseConnection(c.Name)
+			}
+
 			conn := openConnection("/")
 			defer conn.Close()
 
