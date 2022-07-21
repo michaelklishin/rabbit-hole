@@ -36,9 +36,9 @@ type ClusterLink struct {
 	Stats     ClusterLinkStats `json:"stats"`
 	Name      string           `json:"name"`
 	PeerAddr  string           `json:"peer_addr"`
-	PeerPort  uint             `json:"peer_addr"`
+	PeerPort  uint             `json:"peer_port"`
 	SockAddr  string           `json:"sock_addr"`
-	SockPort  uint             `json:"sock_addr"`
+	SockPort  uint             `json:"sock_port"`
 	SendBytes uint64           `json:"send_bytes"`
 	RecvBytes uint64           `json:"recv_bytes"`
 }
@@ -112,7 +112,7 @@ type NodeInfo struct {
 	IOReadCount                         uint64      `json:"io_read_count"`
 	IOReadCountDetails                  RateDetails `json:"io_read_count_details"`
 	IOReadBytes                         uint64      `json:"io_read_bytes"`
-	IOReadBytesDetails                  RateDetails `json:"io_read_bytes"`
+	IOReadBytesDetails                  RateDetails `json:"io_read_bytes_details"`
 	IOReadAvgTime                       float64     `json:"io_read_avg_time"`
 	IOReadAvgTimeDetails                RateDetails `json:"io_read_avg_time_details"`
 	IOWriteCount                        uint64      `json:"io_write_count"`
