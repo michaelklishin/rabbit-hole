@@ -10,7 +10,7 @@ import (
 type FederationDefinition struct {
 	Uri            URISet `json:"uri"`
 	Expires        int    `json:"expires,omitempty"`
-	MessageTTL     int32  `json:"message-ttl"`
+	MessageTTL     int32  `json:"message-ttl,omitempty"`
 	MaxHops        int    `json:"max-hops,omitempty"`
 	PrefetchCount  int    `json:"prefetch-count,omitempty"`
 	ReconnectDelay int    `json:"reconnect-delay"`
