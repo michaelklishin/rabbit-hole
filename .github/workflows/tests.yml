@@ -1,27 +1,38 @@
 name: Test
-on: [push,workflow_dispatch]
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: ubuntu-22.04
+
+    services:
+      rabbitmq:
+        image: rabbitmq:3.11-management
+        ports:
+          - 15672:15672
+          - 5672:5672
+
     strategy:
       matrix:
         go: ["1.18", "1.19"]
+
     steps:
     - name: CHECKOUT
       uses: actions/checkout@v3
-    - name: Setup go
+    - name: Setup Go
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go }}
     - name: Print Go version
       run: go version
-    - name: Install RabbitMQ
-      run: ./bin/ci/install_on_debian.sh
-    - name: Configure RabbitMQ
-      run: ./bin/ci/before_build.sh
-    - name: Restart RabbitMQ
-      run: service rabbitmq-server restart
-    - name: Await node startup
-      run: rabbitmqctl await_startup --timeout 60
+    - name: Configure broker
+      run: RABBITHOLE_RABBITMQCTL=DOCKER:${{job.services.rabbitmq.id}} bin/ci/before_build.sh
     - name: Run tests
       run: make
