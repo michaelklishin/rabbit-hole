@@ -32,6 +32,8 @@ $CTL set_permissions -p "rabbit/hole" guest ".*" ".*" ".*"
 # set cluster name
 $CTL set_cluster_name rabbitmq@localhost
 
+$CTL enable_feature_flag all
+
 # Enable shovel plugin
 $PLUGINS enable rabbitmq_shovel
 $PLUGINS enable rabbitmq_shovel_management
@@ -41,3 +43,4 @@ $PLUGINS enable rabbitmq_federation
 $PLUGINS enable rabbitmq_federation_management
 
 export GOMEGA_DEFAULT_EVENTUALLY_TIMEOUT="5s"
+true

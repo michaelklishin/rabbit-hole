@@ -34,7 +34,5 @@ jobs:
       run: go version
     - name: Configure broker
       run: RABBITHOLE_RABBITMQCTL=DOCKER:${{job.services.rabbitmq.id}} bin/ci/before_build.sh
-    - name: Await node startup
-      run: rabbitmqctl await_startup --timeout 60
     - name: Run tests
       run: make
