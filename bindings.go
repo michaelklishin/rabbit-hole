@@ -182,7 +182,7 @@ func (c *Client) DeclareBinding(vhost string, info BindingInfo) (res *http.Respo
 		return nil, err
 	}
 
-	req, err := newRequestWithBody(c, "POST", c.newBindingPath(vhost, info), body)
+	req, err := newRequestWithBody(c, "POST", c.bindingPath(vhost, info), body)
 
 	if err != nil {
 		return nil, err
@@ -195,7 +195,7 @@ func (c *Client) DeclareBinding(vhost string, info BindingInfo) (res *http.Respo
 	return res, nil
 }
 
-func (c *Client) newBindingPath(vhost string, info BindingInfo) string {
+func (c *Client) bindingPath(vhost string, info BindingInfo) string {
 	if info.DestinationType == "queue" {
 		// /api/bindings/{vhost}/e/{exchange}/q/{queue}
 		return "bindings/" + url.PathEscape(vhost) +
@@ -214,9 +214,8 @@ func (c *Client) newBindingPath(vhost string, info BindingInfo) string {
 
 // DeleteBinding deletes an individual binding
 func (c *Client) DeleteBinding(vhost string, info BindingInfo) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", "bindings/"+url.PathEscape(vhost)+
-		"/e/"+url.PathEscape(info.Source)+"/"+url.PathEscape(string(info.DestinationType[0]))+
-		"/"+url.PathEscape(info.Destination)+"/"+url.PathEscape(info.PropertiesKey), nil)
+	req, err := newRequestWithBody(c, "DELETE", c.bindingPath(vhost, info) +
+		"/"+url.PathEscape(info.PropertiesKey), nil)
 	if err != nil {
 		return nil, err
 	}
