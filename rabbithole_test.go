@@ -1195,6 +1195,35 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, err = rmqc.DeleteVhost(vh)
 			Ω(err).Should(BeNil())
 		})
+		When("A default queue type is set", func() {
+			It("creates a vhost with a default queue type", func(){
+				vh := "rabbit/hole3"
+				tags := VhostTags{"production", "eu-west-1"}
+				vs := VhostSettings{Description: "rabbit/hole3 vhost", DefaultQueueType: "quorum", Tags: tags, Tracing: false}
+				_, err := rmqc.PutVhost(vh, vs)
+				Ω(err).Should(BeNil())
+
+				shortSleep()
+				Eventually(func(g Gomega) string {
+					v, err := rmqc.GetVhost(vh)
+					Ω(err).Should(BeNil())
+
+					return v.Name
+				}).Should(Equal(vh))
+
+				x, err := rmqc.GetVhost(vh)
+				Ω(err).Should(BeNil())
+
+				Ω(x.Name).Should(BeEquivalentTo(vh))
+				Ω(x.Description).Should(BeEquivalentTo("rabbit/hole3 vhost"))
+				Ω(x.DefaultQueueType).Should(BeEquivalentTo("quorum"))
+				Ω(x.Tags).Should(Equal(tags))
+				Ω(x.Tracing).Should(Equal(false))
+
+				_, err = rmqc.DeleteVhost(vh)
+				Ω(err).Should(BeNil())
+			})
+		})
 	})
 
 	Context("DELETE /vhosts/{name}", func() {
