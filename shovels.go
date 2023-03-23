@@ -71,28 +71,28 @@ type ShovelDefinition struct {
 	DestinationURI URISet `json:"dest-uri"`
 	SourceURI      URISet `json:"src-uri"`
 
-	AckMode                          string      `json:"ack-mode,omitempty"`
-	AddForwardHeaders                bool        `json:"add-forward-headers,omitempty"`
-	DeleteAfter                      DeleteAfter `json:"delete-after,omitempty"`
-	DestinationAddForwardHeaders     bool        `json:"dest-add-forward-headers,omitempty"`
-	DestinationAddTimestampHeader    bool        `json:"dest-add-timestamp-header,omitempty"`
-	DestinationAddress               string      `json:"dest-address,omitempty"`
-	DestinationApplicationProperties string      `json:"dest-application-properties,omitempty"`
-	DestinationExchange              string      `json:"dest-exchange,omitempty"`
-	DestinationExchangeKey           string      `json:"dest-exchange-key,omitempty"`
-	DestinationProperties            string      `json:"dest-properties,omitempty"`
-	DestinationProtocol              string      `json:"dest-protocol,omitempty"`
-	DestinationPublishProperties     string      `json:"dest-publish-properties,omitempty"`
-	DestinationQueue                 string      `json:"dest-queue,omitempty"`
-	PrefetchCount                    int         `json:"prefetch-count,omitempty"`
-	ReconnectDelay                   int         `json:"reconnect-delay,omitempty"`
-	SourceAddress                    string      `json:"src-address,omitempty"`
-	SourceDeleteAfter                DeleteAfter `json:"src-delete-after,omitempty"`
-	SourceExchange                   string      `json:"src-exchange,omitempty"`
-	SourceExchangeKey                string      `json:"src-exchange-key,omitempty"`
-	SourcePrefetchCount              int         `json:"src-prefetch-count,omitempty"`
-	SourceProtocol                   string      `json:"src-protocol,omitempty"`
-	SourceQueue                      string      `json:"src-queue,omitempty"`
+	AckMode                          string                 `json:"ack-mode,omitempty"`
+	AddForwardHeaders                bool                   `json:"add-forward-headers,omitempty"`
+	DeleteAfter                      DeleteAfter            `json:"delete-after,omitempty"`
+	DestinationAddForwardHeaders     bool                   `json:"dest-add-forward-headers,omitempty"`
+	DestinationAddTimestampHeader    bool                   `json:"dest-add-timestamp-header,omitempty"`
+	DestinationAddress               string                 `json:"dest-address,omitempty"`
+	DestinationApplicationProperties string                 `json:"dest-application-properties,omitempty"`
+	DestinationExchange              string                 `json:"dest-exchange,omitempty"`
+	DestinationExchangeKey           string                 `json:"dest-exchange-key,omitempty"`
+	DestinationProperties            string                 `json:"dest-properties,omitempty"`
+	DestinationProtocol              string                 `json:"dest-protocol,omitempty"`
+	DestinationPublishProperties     map[string]interface{} `json:"dest-publish-properties,omitempty"`
+	DestinationQueue                 string                 `json:"dest-queue,omitempty"`
+	PrefetchCount                    int                    `json:"prefetch-count,omitempty"`
+	ReconnectDelay                   int                    `json:"reconnect-delay,omitempty"`
+	SourceAddress                    string                 `json:"src-address,omitempty"`
+	SourceDeleteAfter                DeleteAfter            `json:"src-delete-after,omitempty"`
+	SourceExchange                   string                 `json:"src-exchange,omitempty"`
+	SourceExchangeKey                string                 `json:"src-exchange-key,omitempty"`
+	SourcePrefetchCount              int                    `json:"src-prefetch-count,omitempty"`
+	SourceProtocol                   string                 `json:"src-protocol,omitempty"`
+	SourceQueue                      string                 `json:"src-queue,omitempty"`
 }
 
 // ShovelDefinitionDTO provides a data transfer object
