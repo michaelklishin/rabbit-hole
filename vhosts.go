@@ -61,6 +61,8 @@ type VhostInfo struct {
 	Description string `json:"description"`
 	// Virtual host tags
 	Tags VhostTags `json:"tags"`
+	// Type of queue to create in virtual host when unspecified
+	DefaultQueueType string `json:"default_queue_type"`
 	// True if tracing is enabled for this virtual host
 	Tracing bool `json:"tracing"`
 
@@ -161,6 +163,8 @@ type VhostSettings struct {
 	Description string `json:"description"`
 	// Virtual host tags
 	Tags VhostTags `json:"tags"`
+	// Type of queue to create in virtual host when unspecified
+	DefaultQueueType string `json:"default_queue_type,omitempty"`
 	// True if tracing should be enabled.
 	Tracing bool `json:"tracing"`
 }
