@@ -32,6 +32,10 @@ jobs:
         go-version: ${{ matrix.go }}
     - name: Print Go version
       run: go version
+    - name: Wait for node to start booting
+      run: sleep 10
+    - name: Await node startup
+      run: rabbitmqctl await_startup
     - name: Configure broker
       run: RABBITHOLE_RABBITMQCTL=DOCKER:${{job.services.rabbitmq.id}} bin/ci/before_build.sh
     - name: Run tests
