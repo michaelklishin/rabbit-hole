@@ -77,10 +77,10 @@ type ShovelDefinition struct {
 	DestinationAddForwardHeaders     bool                   `json:"dest-add-forward-headers,omitempty"`
 	DestinationAddTimestampHeader    bool                   `json:"dest-add-timestamp-header,omitempty"`
 	DestinationAddress               string                 `json:"dest-address,omitempty"`
-	DestinationApplicationProperties string                 `json:"dest-application-properties,omitempty"`
+	DestinationApplicationProperties map[string]interface{} `json:"dest-application-properties,omitempty"`
 	DestinationExchange              string                 `json:"dest-exchange,omitempty"`
 	DestinationExchangeKey           string                 `json:"dest-exchange-key,omitempty"`
-	DestinationProperties            string                 `json:"dest-properties,omitempty"`
+	DestinationProperties            map[string]interface{} `json:"dest-properties,omitempty"`
 	DestinationProtocol              string                 `json:"dest-protocol,omitempty"`
 	DestinationPublishProperties     map[string]interface{} `json:"dest-publish-properties,omitempty"`
 	DestinationQueue                 string                 `json:"dest-queue,omitempty"`
