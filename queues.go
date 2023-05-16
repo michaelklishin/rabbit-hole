@@ -476,9 +476,7 @@ func (c *Client) CancelSyncQueue(vhost, queue string) (res *http.Response, err e
 	return c.sendQueueAction(vhost, queue, queueAction{"cancel_sync"})
 }
 
-//
 // POST /api/queues/{vhost}/{name}/actions
-//
 func (c *Client) sendQueueAction(vhost string, queue string, action queueAction) (res *http.Response, err error) {
 	body, err := json.Marshal(action)
 	if err != nil {

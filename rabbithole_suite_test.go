@@ -10,6 +10,6 @@ import (
 
 func TestRabbitHole(t *testing.T) {
 	RegisterFailHandler(Fail)
-	SetDefaultEventuallyTimeout(5*time.Second)
+	SetDefaultEventuallyTimeout(5 * time.Second)
 	RunSpecs(t, "Rabbithole Suite")
 }

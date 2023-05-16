@@ -1196,7 +1196,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 		})
 		When("A default queue type is set", func() {
-			It("creates a vhost with a default queue type", func(){
+			It("creates a vhost with a default queue type", func() {
 				vh := "rabbit/hole3"
 				tags := VhostTags{"production", "eu-west-1"}
 				vs := VhostSettings{Description: "rabbit/hole3 vhost", DefaultQueueType: "quorum", Tags: tags, Tracing: false}
