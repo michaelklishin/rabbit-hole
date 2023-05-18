@@ -1,3 +1,15 @@
+## Changes Between 2.15.0 and 2.16.0 (in development)
+
+No changes yet
+
+## Changes Between 2.14.0 and 2.15.0 (May 18, 2023)
+
+### Further Improve Shovel Support
+
+Contributed by @ChunyiLyu.
+
+GitHub issue: [#266](https://github.com/michaelklishin/rabbit-hole/pull/268)
+
 ## Changes Between 2.13.0 and 2.14.0 (May 11, 2023)
 
 ### Allow Setting Default Queue Type for Virtual Hosts
