@@ -214,7 +214,7 @@ func (c *Client) bindingPath(vhost string, info BindingInfo) string {
 
 // DeleteBinding deletes an individual binding
 func (c *Client) DeleteBinding(vhost string, info BindingInfo) (res *http.Response, err error) {
-	req, err := newRequestWithBody(c, "DELETE", c.bindingPath(vhost, info) +
+	req, err := newRequestWithBody(c, "DELETE", c.bindingPath(vhost, info)+
 		"/"+url.PathEscape(info.PropertiesKey), nil)
 	if err != nil {
 		return nil, err

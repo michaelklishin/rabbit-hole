@@ -77,13 +77,15 @@ type ShovelDefinition struct {
 	DestinationAddForwardHeaders     bool                   `json:"dest-add-forward-headers,omitempty"`
 	DestinationAddTimestampHeader    bool                   `json:"dest-add-timestamp-header,omitempty"`
 	DestinationAddress               string                 `json:"dest-address,omitempty"`
-	DestinationApplicationProperties string                 `json:"dest-application-properties,omitempty"`
+	DestinationApplicationProperties map[string]interface{} `json:"dest-application-properties,omitempty"`
 	DestinationExchange              string                 `json:"dest-exchange,omitempty"`
 	DestinationExchangeKey           string                 `json:"dest-exchange-key,omitempty"`
-	DestinationProperties            string                 `json:"dest-properties,omitempty"`
+	DestinationProperties            map[string]interface{} `json:"dest-properties,omitempty"`
 	DestinationProtocol              string                 `json:"dest-protocol,omitempty"`
 	DestinationPublishProperties     map[string]interface{} `json:"dest-publish-properties,omitempty"`
 	DestinationQueue                 string                 `json:"dest-queue,omitempty"`
+	DestinationQueueArgs             map[string]interface{} `json:"dest-queue-args,omitempty"`
+	DestinationMessageAnnotations    map[string]interface{} `json:"dest-message-annotations,omitempty"`
 	PrefetchCount                    int                    `json:"prefetch-count,omitempty"`
 	ReconnectDelay                   int                    `json:"reconnect-delay,omitempty"`
 	SourceAddress                    string                 `json:"src-address,omitempty"`
@@ -93,6 +95,8 @@ type ShovelDefinition struct {
 	SourcePrefetchCount              int                    `json:"src-prefetch-count,omitempty"`
 	SourceProtocol                   string                 `json:"src-protocol,omitempty"`
 	SourceQueue                      string                 `json:"src-queue,omitempty"`
+	SourceQueueArgs                  map[string]interface{} `json:"src-queue-args,omitempty"`
+	SourceConsumerArgs               map[string]interface{} `json:"src-consumer-args,omitempty"`
 }
 
 // ShovelDefinitionDTO provides a data transfer object

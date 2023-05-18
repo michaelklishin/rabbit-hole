@@ -1196,7 +1196,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 		})
 		When("A default queue type is set", func() {
-			It("creates a vhost with a default queue type", func(){
+			It("creates a vhost with a default queue type", func() {
 				vh := "rabbit/hole3"
 				tags := VhostTags{"production", "eu-west-1"}
 				vs := VhostSettings{Description: "rabbit/hole3 vhost", DefaultQueueType: "quorum", Tags: tags, Tracing: false}
@@ -3479,17 +3479,21 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			sdu := URISet([]string{"amqp://127.0.0.1/%2f", "amqp://localhost/%2f"})
 
 			shovelDefinition := ShovelDefinition{
-				SourceURI:                     ssu,
-				SourceAddress:                 "mySourceQueue",
-				SourceProtocol:                "amqp10",
-				DestinationURI:                sdu,
-				DestinationProtocol:           "amqp10",
-				DestinationAddress:            "myDestQueue",
-				DestinationAddForwardHeaders:  true,
-				DestinationAddTimestampHeader: true,
-				AckMode:                       "on-confirm",
-				SourcePrefetchCount:           42,
-				SourceDeleteAfter:             "never"}
+				AckMode:                          "on-confirm",
+				ReconnectDelay:                   20,
+				SourceURI:                        ssu,
+				SourceAddress:                    "mySourceQueue",
+				SourceProtocol:                   "amqp10",
+				SourcePrefetchCount:              42,
+				SourceDeleteAfter:                "never",
+				DestinationURI:                   sdu,
+				DestinationProtocol:              "amqp10",
+				DestinationAddress:               "myDestQueue",
+				DestinationAddForwardHeaders:     true,
+				DestinationAddTimestampHeader:    true,
+				DestinationApplicationProperties: map[string]interface{}{"key": "value"},
+				DestinationMessageAnnotations:    map[string]interface{}{"annotation": "something"},
+				DestinationProperties:            map[string]interface{}{"prop0": "value0"}}
 
 			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
 			Ω(err).Should(BeNil())
@@ -3506,17 +3510,21 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(x.Name).Should(Equal(sn))
 			Ω(x.Vhost).Should(Equal(vh))
 			Ω(x.Component).Should(Equal("shovel"))
+			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
+			Ω(x.Definition.ReconnectDelay).Should(Equal(20))
 			Ω(x.Definition.SourceAddress).Should(Equal("mySourceQueue"))
 			Ω(x.Definition.SourceURI).Should(Equal(ssu))
 			Ω(x.Definition.SourcePrefetchCount).Should(Equal(42))
 			Ω(x.Definition.SourceProtocol).Should(Equal("amqp10"))
+			Ω(string(x.Definition.SourceDeleteAfter)).Should(Equal("never"))
 			Ω(x.Definition.DestinationAddress).Should(Equal("myDestQueue"))
 			Ω(x.Definition.DestinationURI).Should(Equal(sdu))
 			Ω(x.Definition.DestinationProtocol).Should(Equal("amqp10"))
 			Ω(x.Definition.DestinationAddForwardHeaders).Should(Equal(true))
 			Ω(x.Definition.DestinationAddTimestampHeader).Should(Equal(true))
-			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
-			Ω(string(x.Definition.SourceDeleteAfter)).Should(Equal("never"))
+			Ω(x.Definition.DestinationApplicationProperties).Should(HaveKeyWithValue("key", "value"))
+			Ω(x.Definition.DestinationMessageAnnotations).Should(HaveKeyWithValue("annotation", "something"))
+			Ω(x.Definition.DestinationProperties).Should(HaveKeyWithValue("prop0", "value0"))
 
 			_, err = rmqc.DeleteShovel(vh, sn)
 			Ω(err).Should(BeNil())
@@ -3544,13 +3552,20 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			sdu := URISet([]string{"amqp://127.0.0.1/%2f"})
 
 			shovelDefinition := ShovelDefinition{
-				SourceURI:         ssu,
-				SourceQueue:       "mySourceQueue",
-				DestinationURI:    sdu,
-				DestinationQueue:  "myDestQueue",
-				AddForwardHeaders: true,
-				AckMode:           "on-confirm",
-				DeleteAfter:       "never"}
+				AckMode:                       "on-confirm",
+				ReconnectDelay:                20,
+				SourceURI:                     ssu,
+				SourceQueue:                   "mySourceQueue",
+				SourceQueueArgs:               map[string]interface{}{"x-message-ttl": 12000},
+				SourceConsumerArgs:            map[string]interface{}{"x-priority": 2},
+				SourcePrefetchCount:           5,
+				DestinationURI:                sdu,
+				DestinationQueue:              "myDestQueue",
+				DestinationQueueArgs:          map[string]interface{}{"x-expires": 222000},
+				AddForwardHeaders:             true,
+				DestinationAddTimestampHeader: true,
+				DestinationPublishProperties:  map[string]interface{}{"delivery_mode": 1},
+				DeleteAfter:                   "never"}
 
 			_, err := rmqc.DeclareShovel(vh, sn, shovelDefinition)
 			Ω(err).Should(BeNil(), "Error declaring shovel")
@@ -3567,12 +3582,19 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(x.Name).Should(Equal(sn))
 			Ω(x.Vhost).Should(Equal(vh))
 			Ω(x.Component).Should(Equal("shovel"))
+			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
+			Ω(x.Definition.ReconnectDelay).Should(Equal(20))
 			Ω(x.Definition.SourceURI).Should(Equal(ssu))
 			Ω(x.Definition.SourceQueue).Should(Equal("mySourceQueue"))
+			Ω(x.Definition.SourceQueueArgs).Should(HaveKeyWithValue("x-message-ttl", float64(12000)))
+			Ω(x.Definition.SourceConsumerArgs).Should(HaveKeyWithValue("x-priority", float64(2)))
+			Ω(x.Definition.SourcePrefetchCount).Should(Equal(5))
 			Ω(x.Definition.DestinationURI).Should(Equal(sdu))
 			Ω(x.Definition.DestinationQueue).Should(Equal("myDestQueue"))
+			Ω(x.Definition.DestinationQueueArgs).Should(HaveKeyWithValue("x-expires", float64(222000)))
 			Ω(x.Definition.AddForwardHeaders).Should(Equal(true))
-			Ω(x.Definition.AckMode).Should(Equal("on-confirm"))
+			Ω(x.Definition.DestinationAddTimestampHeader).Should(Equal(true))
+			Ω(x.Definition.DestinationPublishProperties).Should(HaveKeyWithValue("delivery_mode", float64(1)))
 			Ω(string(x.Definition.DeleteAfter)).Should(Equal("never"))
 
 			_, err = rmqc.DeleteShovel(vh, sn)
