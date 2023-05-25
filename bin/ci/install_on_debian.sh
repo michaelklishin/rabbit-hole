@@ -13,11 +13,11 @@ curl -1sLf 'https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/gpg.9F4587F
 
 ## Add apt repositories maintained by Team RabbitMQ
 sudo tee /etc/apt/sources.list.d/rabbitmq.list <<EOF
-deb https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/deb/ubuntu bionic main
-deb-src https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/deb/ubuntu bionic main
+deb https://ppa1.novemberain.com/rabbitmq/rabbitmq-erlang/deb/ubuntu focal main
+deb-src https://ppa1.novemberain.com/rabbitmq/rabbitmq-erlang/deb/ubuntu focal main
 
-deb https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu bionic main
-deb-src https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu bionic main
+deb https://ppa1.novemberain.com/rabbitmq/rabbitmq-server/deb/ubuntu focal main
+deb-src https://ppa1.novemberain.com/rabbitmq/rabbitmq-server/deb/ubuntu focal main
 EOF
 
 ## Update package indices
