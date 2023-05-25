@@ -100,7 +100,7 @@ type QueueInfo struct {
 	// Extra queue arguments
 	Arguments map[string]interface{} `json:"arguments"`
 
-	// RabbitMQ node that hosts master for this queue
+	// RabbitMQ node that hosts the leader replica for this queue
 	Node string `json:"node,omitempty"`
 	// Queue status
 	Status string `json:"state,omitempty"`
