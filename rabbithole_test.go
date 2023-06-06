@@ -287,12 +287,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			// the user cannot list connections of the default administrative user
 			_, err := alt_rmqc.ListConnectionsOfUser("guest")
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
+			// TODO: uncomment and verify when rabbitmq/rabbitmq-server#8483 ships in a GA release
+			// Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
 
 			// the user cannot close connections of the default administrative user
 			_, err = alt_rmqc.CloseAllConnectionsOfUser("guest")
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
+			// TODO: uncomment and verify when rabbitmq/rabbitmq-server#8483 ships in a GA release
+			// Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
 		})
 	})
 
