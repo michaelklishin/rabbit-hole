@@ -229,6 +229,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	// rabbitmq/rabbitmq-server#8482, rabbitmq/rabbitmq-server#5319
 	Context("DELETE /api/connections/username/{username} invoked by a non-privileged user, case 1", func() {
 		It("closes the connection", func() {
+			Skip("unskip when rabbitmq/rabbitmq-server#8483 ships in a GA release")
+
 			// first close all connections as an administrative user
 			xs, _ := rmqc.ListConnections()
 			for _, c := range xs {
@@ -276,6 +278,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	// rabbitmq/rabbitmq-server#8482, rabbitmq/rabbitmq-server#5319
 	Context("DELETE /api/connections/username/{username} invoked by a non-privileged user, case 2", func() {
 		It("fails with insufficient permissions", func() {
+			Skip("unskip when rabbitmq/rabbitmq-server#8483 ships in a GA release")
+
 			u := "policymaker"
 
 			// an HTTP API client that uses policymaker-level permissions
@@ -287,14 +291,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			// the user cannot list connections of the default administrative user
 			_, err := alt_rmqc.ListConnectionsOfUser("guest")
 			Ω(err).Should(HaveOccurred())
-			// TODO: uncomment and verify when rabbitmq/rabbitmq-server#8483 ships in a GA release
-			// Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
+			Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
 
 			// the user cannot close connections of the default administrative user
 			_, err = alt_rmqc.CloseAllConnectionsOfUser("guest")
 			Ω(err).Should(HaveOccurred())
-			// TODO: uncomment and verify when rabbitmq/rabbitmq-server#8483 ships in a GA release
-			// Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
+			Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
 		})
 	})
 
