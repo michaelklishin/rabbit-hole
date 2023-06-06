@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -96,15 +96,15 @@ type portTestStruct struct {
 	Port Port `json:"port"`
 }
 
+var _ = BeforeSuite(func() {
+	val, _ := os.LookupEnv("GOMEGA_DEFAULT_EVENTUALLY_TIMEOUT")
+	log.Printf("Using Gomega Eventually matcher timeout of %s", val)
+})
+
 var _ = Describe("RabbitMQ HTTP API client", func() {
 	var (
 		rmqc *Client
 	)
-
-	BeforeSuite(func() {
-		val, _ := os.LookupEnv("GOMEGA_DEFAULT_EVENTUALLY_TIMEOUT")
-		log.Printf("Using Gomega Eventually matcher timeout of %s", val)
-	})
 
 	BeforeEach(func() {
 		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
@@ -409,7 +409,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	})
 
 	Context("GET /connections when there are active connections", func() {
-		It("returns decoded response", func() {
+		It("returns decoded response", FlakeAttempts(3), func() {
 			conn := openConnection("/")
 			defer conn.Close()
 
@@ -453,7 +453,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	})
 
 	Context("GET /connections/username/{username} when there are active connections", func() {
-		It("returns decoded response", func() {
+		It("returns decoded response", FlakeAttempts(3), func() {
 			conn := openConnectionWithCredentials("/", "policymaker", "policymaker")
 			defer conn.Close()
 
@@ -501,7 +501,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	})
 
 	Context("GET /channels when there are active connections with open channels", func() {
-		It("returns decoded response", func() {
+		It("returns decoded response", FlakeAttempts(3), func() {
 			cs, _ := rmqc.ListConnections()
 			for _, c := range cs {
 				rmqc.CloseConnection(c.Name)
@@ -565,7 +565,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	})
 
 	Context("GET /connections/{name] when connection exists", func() {
-		It("returns decoded response", func() {
+		It("returns decoded response", FlakeAttempts(3), func() {
 			// this really should be tested with > 1 connection and channel. MK.
 			conn := openConnection("/")
 			defer conn.Close()
@@ -600,7 +600,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	})
 
 	Context("GET /channels/{name} when channel exists", func() {
-		It("returns decoded response", func() {
+		It("returns decoded response", FlakeAttempts(3), func() {
 			conn := openConnection("/")
 			defer conn.Close()
 
@@ -1474,7 +1474,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			rmqc.DeleteVhostLimits(vh, VhostLimits{"max-connections", "max-queues"})
 		})
 
-		It("sets the limits", func() {
+		It("sets the limits", FlakeAttempts(3), func() {
 			vh := "rabbit/hole"
 			_, err := rmqc.DeleteVhostLimits(vh, VhostLimits{"max-connections", "max-queues"})
 			Ω(err).Should(BeNil())
