@@ -81,6 +81,19 @@ type ConnectionInfo struct {
 	ConnectedAt uint64 `json:"connected_at,omitempty"`
 }
 
+// Connection of a specific user. This provides just enough information
+// to the monitoring tools.
+type UserConnectionInfo struct {
+	// Connection name
+	Name string `json:"name"`
+	// Node the client is connected to
+	Node string `json:"node"`
+	// Username
+	User string `json:"user"`
+	// Virtual host
+	Vhost string `json:"vhost"`
+}
+
 //
 // GET /api/connections
 //
@@ -94,6 +107,24 @@ func (c *Client) ListConnections() (rec []ConnectionInfo, err error) {
 
 	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []ConnectionInfo{}, err
+	}
+
+	return rec, nil
+}
+
+//
+// GET /api/connections/username/{username}
+//
+
+// ListConnections returns a list of client connections to target node.
+func (c *Client) ListConnectionsOfUser(username string) (rec []UserConnectionInfo, err error) {
+	req, err := newGETRequest(c, "connections/username/"+url.PathEscape(username))
+	if err != nil {
+		return []UserConnectionInfo{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return []UserConnectionInfo{}, err
 	}
 
 	return rec, nil
@@ -124,6 +155,24 @@ func (c *Client) GetConnection(name string) (rec *ConnectionInfo, err error) {
 // CloseConnection closes a connection.
 func (c *Client) CloseConnection(name string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "connections/"+url.PathEscape(name), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if res, err = executeRequest(c, req); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+//
+// DELETE /api/connections/username/{username}
+//
+
+// CloseConnection closes a connection.
+func (c *Client) CloseAllConnectionsOfUser(username string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "connections/username/"+url.PathEscape(username), nil)
 	if err != nil {
 		return nil, err
 	}
