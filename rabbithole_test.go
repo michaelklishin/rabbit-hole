@@ -2,6 +2,7 @@ package rabbithole
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -55,7 +56,12 @@ func FindUserByName(sl []UserInfo, name string) (u UserInfo) {
 }
 
 func openConnection(vhost string) *amqp.Connection {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/" + url.QueryEscape(vhost))
+	return openConnectionWithCredentials(vhost, "guest", "guest")
+}
+
+func openConnectionWithCredentials(vhost string, username string, password string) *amqp.Connection {
+	uri := fmt.Sprintf("amqp://%s:%s@localhost:5672/%s", username, password, url.QueryEscape(vhost))
+	conn, err := amqp.Dial(uri)
 	Ω(err).Should(BeNil())
 
 	if err != nil {
@@ -178,6 +184,122 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
+	// rabbitmq/rabbitmq-server#8482, rabbitmq/rabbitmq-server#5319
+	Context("DELETE /api/connections/username/{username} invoked by an administrator", func() {
+		It("closes the connection", func() {
+			// first close all connections
+			xs, _ := rmqc.ListConnections()
+			for _, c := range xs {
+				rmqc.CloseConnection(c.Name)
+			}
+			u := "policymaker"
+
+			Eventually(func(g Gomega) []UserConnectionInfo {
+				xs, err := rmqc.ListConnectionsOfUser(u)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).Should(BeEmpty())
+
+			conn := openConnectionWithCredentials("/", u, u)
+			defer conn.Close()
+
+			Eventually(func(g Gomega) []UserConnectionInfo {
+				xs, err := rmqc.ListConnectionsOfUser(u)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
+			closeEvents := make(chan *amqp.Error)
+			conn.NotifyClose(closeEvents)
+
+			_, err := rmqc.CloseAllConnectionsOfUser(u)
+			Ω(err).Should(BeNil())
+
+			evt := <-closeEvents
+			Ω(evt).ShouldNot(BeNil())
+			Ω(evt.Code).Should(Equal(320))
+			Ω(evt.Reason).Should(Equal("CONNECTION_FORCED - Closed via management plugin"))
+			// server-initiated
+			Ω(evt.Server).Should(Equal(true))
+		})
+	})
+
+	// rabbitmq/rabbitmq-server#8482, rabbitmq/rabbitmq-server#5319
+	Context("DELETE /api/connections/username/{username} invoked by a non-privileged user, case 1", func() {
+		It("closes the connection", func() {
+			Skip("unskip when rabbitmq/rabbitmq-server#8483 ships in a GA release")
+
+			// first close all connections as an administrative user
+			xs, _ := rmqc.ListConnections()
+			for _, c := range xs {
+				rmqc.CloseConnection(c.Name)
+			}
+			u := "policymaker"
+
+			// an HTTP API client that uses policymaker-level permissions
+			alt_rmqc, _ := NewClient("http://127.0.0.1:15672", u, u)
+
+			Eventually(func(g Gomega) []ConnectionInfo {
+				xs, err := alt_rmqc.ListConnections()
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).Should(BeEmpty())
+
+			conn := openConnectionWithCredentials("/", u, u)
+			defer conn.Close()
+
+			// the user can list their own connections
+			Eventually(func(g Gomega) []UserConnectionInfo {
+				xs, err := alt_rmqc.ListConnectionsOfUser(u)
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
+			closeEvents := make(chan *amqp.Error)
+			conn.NotifyClose(closeEvents)
+
+			// the user can close their own connections
+			_, err := alt_rmqc.CloseAllConnectionsOfUser(u)
+			Ω(err).Should(BeNil())
+
+			evt := <-closeEvents
+			Ω(evt).ShouldNot(BeNil())
+			Ω(evt.Code).Should(Equal(320))
+			Ω(evt.Reason).Should(Equal("CONNECTION_FORCED - Closed via management plugin"))
+			// server-initiated
+			Ω(evt.Server).Should(Equal(true))
+		})
+	})
+
+	// rabbitmq/rabbitmq-server#8482, rabbitmq/rabbitmq-server#5319
+	Context("DELETE /api/connections/username/{username} invoked by a non-privileged user, case 2", func() {
+		It("fails with insufficient permissions", func() {
+			Skip("unskip when rabbitmq/rabbitmq-server#8483 ships in a GA release")
+
+			u := "policymaker"
+
+			// an HTTP API client that uses policymaker-level permissions
+			alt_rmqc, _ := NewClient("http://127.0.0.1:15672", u, u)
+
+			conn := openConnection("/")
+			defer conn.Close()
+
+			// the user cannot list connections of the default administrative user
+			_, err := alt_rmqc.ListConnectionsOfUser("guest")
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
+
+			// the user cannot close connections of the default administrative user
+			_, err = alt_rmqc.CloseAllConnectionsOfUser("guest")
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Error: API responded with a 401 Unauthorized"))
+		})
+	})
+
 	Context("EnabledProtocols", func() {
 		It("returns a list of enabled protocols", func() {
 			xs, err := rmqc.EnabledProtocols()
@@ -288,7 +410,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("GET /connections when there are active connections", func() {
 		It("returns decoded response", func() {
-			// this really should be tested with > 1 connection and channel. MK.
 			conn := openConnection("/")
 			defer conn.Close()
 
@@ -328,6 +449,54 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(info.Name).ShouldNot(BeNil())
 			Ω(info.Host).ShouldNot(BeEmpty())
 			Ω(info.UsesTLS).Should(Equal(false))
+		})
+	})
+
+	Context("GET /connections/username/{username} when there are active connections", func() {
+		It("returns decoded response", func() {
+			conn := openConnectionWithCredentials("/", "policymaker", "policymaker")
+			defer conn.Close()
+
+			conn2 := openConnection("/")
+			defer conn2.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			ch2, err := conn2.Channel()
+			Ω(err).Should(BeNil())
+			defer ch2.Close()
+
+			ch3, err := conn2.Channel()
+			Ω(err).Should(BeNil())
+			defer ch3.Close()
+
+			Eventually(func(g Gomega) []UserConnectionInfo {
+				xs, err := rmqc.ListConnectionsOfUser("guest")
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
+			Eventually(func(g Gomega) []UserConnectionInfo {
+				xs, err := rmqc.ListConnectionsOfUser("policymaker")
+				Ω(err).Should(BeNil())
+
+				return xs
+			}).ShouldNot(BeEmpty())
+
+			xs, err := rmqc.ListConnectionsOfUser("guest")
+			Ω(err).Should(BeNil())
+
+			info := xs[0]
+			Ω(info.Name).ShouldNot(BeNil())
+			Ω(info.User).ShouldNot(BeEmpty())
+			Ω(info.Vhost).Should(Equal("/"))
+
+			// administrative users can list connections of any user
+			_, err = rmqc.ListConnectionsOfUser("policymaker")
+			Ω(err).Should(BeNil())
 		})
 	})
 
