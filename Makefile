@@ -38,4 +38,7 @@ docker.rabbitmq:
 	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl set_permissions -p / guest \".*\" \".*\" \".*\""
 	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl add_vhost rabbit/hole"
 	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl set_permissions -p rabbit/hole guest \".*\" \".*\" \".*\""
+	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl add_user policymaker policymaker
+	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl set_permissions -p / policymaker \".*\" \".*\" \".*\""
+	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl set_permissions -p rabbit/hole policymaker \".*\" \".*\" \".*\""
 	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmq-plugins enable rabbitmq_federation rabbitmq_federation_management rabbitmq_shovel rabbitmq_shovel_management"
