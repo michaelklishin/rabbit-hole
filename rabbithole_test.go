@@ -4220,7 +4220,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		vhost, queueName, exchangeName := "rabbit/hole", "definitions_test_queue", "definitions_test_exchange"
 		bi := BindingInfo{
 			Source:          exchangeName,
-			Vhost:           vhost,
 			DestinationType: "queue",
 			Destination:     queueName,
 			Arguments:       map[string]interface{}{},
@@ -4231,13 +4230,11 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Policies: &[]PolicyDefinition{},
 				Queues: &[]QueueInfo{{
 					Name:      queueName,
-					Vhost:     vhost,
 					Durable:   true,
 					Arguments: map[string]interface{}{},
 				}},
 				Exchanges: &[]ExchangeInfo{{
 					Name:      exchangeName,
-					Vhost:     vhost,
 					Durable:   true,
 					Type:      "direct",
 					Arguments: map[string]interface{}{},
@@ -4249,21 +4246,21 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			defs, err := rmqc.ListVhostDefinitions(vhost)
 			Expect(err).Should(BeNil())
+			Ω(defs).ShouldNot(BeNil())
 
 			queueDefs := defs.Queues
 			q := FindQueueByName(*queueDefs, queueName)
 			Ω(q).ShouldNot(BeNil())
-			Ω(q.Vhost).Should(Equal(vhost))
+			Ω(q.Name).Should(Equal("definitions_test_queue"))
 
 			exchangeDefs := defs.Exchanges
 			x := FindExchangeByName(*exchangeDefs, exchangeName)
 			Ω(x).ShouldNot(BeNil())
-			Ω(x.Vhost).Should(Equal(vhost))
+			Ω(x.Name).Should(Equal("definitions_test_exchange"))
 
 			bindingDefs := defs.Bindings
 			b := FindBindingBySourceAndDestinationNames(*bindingDefs, exchangeName, queueName)
 			Ω(b).ShouldNot(BeNil())
-			Ω(b.Vhost).Should(Equal(vhost))
 
 			_, _ = rmqc.DeleteExchange("/", exchangeName)
 			_, _ = rmqc.DeleteQueue("/", queueName)
