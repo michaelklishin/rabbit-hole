@@ -4215,4 +4215,56 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			_, _ = rmqc.DeleteBinding("/", bi)
 		})
 	})
+
+	Context("POST /api/definitions/vhost", func() {
+		vhost, queueName, exchangeName := "rabbit/hole", "definitions_test_queue", "definitions_test_exchange"
+		bi := BindingInfo{
+			Source:          exchangeName,
+			DestinationType: "queue",
+			Destination:     queueName,
+			Arguments:       map[string]interface{}{},
+		}
+
+		It("should create queues and exchanges as specified in the definitions for vhost "+vhost, func() {
+			defsToUpload := &ExportedDefinitions{
+				Policies: &[]PolicyDefinition{},
+				Queues: &[]QueueInfo{{
+					Name:      queueName,
+					Durable:   true,
+					Arguments: map[string]interface{}{},
+				}},
+				Exchanges: &[]ExchangeInfo{{
+					Name:      exchangeName,
+					Durable:   true,
+					Type:      "direct",
+					Arguments: map[string]interface{}{},
+				}},
+				Bindings: &[]BindingInfo{bi},
+			}
+			_, err := rmqc.UploadVhostDefinitions(defsToUpload, vhost)
+			Expect(err).Should(BeNil())
+
+			defs, err := rmqc.ListVhostDefinitions(vhost)
+			Expect(err).Should(BeNil())
+			Ω(defs).ShouldNot(BeNil())
+
+			queueDefs := defs.Queues
+			q := FindQueueByName(*queueDefs, queueName)
+			Ω(q).ShouldNot(BeNil())
+			Ω(q.Name).Should(Equal("definitions_test_queue"))
+
+			exchangeDefs := defs.Exchanges
+			x := FindExchangeByName(*exchangeDefs, exchangeName)
+			Ω(x).ShouldNot(BeNil())
+			Ω(x.Name).Should(Equal("definitions_test_exchange"))
+
+			bindingDefs := defs.Bindings
+			b := FindBindingBySourceAndDestinationNames(*bindingDefs, exchangeName, queueName)
+			Ω(b).ShouldNot(BeNil())
+
+			_, _ = rmqc.DeleteExchange("/", exchangeName)
+			_, _ = rmqc.DeleteQueue("/", queueName)
+			_, _ = rmqc.DeleteBinding("/", bi)
+		})
+	})
 })
