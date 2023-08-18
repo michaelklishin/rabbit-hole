@@ -64,7 +64,7 @@ type ChannelDetails struct {
 	Node           string `json:"node"`
 	Number         uint   `json:"number"`
 	PeerHost       string `json:"peer_host"`
-	PeerPort       uint   `json:"peer_port"`
+	PeerPort       Port   `json:"peer_port"`
 	User           string `json:"user"`
 }
 
@@ -295,7 +295,6 @@ func (c *Client) PagedListQueuesWithParameters(params url.Values) (rec PagedQueu
 	}
 
 	return rec, nil
-
 }
 
 // PagedListQueuesWithParameters lists queues with pagination in the vhost vhost.
@@ -310,7 +309,6 @@ func (c *Client) PagedListQueuesWithParametersIn(vhost string, params url.Values
 	}
 
 	return rec, nil
-
 }
 
 //
@@ -338,7 +336,6 @@ func (c *Client) ListQueuesIn(vhost string) (rec []QueueInfo, err error) {
 // GetQueue returns information about a queue.
 func (c *Client) GetQueue(vhost, queue string) (rec *DetailedQueueInfo, err error) {
 	req, err := newGETRequest(c, "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue))
-
 	if err != nil {
 		return nil, err
 	}

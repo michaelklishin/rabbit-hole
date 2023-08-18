@@ -33,7 +33,7 @@ type BriefChannelDetail struct {
 	Node           string `json:"node"`
 	Number         int    `json:"number"`
 	PeerHost       string `json:"peer_host"`
-	PeerPort       int    `json:"peer_port"`
+	PeerPort       Port   `json:"peer_port"`
 	User           string `json:"user"`
 }
 

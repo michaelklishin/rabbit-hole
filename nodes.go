@@ -36,9 +36,9 @@ type ClusterLink struct {
 	Stats     ClusterLinkStats `json:"stats"`
 	Name      string           `json:"name"`
 	PeerAddr  string           `json:"peer_addr"`
-	PeerPort  uint             `json:"peer_port"`
+	PeerPort  Port             `json:"peer_port"`
 	SockAddr  string           `json:"sock_addr"`
-	SockPort  uint             `json:"sock_port"`
+	SockPort  Port             `json:"sock_port"`
 	SendBytes uint64           `json:"send_bytes"`
 	RecvBytes uint64           `json:"recv_bytes"`
 }
