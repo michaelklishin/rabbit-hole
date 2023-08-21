@@ -31,7 +31,7 @@ docker:
 
 .PHONY: docker.rabbitmq
 docker.rabbitmq:
-	docker run -p 15672:15672 -p 5672:5672 -p 4639:4639 --name rabbithole_rabbitmq -dit rabbitmq:3.10-management
+	docker run -p 15672:15672 -p 5672:5672 -p 4639:4639 --name rabbithole_rabbitmq -dit rabbitmq:3.11-management
 	sleep 10
 	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl set_cluster_name rabbitmq@localhost"
 	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl add_vhost /"
