@@ -45,4 +45,33 @@ var _ = Describe("Unit tests", func() {
 			Ω(us).Should(Equal(URISet([]string{"amqp://127.0.0.1:5672", "amqp://localhost:5672"})))
 		})
 	})
+
+	Context("Port marshalling", func() {
+		It("unmarshal Port when it is a number", func() {
+			var d Port
+			s := []byte("123")
+			err := d.UnmarshalJSON(s)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(d).Should(Equal(Port(123)))
+		})
+
+		It("unmarshal Port when it is a quoted string", func() {
+			var d Port
+			s := []byte("\"456\"")
+			err := d.UnmarshalJSON(s)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(d).Should(Equal(Port(456)))
+		})
+
+		It("unmarshal Port when it is a undefined", func() {
+			var d Port
+			s := []byte("\"undefined\"")
+			err := d.UnmarshalJSON(s)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(d).Should(Equal(Port(0)))
+		})
+	})
 })

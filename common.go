@@ -17,7 +17,9 @@ func (p *Port) UnmarshalJSON(b []byte) error {
 	stringValue := string(b)
 	var parsed int64
 	var err error
-	if stringValue[0] == '"' && stringValue[len(stringValue)-1] == '"' {
+	if stringValue == `"undefined"` {
+		parsed = 0
+	} else if stringValue[0] == '"' && stringValue[len(stringValue)-1] == '"' {
 		parsed, err = strconv.ParseInt(stringValue[1:len(stringValue)-1], 10, 32)
 	} else {
 		parsed, err = strconv.ParseInt(stringValue, 10, 32)
