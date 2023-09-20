@@ -1,6 +1,8 @@
 package rabbithole
 
 import (
+	"encoding/json"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -72,6 +74,22 @@ var _ = Describe("Unit tests", func() {
 			Ω(err).ShouldNot(HaveOccurred())
 
 			Ω(d).Should(Equal(Port(0)))
+		})
+	})
+	Context("ConsumerDetails marshalling", func() {
+		It("unmarshal ConsumerDetails when channel_details is an empty array", func() {
+			var d ConsumerDetail
+			s := []byte("{\"channel_details\":[]}")
+			err := json.Unmarshal(s, &d)
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(d.ChannelDetails).Should(Equal(ChannelDetails{}))
+		})
+		It("unmarshal ConsumerDetails when channel_details is an object", func() {
+			var d ConsumerDetail
+			s := []byte("{\"channel_details\":{\"name\":\"foo\"}}")
+			err := json.Unmarshal(s, &d)
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(d.ChannelDetails).Should(Equal(ChannelDetails{Name: "foo"}))
 		})
 	})
 })
