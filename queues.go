@@ -68,6 +68,17 @@ type ChannelDetails struct {
 	User           string `json:"user"`
 }
 
+// Handles special case where `ChannelDetails` is an empty array
+// See https://github.com/rabbitmq/rabbitmq-server/issues/2684
+func (c *ChannelDetails) UnmarshalJSON(data []byte) error {
+	if string(data) == "[]" {
+		*c = ChannelDetails{}
+		return nil
+	}
+	type Alias ChannelDetails
+	return json.Unmarshal(data, (*Alias)(c))
+}
+
 // QueueDetail describe queue information with a consumer
 type QueueDetail struct {
 	Name  string `json:"name"`
