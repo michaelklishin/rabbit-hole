@@ -1,6 +1,29 @@
-## Changes Between 2.15.0 and 2.16.0 (in development)
+## Changes Between 2.15.0 and 2.16.0 (Jan 4, 2023)
 
-No changes yet
+### Definition Upload for a Single Virtual Host
+
+`UploadVhostDefinitions` is a new function that's similar to `UploadDefinitions` but
+allows for definition upload for a specific virtual host.
+
+Contributed by @lescactus.
+
+GitHub issue: [#274](https://github.com/michaelklishin/rabbit-hole/pull/274)
+
+### Fixed an Unmarshalling Failure of GetQueue
+
+Contributed by @mcwarman.
+
+GitHub issue: [#279](https://github.com/michaelklishin/rabbit-hole/issues/279), [#280](https://github.com/michaelklishin/rabbit-hole/pull/280)
+
+### Fixed an Unmarshalling Failure in ChannelDetails
+
+that affected RabbitMQ versions older than 3.11.8.
+
+Contributed by @vitorquintanilha.
+
+GitHub issue: [#284](https://github.com/michaelklishin/rabbit-hole/pull/284)
+
+
 
 ## Changes Between 2.14.0 and 2.15.0 (May 18, 2023)
 
