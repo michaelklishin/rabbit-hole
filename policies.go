@@ -124,3 +124,21 @@ func (c *Client) DeletePolicy(vhost, name string) (res *http.Response, err error
 
 	return res, nil
 }
+
+// DeleteAllPolicies deletes all policies. Only mean to be used
+// in integration tests.
+func (c *Client) DeleteAllPolicies() (err error) {
+	list, err := c.ListPolicies()
+	if err != nil {
+		return err
+	}
+
+	for _, p := range list {
+		_, err = c.DeletePolicy(p.Vhost, p.Name)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

@@ -2496,17 +2496,19 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("GET /policies", func() {
 		Context("when policy exists", func() {
 			It("returns decoded response", func() {
+				rmqc.DeleteAllPolicies()
+
 				policy1 := Policy{
 					Pattern:    "abc",
 					ApplyTo:    "all",
-					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Definition: PolicyDefinition{"expires": 100},
 					Priority:   0,
 				}
 
 				policy2 := Policy{
 					Pattern:    ".*",
 					ApplyTo:    "all",
-					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Definition: PolicyDefinition{"expires": 100},
 					Priority:   0,
 				}
 
@@ -2551,17 +2553,19 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("GET /polices/{vhost}", func() {
 		Context("when policy exists", func() {
 			It("returns decoded response", func() {
+				rmqc.DeleteAllPolicies()
+
 				policy1 := Policy{
 					Pattern:    "abc",
 					ApplyTo:    "all",
-					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Definition: PolicyDefinition{"expires": 100},
 					Priority:   0,
 				}
 
 				policy2 := Policy{
 					Pattern:    ".*",
 					ApplyTo:    "all",
-					Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+					Definition: PolicyDefinition{"expires": 100, "message-ttl": 100000},
 					Priority:   0,
 				}
 
@@ -2605,6 +2609,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 		Context("when no policies exist", func() {
 			It("returns decoded response", func() {
+				rmqc.DeleteAllPolicies()
+
 				vh := "rabbit/hole"
 				Eventually(func(g Gomega) []Policy {
 					xs, _ := rmqc.ListPoliciesIn(vh)
@@ -2618,6 +2624,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	Context("GET /policies/{vhost}/{name}", func() {
 		Context("when policy exists", func() {
 			It("returns decoded response", func() {
+				rmqc.DeleteAllPolicies()
+
 				policy := Policy{
 					Pattern:    ".*",
 					ApplyTo:    "all",
@@ -2669,15 +2677,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("DELETE /polices/{vhost}/{name}", func() {
 		It("deletes the policy", func() {
+			rmqc.DeleteAllPolicies()
+
 			policy := Policy{
 				Pattern:    ".*",
-				ApplyTo:    "all",
-				Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+				ApplyTo:    "queues",
+				Definition: PolicyDefinition{"expires": 100, "message-ttl": 100000},
 				Priority:   0,
 			}
 
 			vh := "rabbit/hole"
-			name := "woot"
+			name := "woot-delete-me"
 
 			_, err := rmqc.PutPolicy(vh, name, policy)
 			Ω(err).Should(BeNil())
@@ -2703,15 +2713,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 	Context("PUT /policies/{vhost}/{name}", func() {
 		It("creates the policy", func() {
+			rmqc.DeleteAllPolicies()
+
 			policy := Policy{
-				Pattern: ".*",
-				ApplyTo: "all",
-				Definition: PolicyDefinition{
-					"expires":   100,
-					"ha-mode":   "nodes",
-					"ha-params": NodeNames{"a", "b", "c"},
-				},
-				Priority: 0,
+				Pattern:    ".*",
+				ApplyTo:    "all",
+				Definition: PolicyDefinition{"expires": 100},
+				Priority:   0,
 			}
 
 			vh := "rabbit/hole"
@@ -2739,10 +2747,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 
 		It("updates the policy", func() {
+			rmqc.DeleteAllPolicies()
+
 			policy := Policy{
 				Pattern:    ".*",
-				ApplyTo:    "exchanges",
-				Definition: PolicyDefinition{"expires": 100, "ha-mode": "all"},
+				ApplyTo:    "all",
+				Definition: PolicyDefinition{"expires": 100},
 			}
 
 			vh := "rabbit/hole"
@@ -2765,22 +2775,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(pol.Vhost).Should(Equal(vh))
 			Ω(pol.Name).Should(Equal(name))
 			Ω(pol.Pattern).Should(Equal(".*"))
-			Ω(pol.ApplyTo).Should(Equal("exchanges"))
+			Ω(pol.ApplyTo).Should(Equal("all"))
 			Ω(pol.Priority).Should(BeEquivalentTo(0))
 			Ω(pol.Definition).Should(BeAssignableToTypeOf(PolicyDefinition{}))
-			Ω(pol.Definition["ha-mode"]).Should(Equal("all"))
 			Ω(pol.Definition["expires"]).Should(BeEquivalentTo(100))
 
 			// update the policy
 			newPolicy := Policy{
-				Pattern: "\\d+",
-				ApplyTo: "all",
-				Definition: PolicyDefinition{
-					"max-length": 100,
-					"ha-mode":    "nodes",
-					"ha-params":  NodeNames{"a", "b", "c"},
-				},
-				Priority: 1,
+				Pattern:    "\\d+",
+				ApplyTo:    "queues",
+				Definition: PolicyDefinition{"max-length": 100},
+				Priority:   1,
 			}
 
 			resp, err = rmqc.PutPolicy(vh, name, newPolicy)
@@ -2799,14 +2804,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(pol.Vhost).Should(Equal(vh))
 			Ω(pol.Name).Should(Equal("woot"))
 			Ω(pol.Pattern).Should(Equal("\\d+"))
-			Ω(pol.ApplyTo).Should(Equal("all"))
+			Ω(pol.ApplyTo).Should(Equal("queues"))
 			Ω(pol.Priority).Should(BeEquivalentTo(1))
 			Ω(pol.Definition).Should(BeAssignableToTypeOf(PolicyDefinition{}))
 			Ω(pol.Definition["max-length"]).Should(BeEquivalentTo(100))
-			Ω(pol.Definition["ha-mode"]).Should(Equal("nodes"))
-			Ω(pol.Definition["ha-params"]).Should(HaveLen(3))
-			Ω(pol.Definition["ha-params"]).Should(ContainElement("a"))
-			Ω(pol.Definition["ha-params"]).Should(ContainElement("c"))
 			Ω(pol.Definition["expires"]).Should(BeNil())
 
 			// cleanup
