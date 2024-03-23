@@ -14,14 +14,14 @@ jobs:
 
     services:
       rabbitmq:
-        image: rabbitmq:3.11-management
+        image: rabbitmq:3.13-management
         ports:
           - 15672:15672
           - 5672:5672
 
     strategy:
       matrix:
-        go: ["1.19", "1.20"]
+        go: ["1.21", "1.22"]
 
     steps:
     - name: CHECKOUT
