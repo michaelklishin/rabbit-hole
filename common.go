@@ -110,8 +110,8 @@ type AutoDelete bool
 func (d *AutoDelete) UnmarshalJSON(b []byte) error {
 	switch string(b) {
 	case "\"undefined\"":
-		// auto_delete is "undefined", map it to true
-		*d = AutoDelete(true)
+		// auto_delete is "undefined", map it to false
+		*d = AutoDelete(false)
 	case "true":
 		*d = AutoDelete(true)
 	case "false":
