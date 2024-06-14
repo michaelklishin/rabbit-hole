@@ -76,9 +76,6 @@ type NodeInfo struct {
 	ProcUsed                int         `json:"proc_used"`
 	ProcUsedDetails         RateDetails `json:"proc_used_details"`
 	ProcTotal               int         `json:"proc_total"`
-	SocketsUsed             int         `json:"sockets_used"`
-	SocketsUsedDetails      RateDetails `json:"sockets_used_details"`
-	SocketsTotal            int         `json:"sockets_total"`
 	MemUsed                 int         `json:"mem_used"`
 	MemUsedDetails          RateDetails `json:"mem_used_details"`
 	MemLimit                int         `json:"mem_limit"`
@@ -194,8 +191,6 @@ func (c *Client) ListNodes() (rec []NodeInfo, err error) {
 //   "os_pid": "39292",
 //   "fd_used": 35,
 //   "fd_total": 256,
-//   "sockets_used": 4,
-//   "sockets_total": 138,
 //   "mem_used": 69964432,
 //   "mem_limit": 2960660889,
 //   "mem_alarm": false,
