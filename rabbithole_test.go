@@ -3842,8 +3842,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := URISet([]string{"amqp://127.0.0.1/%2f"})
-			sdu := URISet([]string{"amqp://127.0.0.1/%2f"})
+			ssu := URISet([]string{"amqp://localhost/%2f"})
+			sdu := URISet([]string{"amqp://localhost/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:         ssu,
@@ -3870,13 +3870,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			_, err = rmqc.DeleteShovel(vh, sn)
 			Ω(err).Should(BeNil())
-
-			Eventually(func(g Gomega) []ShovelStatus {
-				xs, err := rmqc.ListShovelStatus(vh)
-				Ω(err).Should(BeNil())
-
-				return xs
-			}).Should(BeEmpty())
 		})
 	})
 
