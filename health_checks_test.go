@@ -115,23 +115,6 @@ var _ = Describe("Health checks", func() {
 		})
 	})
 
-	Context("GET /health/checks/node-is-mirror-sync-critical", func() {
-		It("returns decoded response", func() {
-			conn := openConnection("/")
-			defer conn.Close()
-
-			ch, err := conn.Channel()
-			Ω(err).Should(BeNil())
-			defer ch.Close()
-
-			res, err := rmqc.HealthCheckNodeIsMirrorSyncCritical()
-			Ω(err).Should(BeNil())
-
-			Ω(res.Ok()).Should(BeTrue())
-			Ω(res.Status).Should(Equal("ok"))
-		})
-	})
-
 	Context("GET /health/checks/node-is-quorum-critical", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
