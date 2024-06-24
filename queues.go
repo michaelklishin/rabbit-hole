@@ -474,16 +474,6 @@ type queueAction struct {
 	Action string `json:"action"`
 }
 
-// SyncQueue synchronises queue contents with the mirrors remaining in the cluster.
-func (c *Client) SyncQueue(vhost, queue string) (res *http.Response, err error) {
-	return c.sendQueueAction(vhost, queue, queueAction{"sync"})
-}
-
-// CancelSyncQueue cancels queue synchronisation process.
-func (c *Client) CancelSyncQueue(vhost, queue string) (res *http.Response, err error) {
-	return c.sendQueueAction(vhost, queue, queueAction{"cancel_sync"})
-}
-
 // POST /api/queues/{vhost}/{name}/actions
 func (c *Client) sendQueueAction(vhost string, queue string, action queueAction) (res *http.Response, err error) {
 	body, err := json.Marshal(action)

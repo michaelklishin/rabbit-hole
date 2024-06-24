@@ -2436,63 +2436,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		})
 	})
 
-	Context("POST /queues/{vhost}/{queue}/actions", func() {
-		It("synchronises queue", func() {
-			vh := "rabbit/hole"
-			qn := "rabbit-hole.temporary/sync"
-
-			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
-			Ω(err).Should(BeNil())
-
-			Eventually(func(g Gomega) string {
-				q, err := rmqc.GetQueue(vh, qn)
-				Ω(err).Should(BeNil())
-
-				return q.Name
-			}).Should(Equal(qn))
-
-			// it would be better to test this in a cluster configuration
-			x, err := rmqc.SyncQueue(vh, qn)
-			Ω(err).Should(BeNil())
-			Ω(x.StatusCode).Should(Equal(204))
-			_, err = rmqc.DeleteQueue(vh, qn)
-			Ω(err).Should(BeNil())
-
-			Eventually(func(g Gomega) error {
-				_, err := rmqc.GetQueue(vh, qn)
-
-				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
-		})
-
-		It("cancels queue synchronisation", func() {
-			vh := "rabbit/hole"
-			qn := "rabbit-hole.temporary/cancel.sync"
-
-			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
-			Ω(err).Should(BeNil())
-			Eventually(func(g Gomega) string {
-				q, err := rmqc.GetQueue(vh, qn)
-				Ω(err).Should(BeNil())
-
-				return q.Name
-			}).Should(Equal(qn))
-
-			// it would be better to test this in a cluster configuration
-			x, err := rmqc.CancelSyncQueue(vh, qn)
-			Ω(err).Should(BeNil())
-			Ω(x.StatusCode).Should(Equal(204))
-			_, err = rmqc.DeleteQueue(vh, qn)
-			Ω(err).Should(BeNil())
-
-			Eventually(func(g Gomega) error {
-				_, err := rmqc.GetQueue(vh, qn)
-
-				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
-		})
-	})
-
 	Context("GET /policies", func() {
 		Context("when policy exists", func() {
 			It("returns decoded response", func() {
