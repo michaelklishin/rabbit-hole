@@ -81,6 +81,17 @@ type ConnectionInfo struct {
 	ConnectedAt uint64 `json:"connected_at,omitempty"`
 }
 
+// PagedConnectionInfo is additional context returned for paginated requests.
+type PagedConnectionInfo struct {
+	Page          int              `json:"page"`
+	PageCount     int              `json:"page_count"`
+	PageSize      int              `json:"page_size"`
+	FilteredCount int              `json:"filtered_count"`
+	ItemCount     int              `json:"item_count"`
+	TotalCount    int              `json:"total_count"`
+	Items         []ConnectionInfo `json:"items"`
+}
+
 // Connection of a specific user. This provides just enough information
 // to the monitoring tools.
 type UserConnectionInfo struct {
@@ -107,6 +118,20 @@ func (c *Client) ListConnections() (rec []ConnectionInfo, err error) {
 
 	if err = executeAndParseRequest(c, req, &rec); err != nil {
 		return []ConnectionInfo{}, err
+	}
+
+	return rec, nil
+}
+
+// PagedListConnectionsWithParameters lists queues with pagination.
+func (c *Client) PagedListConnectionsWithParameters(params url.Values) (rec PagedConnectionInfo, err error) {
+	req, err := newGETRequestWithParameters(c, "connections", params)
+	if err != nil {
+		return PagedConnectionInfo{}, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return PagedConnectionInfo{}, err
 	}
 
 	return rec, nil
