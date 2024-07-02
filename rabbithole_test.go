@@ -449,6 +449,60 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(info.Name).ShouldNot(BeNil())
 			Ω(info.Host).ShouldNot(BeEmpty())
 			Ω(info.UsesTLS).Should(Equal(false))
+
+		})
+	})
+
+	Context("GET /connections paged with arguments", func() {
+		It("returns decoded response", func() {
+			conn := openConnection("/")
+			defer conn.Close()
+
+			conn2 := openConnection("/")
+			defer conn2.Close()
+
+			ch, err := conn.Channel()
+			Ω(err).Should(BeNil())
+			defer ch.Close()
+
+			ch2, err := conn2.Channel()
+			Ω(err).Should(BeNil())
+			defer ch2.Close()
+
+			ch3, err := conn2.Channel()
+			Ω(err).Should(BeNil())
+			defer ch3.Close()
+
+			err = ch.Publish("",
+				"",
+				false,
+				false,
+				amqp.Publishing{Body: []byte("")})
+			Ω(err).Should(BeNil())
+
+			params := url.Values{}
+			params.Add("page", "1")
+
+			Eventually(func(g Gomega) []ConnectionInfo {
+				page, err := rmqc.PagedListConnectionsWithParameters(params)
+				Ω(err).Should(BeNil())
+
+				return page.Items
+			}).ShouldNot(BeEmpty())
+
+			xs, err := rmqc.PagedListConnectionsWithParameters(params)
+			Ω(err).Should(BeNil())
+			Ω(xs.Page).Should(Equal(1))
+			Ω(xs.PageCount).Should(Equal(1))
+			Ω(xs.ItemCount).ShouldNot(BeNil())
+			Ω(xs.PageSize).Should(Equal(100))
+			Ω(xs.TotalCount).ShouldNot(BeNil())
+			Ω(xs.FilteredCount).ShouldNot(BeNil())
+
+			info := xs.Items[0]
+			Ω(info.Name).ShouldNot(BeNil())
+			Ω(info.Host).ShouldNot(BeEmpty())
+			Ω(info.UsesTLS).Should(Equal(false))
 		})
 	})
 
