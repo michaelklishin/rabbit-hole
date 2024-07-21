@@ -18,7 +18,7 @@ at the time of writing) `4.x`.
 They will be gone starting with RabbitMQ 4.x. These are [OS-level metrics](https://www.rabbitmq.com/docs/monitoring#system-metrics)
 and should be monitored as such.
 
-GitHub issue: [#313](https://github.com/michaelklishin/rabbit-hole/pull/313).
+GitHub issue: [#313](https://github.com/michaelklishin/rabbit-hole/pull/313)
 
 ### Exchange Auto-Deletion Field Had an Incorrect Default
 
