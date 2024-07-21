@@ -1,6 +1,6 @@
 # Rabbit Hole, a RabbitMQ HTTP API Client for Go
 
-This library is a [RabbitMQ HTTP API](https://raw.githack.com/rabbitmq/rabbitmq-management/rabbitmq_v3_6_0/priv/www/api/index.html) client for the Go language.
+This library is a [RabbitMQ HTTP API](https://rawcdn.githack.com/rabbitmq/rabbitmq-server/v3.13.5/deps/rabbitmq_management/priv/www/api/index.html) client for the Go language.
 
 ## Supported Go Versions
 
@@ -10,24 +10,17 @@ Older versions may work but this is not guaranteed.
 
 ## Supported RabbitMQ Versions
 
- * All [currently supported RabbitMQ versions](https://www.rabbitmq.com/versions.html)
- * [RabbitMQ `3.9.x`](https://www.rabbitmq.com/changelog.html) will be the minimum supported release series starting with Rabbit Hole 3.0
- * Almost all API operations work against RabbitMQ `3.8.x` nodes. Some metrics and stats may be missing.
- * RabbitMQ `3.8.x` and older versions have [reached end of general support](https://www.rabbitmq.com/versions.html)
+This library targets the [community supported RabbitMQ release series](https://www.rabbitmq.com/release-information).
 
-All versions require [RabbitMQ Management UI plugin](https://www.rabbitmq.com/management.html) to be installed and enabled.
+All versions require [RabbitMQ Management UI plugin](https://www.rabbitmq.com/docs/management/) to be installed and enabled.
 
 ## Build Status
 
-[![Travis CI](https://travis-ci.org/michaelklishin/rabbit-hole.svg?branch=master)](https://travis-ci.org/michaelklishin/rabbit-hole.svg?branch=master)
 [![Tests](https://github.com/michaelklishin/rabbit-hole/actions/workflows/tests.yml/badge.svg)](https://github.com/michaelklishin/rabbit-hole/actions/workflows/tests.yml)
 
 ## Project Maturity
 
-Rabbit Hole is a mature library (first released in late 2013)
-designed after a couple of other RabbitMQ HTTP API clients with stable
-APIs. Breaking API changes are not out of the question but not without
-a reasonable version bump.
+Rabbit Hole is a mature library (first released in late 2013).
 
 It is largely feature complete and decently documented.
 
@@ -501,4 +494,4 @@ See [CONTRIBUTING.md](https://github.com/michaelklishin/rabbit-hole/blob/master/
 
 2-clause BSD license.
 
-(c) Michael S. Klishin and contributors, 2013-2023.
+(c) Michael S. Klishin and contributors, 2013-2024.
