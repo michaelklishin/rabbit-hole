@@ -4016,6 +4016,45 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(f.State).Should(Equal(StateEnabled))
 			}
 		})
+
+		It("lists deprecated feature flags", func() {
+			By("GET /api/deprecated-features")
+			deprecatedFeatures, err := rmqc.ListDeprecatedFeatures()
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(deprecatedFeatures).ShouldNot(BeEmpty())
+		})
+
+		It("lists deprecated feature flags in use", func() {
+			// TODO: Enable this test after https://github.com/rabbitmq/rabbitmq-server/issues/12619 is fixed
+			Skip("not possible to setup RabbitMQ 4.0 to report expected output")
+
+			// Setup
+			const queue = "transient.nonexcl.qu"
+			_, err := rmqc.DeclareQueue("rabbit/hole", queue, QueueSettings{
+				Type:       "classic",
+				Durable:    false,
+				AutoDelete: false,
+			})
+			Ω(err).ToNot(HaveOccurred())
+			DeferCleanup(func() {
+				_, _ = rmqc.DeleteQueue("rabbit/hole", queue)
+			})
+
+			By("GET /api/deprecated-features/used")
+			deprecatedFeaturesUsed, err := rmqc.ListDeprecatedFeaturesUsed()
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(deprecatedFeaturesUsed).ShouldNot(BeEmpty())
+			Ω(deprecatedFeaturesUsed).
+				To(ContainElement(
+					DeprecatedFeature{
+						Name:             "transient_nonexcl_queues",
+						Description:      "",
+						Phase:            DeprecationPermittedByDefault,
+						DocumentationUrl: "https://blog.rabbitmq.com/posts/2021/08/4.0-deprecation-announcements/#removal-of-transient-non-exclusive-queues",
+						ProvidedBy:       "rabbit",
+					}),
+				)
+		})
 	})
 
 	Context("definition export", func() {
