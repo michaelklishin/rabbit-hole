@@ -816,6 +816,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(q.Name).ShouldNot(Equal(""))
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Durable).ShouldNot(BeNil())
+			Ω(q.MessagesDetails).ShouldNot(BeNil(),
+				"messages details are nil, this happens when stats are not emitted fast enough. Check docker.rabbitmq Make target for a hint to resolve this")
 			Ω(q.MessagesDetails.Samples[0]).ShouldNot(BeNil())
 		})
 	})
@@ -861,6 +863,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(q.Node).ShouldNot(BeNil())
 			Ω(q.Vhost).Should(Equal(vh))
 			Ω(q.Durable).ShouldNot(BeNil())
+			Ω(q.MessagesDetails).ShouldNot(BeNil(),
+				"messages details are nil, this happens when stats are not emitted fast enough. Check docker.rabbitmq Make target for a hint to resolve this")
 			Ω(q.MessagesDetails.Samples[0]).ShouldNot(BeNil())
 
 			rmqc.DeleteQueue(vh, qn)
