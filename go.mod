@@ -22,3 +22,5 @@ require (
 go 1.22.0
 
 toolchain go1.23.2
+
+retract v3.0.0
