@@ -1,9 +1,4 @@
-## Changes Between 3.0.0 and 3.1.0 (unreleased)
-
-No changes yet.
-
-
-## Changes Between 2.16.0 and 3.0.0 (Jul 20, 2024)
+## Changes Between 2.16.0 and 3.1.0 (Oct 31, 2024)
 
 ### Why the Major Version Bump?
 
@@ -25,6 +20,11 @@ GitHub issue: [#313](https://github.com/michaelklishin/rabbit-hole/pull/313)
 Contributed by @pafmaf.
 
 GitHub issue: [#312](https://github.com/michaelklishin/rabbit-hole/pull/312)
+
+
+## Changes Between 2.16.0 and 3.0.0
+
+This release was [retracted](https://golangtutorial.dev/tips/retract-go-module-versions/#retracting-go-module-version) in favor of `3.1.0`.
 
 
 ## Changes Between 2.15.0 and 2.16.0 (Jan 4, 2023)
