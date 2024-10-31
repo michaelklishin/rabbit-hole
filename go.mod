@@ -1,4 +1,4 @@
-module github.com/michaelklishin/rabbit-hole/v2
+module github.com/michaelklishin/rabbit-hole/v3
 
 require (
 	github.com/onsi/ginkgo/v2 v2.21.0
