@@ -23,4 +23,7 @@ go 1.22.0
 
 toolchain go1.23.2
 
-retract v3.0.0
+retract (
+	v3.1.1 // Used to retract v3.0.0
+	v3.0.0 // Incorrect module name, do not use
+)
