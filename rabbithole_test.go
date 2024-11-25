@@ -4170,7 +4170,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				list, err := rmqc.ListGlobalParameters()
 				Ω(err).Should(BeNil())
 				Ω(list).To(SatisfyAll(
-					HaveLen(4), // cluster_name and internal_cluster_id are set by default by RabbitMQ
+					// RabbitMQ 4.0.x and later versions will have an
+					// extra global runtime parameter by default, see
+					// https://github.com/rabbitmq/rabbitmq-server/issues/12552
+					Or(HaveLen(5), HaveLen(4)),
 					ContainElements(
 						GlobalRuntimeParameter{
 							Name:  "a-name",
@@ -4193,7 +4196,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					Ω(err).Should(BeNil())
 
 					return len(xs)
-				}).Should(Equal(2))
+					// RabbitMQ 4.0.x and later versions will have an
+					// extra global runtime parameter by default, see
+					// https://github.com/rabbitmq/rabbitmq-server/issues/12552
+				}).Should(Or(Equal(3), Equal(2)))
 			})
 		})
 	})
