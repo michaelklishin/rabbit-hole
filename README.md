@@ -45,7 +45,7 @@ go get github.com/michaelklishin/rabbit-hole/v3
 
 ### API Reference
 
-[API reference](https://pkg.go.dev/github.com/michaelklishin/rabbit-hole/v2?tab=doc) is available on [godoc.org](https://pkg.go.dev).
+[API reference](https://pkg.go.dev/github.com/michaelklishin/rabbit-hole/v3?tab=doc) is available on [godoc.org](https://pkg.go.dev).
 
 Continue reading for a list of example snippets.
 
