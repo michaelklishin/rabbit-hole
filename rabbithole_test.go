@@ -1552,7 +1552,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			xs, err3 := rmqc.GetAllVhostLimits()
 			Ω(err3).Should(BeNil())
-			Ω(xs).Should(HaveLen(1))
+			// there may be limits in virtual hosts used by other client libraries
+			Ω(len(xs)).Should(BeNumerically(">=", 1))
 			Ω(xs[0].Vhost).Should(Equal(vh))
 			Ω(xs[0].Value["max-connections"]).Should(Equal(maxConnections))
 			Ω(xs[0].Value["max-queues"]).Should(Equal(maxQueues))
