@@ -35,9 +35,6 @@ the [change log](https://github.com/michaelklishin/rabbit-hole/blob/master/Chang
 
 ```
 go get github.com/michaelklishin/rabbit-hole/v3
-
-# or, for v1.x:
-# go get github.com/michaelklishin/rabbit-hole
 ```
 
 
