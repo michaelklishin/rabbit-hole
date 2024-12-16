@@ -34,7 +34,7 @@ the [change log](https://github.com/michaelklishin/rabbit-hole/blob/master/Chang
 ## Installation
 
 ```
-go get github.com/michaelklishin/rabbit-hole/v2
+go get github.com/michaelklishin/rabbit-hole/v3
 
 # or, for v1.x:
 # go get github.com/michaelklishin/rabbit-hole
@@ -55,7 +55,7 @@ To import the package:
 
 ``` go
 import (
-       "github.com/michaelklishin/rabbit-hole/v2"
+       "github.com/michaelklishin/rabbit-hole/v3"
 )
 ```
 
