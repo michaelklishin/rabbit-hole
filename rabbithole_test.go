@@ -45,6 +45,26 @@ func FindBindingBySourceAndDestinationNames(sl []BindingInfo, sourceName string,
 	return b
 }
 
+func FindVhostByName(sl []VhostInfo, name string) (v VhostInfo) {
+	for _, i := range sl {
+		if name == i.Name {
+			v = i
+			break
+		}
+	}
+	return v
+}
+
+func FindVhostLimitByName(sl []VhostLimitsInfo, name string) (l VhostLimitsInfo) {
+	for _, i := range sl {
+		if name == i.Vhost {
+			l = i
+			break
+		}
+	}
+	return l
+}
+
 func FindUserByName(sl []UserInfo, name string) (u UserInfo) {
 	for _, i := range sl {
 		if name == i.Name {
@@ -1554,9 +1574,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err3).Should(BeNil())
 			// there may be limits in virtual hosts used by other client libraries
 			Ω(len(xs)).Should(BeNumerically(">=", 1))
-			Ω(xs[0].Vhost).Should(Equal(vh))
-			Ω(xs[0].Value["max-connections"]).Should(Equal(maxConnections))
-			Ω(xs[0].Value["max-queues"]).Should(Equal(maxQueues))
+
+			found := FindVhostLimitByName(xs, vh)
+			Ω(found).ShouldNot(BeNil())
+			Ω(found.Vhost).Should(Equal(vh))
+			Ω(found.Value["max-connections"]).Should(Equal(maxConnections))
+			Ω(found.Value["max-queues"]).Should(Equal(maxQueues))
 
 			rmqc.DeleteVhostLimits(vh, VhostLimits{"max-connections", "max-queues"})
 		})
