@@ -19,8 +19,9 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-go 1.22.0
-toolchain go1.23.2
+go 1.23.0
+
+toolchain go1.24.1
 
 retract (
 	v3.1.1 // Used to retract v3.0.0
