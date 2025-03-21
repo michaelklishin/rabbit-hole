@@ -1,7 +1,7 @@
 module github.com/michaelklishin/rabbit-hole/v3
 
 require (
-	github.com/onsi/ginkgo/v2 v2.23.1
+	github.com/onsi/ginkgo/v2 v2.23.2
 	github.com/onsi/gomega v1.36.2
 	github.com/rabbitmq/amqp091-go v1.10.0
 )
