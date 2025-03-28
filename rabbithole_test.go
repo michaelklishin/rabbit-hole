@@ -3386,16 +3386,18 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
 
 				def := FederationDefinition{
-					Uri:            []string{"amqp://127.0.0.1/%2f"},
-					Expires:        1800000,
-					MessageTTL:     360000,
-					MaxHops:        1,
-					PrefetchCount:  500,
-					ReconnectDelay: 5,
-					AckMode:        "on-publish",
-					TrustUserId:    false,
-					Exchange:       "",
-					Queue:          "",
+					Uri:                 []string{"amqp://127.0.0.1/%2f"},
+					Expires:             1800000,
+					MessageTTL:          360000,
+					MaxHops:             1,
+					PrefetchCount:       500,
+					ReconnectDelay:      5,
+					AckMode:             "on-publish",
+					TrustUserId:         false,
+					Exchange:            "",
+					Queue:               "",
+					QueueType:           "quorum",
+					ResourceCleanupMode: "never",
 				}
 
 				_, err = rmqc.PutFederationUpstream(vh, name, def)
@@ -3423,6 +3425,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(up.Definition.TrustUserId).Should(Equal(def.TrustUserId))
 				Ω(up.Definition.Exchange).Should(Equal(def.Exchange))
 				Ω(up.Definition.Queue).Should(Equal(def.Queue))
+				Ω(up.Definition.QueueType).Should(Equal(def.QueueType))
+				Ω(up.Definition.ResourceCleanupMode).Should(Equal(def.ResourceCleanupMode))
 
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
@@ -3443,11 +3447,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				// create the upstream
 				def := FederationDefinition{
-					Uri:            []string{"amqp://127.0.0.1/%2f"},
-					PrefetchCount:  1000,
-					ReconnectDelay: 1,
-					AckMode:        "on-confirm",
-					TrustUserId:    false,
+					Uri:                 []string{"amqp://127.0.0.1/%2f"},
+					PrefetchCount:       1000,
+					ReconnectDelay:      1,
+					AckMode:             "on-confirm",
+					TrustUserId:         false,
+					QueueType:           "classic",
+					ResourceCleanupMode: "default",
 				}
 
 				_, err := rmqc.PutFederationUpstream(vh, name, def)
@@ -3470,14 +3476,18 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(up.Definition.ReconnectDelay).Should(Equal(def.ReconnectDelay))
 				Ω(up.Definition.AckMode).Should(Equal(def.AckMode))
 				Ω(up.Definition.TrustUserId).Should(Equal(def.TrustUserId))
+				Ω(up.Definition.QueueType).Should(Equal(def.QueueType))
+				Ω(up.Definition.ResourceCleanupMode).Should(Equal(def.ResourceCleanupMode))
 
 				// update the upstream
 				def2 := FederationDefinition{
-					Uri:            []string{"amqp://128.0.0.1/%2f", "amqp://128.0.0.7/%2f"},
-					PrefetchCount:  500,
-					ReconnectDelay: 10,
-					AckMode:        "no-ack",
-					TrustUserId:    true,
+					Uri:                 []string{"amqp://128.0.0.1/%2f", "amqp://128.0.0.7/%2f"},
+					PrefetchCount:       500,
+					ReconnectDelay:      10,
+					AckMode:             "no-ack",
+					TrustUserId:         true,
+					QueueType:           "quorum",
+					ResourceCleanupMode: "never",
 				}
 
 				_, err = rmqc.PutFederationUpstream(vh, name, def2)
@@ -3500,6 +3510,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(up.Definition.ReconnectDelay).Should(Equal(def2.ReconnectDelay))
 				Ω(up.Definition.AckMode).Should(Equal(def2.AckMode))
 				Ω(up.Definition.TrustUserId).Should(Equal(def2.TrustUserId))
+				Ω(up.Definition.QueueType).Should(Equal(def2.QueueType))
+				Ω(up.Definition.ResourceCleanupMode).Should(Equal(def2.ResourceCleanupMode))
 
 				_, err = rmqc.DeleteFederationUpstream(vh, name)
 				Ω(err).Should(BeNil())
