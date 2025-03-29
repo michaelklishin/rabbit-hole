@@ -8,16 +8,18 @@ import (
 // FederationDefinition represents settings
 // that will be used by federation links.
 type FederationDefinition struct {
-	Uri            URISet `json:"uri"`
-	Expires        int    `json:"expires,omitempty"`
-	MessageTTL     int32  `json:"message-ttl,omitempty"`
-	MaxHops        int    `json:"max-hops,omitempty"`
-	PrefetchCount  int    `json:"prefetch-count,omitempty"`
-	ReconnectDelay int    `json:"reconnect-delay"`
-	AckMode        string `json:"ack-mode,omitempty"`
-	TrustUserId    bool   `json:"trust-user-id"`
-	Exchange       string `json:"exchange,omitempty"`
-	Queue          string `json:"queue,omitempty"`
+	Uri                 URISet `json:"uri"`
+	Expires             int    `json:"expires,omitempty"`
+	MessageTTL          int32  `json:"message-ttl,omitempty"`
+	MaxHops             int    `json:"max-hops,omitempty"`
+	PrefetchCount       int    `json:"prefetch-count,omitempty"`
+	ReconnectDelay      int    `json:"reconnect-delay"`
+	AckMode             string `json:"ack-mode,omitempty"`
+	TrustUserId         bool   `json:"trust-user-id"`
+	Exchange            string `json:"exchange,omitempty"`
+	Queue               string `json:"queue,omitempty"`
+	QueueType           string `json:"queue-type,omitempty"`
+	ResourceCleanupMode string `json:"resource-cleanup-mode,omitempty"`
 }
 
 // FederationUpstream represents a configured federation upstream.
