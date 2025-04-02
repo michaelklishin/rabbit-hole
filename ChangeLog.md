@@ -9,7 +9,7 @@ No changes yet.
 
 `FederationDefinition` now has two new fields:
 
- * `QueueType`: an enum, one of: `classic`, `quorum`, `stream`
+ * `QueueType`: an enum, one of: `classic`, `quorum`
  * `ResourceCleanupMode`: an enum, the supported values are: `default` or `never`
 
 Contributed by @jaroslaw-bochniak.
