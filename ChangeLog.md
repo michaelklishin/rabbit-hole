@@ -1,3 +1,22 @@
+## Changes Between 3.2.0 and 3.3.0 (in development)
+
+No changes yet.
+
+
+## Changes Between 3.1.0 and 3.2.0 (Apr 2, 2025)
+
+### New Federation Upstream Fields
+
+`FederationDefinition` now has two new fields:
+
+ * `QueueType`: an enum, one of: `classic`, `quorum`, `stream`
+ * `ResourceCleanupMode`: an enum, the supported values are: `default` or `never`
+
+Contributed by @jaroslaw-bochniak.
+
+GitHub issue: [#341](https://github.com/michaelklishin/rabbit-hole/pull/341)
+
+
 ## Changes Between 2.16.0 and 3.1.0 (Oct 31, 2024)
 
 ### Why the Major Version Bump?

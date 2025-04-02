@@ -5,8 +5,8 @@ import (
 	"net/url"
 )
 
-// FederationDefinition represents settings
-// that will be used by federation links.
+// FederationDefinition represents a federation upstream definition.
+// Note that these settings will actually be used by federation links.
 type FederationDefinition struct {
 	Uri                 URISet `json:"uri"`
 	Expires             int    `json:"expires,omitempty"`
