@@ -38,6 +38,7 @@ type ExchangeSettings struct {
 	Type       string                 `json:"type"`
 	Durable    bool                   `json:"durable"`
 	AutoDelete bool                   `json:"auto_delete,omitempty"`
+	Internal   bool                   `json:"internal,omitempty"`
 	Arguments  map[string]interface{} `json:"arguments,omitempty"`
 }
 
