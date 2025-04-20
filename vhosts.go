@@ -164,13 +164,15 @@ type VhostSettings struct {
 	// Virtual host tags
 	Tags VhostTags `json:"tags"`
 	// Type of queue to create in virtual host when unspecified
-	DefaultQueueType string `json:"default_queue_type,omitempty"`
+	DefaultQueueType     string `json:"default_queue_type,omitempty"`
+	DefaultQueueType_310 string `json:"defaultqueuetype,omitempty"`
 	// True if tracing should be enabled.
 	Tracing bool `json:"tracing"`
 }
 
 // PutVhost creates or updates a virtual host.
 func (c *Client) PutVhost(vhostname string, settings VhostSettings) (res *http.Response, err error) {
+	settings.DefaultQueueType_310 = settings.DefaultQueueType // To be compliance with RabbitMQ 3.10
 	body, err := json.Marshal(settings)
 	if err != nil {
 		return nil, err
