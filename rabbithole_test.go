@@ -2360,7 +2360,37 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(x.Name).Should(Equal(xn))
 			Ω(x.Durable).Should(Equal(false))
 			Ω(bool(x.AutoDelete)).Should(Equal(false))
+			Ω(x.Internal).Should(Equal(false))
 			Ω(x.Type).Should(Equal("fanout"))
+			Ω(x.Vhost).Should(Equal(vh))
+
+			_, err = rmqc.DeleteExchange(vh, xn)
+			Ω(err).Should(BeNil())
+		})
+	})
+
+	Context("PUT /exchanges/{vhost}/{exchange}", func() {
+		It("declares an internal exchange", func() {
+			vh := "rabbit/hole"
+			xn := "internal"
+
+			_, err := rmqc.DeclareExchange(vh, xn, ExchangeSettings{Type: "direct", Internal: true})
+			Ω(err).Should(BeNil())
+
+			Eventually(func(g Gomega) string {
+				x, err := rmqc.GetExchange(vh, xn)
+				Ω(err).Should(BeNil())
+
+				return x.Name
+			}).Should(Equal(xn))
+
+			x, err := rmqc.GetExchange(vh, xn)
+			Ω(err).Should(BeNil())
+			Ω(x.Name).Should(Equal(xn))
+			Ω(x.Durable).Should(Equal(false))
+			Ω(bool(x.AutoDelete)).Should(Equal(false))
+			Ω(x.Internal).Should(Equal(true))
+			Ω(x.Type).Should(Equal("direct"))
 			Ω(x.Vhost).Should(Equal(vh))
 
 			_, err = rmqc.DeleteExchange(vh, xn)
