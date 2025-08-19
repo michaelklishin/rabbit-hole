@@ -1,6 +1,6 @@
 # Rabbit Hole, a RabbitMQ HTTP API Client for Go
 
-This library is a [RabbitMQ HTTP API](https://rawcdn.githack.com/rabbitmq/rabbitmq-server/v3.13.5/deps/rabbitmq_management/priv/www/api/index.html) client for the Go language.
+This library is a [RabbitMQ HTTP API](https://www.rabbitmq.com/docs/http-api-reference) client for the Go language.
 
 ## Supported Go Versions
 
@@ -10,7 +10,8 @@ Older versions may work but this is not guaranteed.
 
 ## Supported RabbitMQ Versions
 
-This library targets the [community supported RabbitMQ release series](https://www.rabbitmq.com/release-information).
+This library targets the [community supported RabbitMQ release series](https://www.rabbitmq.com/release-information). This library will often work in practice older versions, such as `3.13.x`,
+due to very limited breaking HTTP API changes.
 
 All versions require [RabbitMQ Management UI plugin](https://www.rabbitmq.com/docs/management/) to be installed and enabled.
 
@@ -28,7 +29,7 @@ It is largely feature complete and decently documented.
 ## Change Log
 
 If upgrading from an earlier release, please consult with
-the [change log](https://github.com/michaelklishin/rabbit-hole/blob/master/ChangeLog.md).
+the [change log](https://github.com/michaelklishin/rabbit-hole/blob/main/ChangeLog.md).
 
 
 ## Installation
@@ -43,6 +44,9 @@ go get github.com/michaelklishin/rabbit-hole/v3
 ### API Reference
 
 [API reference](https://pkg.go.dev/github.com/michaelklishin/rabbit-hole/v3?tab=doc) is available on [godoc.org](https://pkg.go.dev).
+
+RabbitMQ [HTTP API reference](https://www.rabbitmq.com/docs/http-api-reference) now has
+a dedicated documentation page.
 
 Continue reading for a list of example snippets.
 
