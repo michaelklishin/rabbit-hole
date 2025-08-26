@@ -16,7 +16,7 @@ type ExportedDefinitions struct {
 	Vhosts           *[]VhostInfo              `json:"vhosts,omitempty"`
 	Permissions      *[]Permissions            `json:"permissions,omitempty"`
 	TopicPermissions *[]TopicPermissionInfo    `json:"topic_permissions,omitempty"`
-	Parameters       *[]RuntimeParameter       `json:"paramaters,omitempty"`
+	Parameters       *[]RuntimeParameter       `json:"parameters,omitempty"`
 	GlobalParameters *[]GlobalRuntimeParameter `json:"global_parameters,omitempty"`
 	Policies         *[]PolicyDefinition       `json:"policies"`
 	Queues           *[]QueueInfo              `json:"queues"`

@@ -4110,7 +4110,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(*defs.Users).ShouldNot(BeEmpty())
 
 			Ω(*defs.Queues).ShouldNot(BeNil())
-			Ω(defs.Parameters).Should(BeNil())
+			Ω(*defs.Parameters).ShouldNot(BeNil())
 			Ω(*defs.Policies).ShouldNot(BeNil())
 		})
 
@@ -4127,7 +4127,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(defs.Users).Should(BeNil())
 
 			Ω(*defs.Queues).ShouldNot(BeNil())
-			Ω(defs.Parameters).Should(BeNil())
+			Ω(*defs.Parameters).ShouldNot(BeNil())
 			Ω(*defs.Policies).ShouldNot(BeNil())
 		})
 
