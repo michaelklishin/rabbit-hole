@@ -4,3 +4,19 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 10
+    pull-request-branch-name:
+      separator: "-"
+    commit-message:
+      prefix: "build(deps)"
+      include: "scope"
+    reviewers:
+      - "michaelklishin"
+    assignees:
+      - "michaelklishin"
+    labels:
+      - "dependencies"
+      - "go"
+    allow:
+      - dependency-type: "all"
+    rebase-strategy: "auto"
