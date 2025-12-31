@@ -24,10 +24,10 @@ type BackingQueueStatus struct {
 	// Number of persistent messages in the store
 	PersistentCount int64 `json:"persistent_count,omitempty"`
 	// Average ingress (inbound) rate, not including messages
-	// that straight through to auto-acking consumers.
+	// that go straight through to auto-acking consumers.
 	AverageIngressRate float64 `json:"avg_ingress_rate,omitempty"`
 	// Average egress (outbound) rate, not including messages
-	// that straight through to auto-acking consumers.
+	// that go straight through to auto-acking consumers.
 	AverageEgressRate float64 `json:"avg_egress_rate,omitempty"`
 	// rate at which unacknowledged message records enter RAM,
 	// e.g. because messages are delivered requiring acknowledgement
@@ -44,7 +44,7 @@ type OwnerPidDetails struct {
 	PeerHost string `json:"peer_host,omitempty"`
 }
 
-// ConsumerDetail describe consumer information with a queue
+// ConsumerDetail describes a consumer on a queue.
 type ConsumerDetail struct {
 	Arguments      map[string]interface{} `json:"arguments"`
 	ChannelDetails ChannelDetails         `json:"channel_details"`
@@ -57,7 +57,7 @@ type ConsumerDetail struct {
 	Queue          QueueDetail            `json:"queue"`
 }
 
-// ChannelDetails describe channel information with a consumer
+// ChannelDetails describes a channel used by a consumer.
 type ChannelDetails struct {
 	ConnectionName string `json:"connection_name"`
 	Name           string `json:"name"`
@@ -79,13 +79,13 @@ func (c *ChannelDetails) UnmarshalJSON(data []byte) error {
 	return json.Unmarshal(data, (*Alias)(c))
 }
 
-// QueueDetail describe queue information with a consumer
+// QueueDetail identifies a queue by name and vhost.
 type QueueDetail struct {
 	Name  string `json:"name"`
 	Vhost string `json:"vhost,omitempty"`
 }
 
-// GarbageCollectionDetail describe queue garbage collection information
+// GarbageCollectionDetails contains Erlang GC metrics for a queue process.
 type GarbageCollectionDetails struct {
 	FullSweepAfter  int `json:"fullsweep_after"`
 	MaxHeapSize     int `json:"max_heap_size"`
@@ -280,7 +280,7 @@ func (c *Client) ListQueuesWithParameters(params url.Values) (rec []QueueInfo, e
 	return rec, nil
 }
 
-// ListQueuesWithParametersIs lists queues with a list of query string values in the vhost vhost.
+// ListQueuesWithParametersIn lists queues in a vhost with query string parameters.
 func (c *Client) ListQueuesWithParametersIn(vhost string, params url.Values) (rec []QueueInfo, err error) {
 	req, err := newGETRequestWithParameters(c, "queues/"+url.PathEscape(vhost), params)
 	if err != nil {
@@ -308,7 +308,7 @@ func (c *Client) PagedListQueuesWithParameters(params url.Values) (rec PagedQueu
 	return rec, nil
 }
 
-// PagedListQueuesWithParameters lists queues with pagination in the vhost vhost.
+// PagedListQueuesWithParametersIn lists queues in a vhost with pagination.
 func (c *Client) PagedListQueuesWithParametersIn(vhost string, params url.Values) (rec PagedQueueInfo, err error) {
 	req, err := newGETRequestWithParameters(c, "queues/"+url.PathEscape(vhost), params)
 	if err != nil {
@@ -377,7 +377,7 @@ func (c *Client) GetQueueWithParameters(vhost, queue string, qs url.Values) (rec
 }
 
 //
-// PUT /api/exchanges/{vhost}/{exchange}
+// PUT /api/queues/{vhost}/{queue}
 //
 
 // QueueSettings represents queue properties. Use it to declare a queue.
@@ -458,30 +458,6 @@ func (c *Client) DeleteQueue(vhost, queue string, opts ...QueueDeleteOptions) (r
 // PurgeQueue purges a queue (deletes all messages ready for delivery in it).
 func (c *Client) PurgeQueue(vhost, queue string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue)+"/contents", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	if res, err = executeRequest(c, req); err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-// queueAction represents an action that can be performed on a queue (sync/cancel_sync)
-type queueAction struct {
-	Action string `json:"action"`
-}
-
-// POST /api/queues/{vhost}/{name}/actions
-func (c *Client) sendQueueAction(vhost string, queue string, action queueAction) (res *http.Response, err error) {
-	body, err := json.Marshal(action)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := newRequestWithBody(c, "POST", "queues/"+url.PathEscape(vhost)+"/"+url.PathEscape(queue)+"/actions", body)
 	if err != nil {
 		return nil, err
 	}

@@ -92,8 +92,7 @@ type PagedConnectionInfo struct {
 	Items         []ConnectionInfo `json:"items"`
 }
 
-// Connection of a specific user. This provides just enough information
-// to the monitoring tools.
+// UserConnectionInfo provides basic connection info for a user.
 type UserConnectionInfo struct {
 	// Connection name
 	Name string `json:"name"`
@@ -123,7 +122,7 @@ func (c *Client) ListConnections() (rec []ConnectionInfo, err error) {
 	return rec, nil
 }
 
-// PagedListConnectionsWithParameters lists queues with pagination.
+// PagedListConnectionsWithParameters lists connections with pagination.
 func (c *Client) PagedListConnectionsWithParameters(params url.Values) (rec PagedConnectionInfo, err error) {
 	req, err := newGETRequestWithParameters(c, "connections", params)
 	if err != nil {
@@ -141,7 +140,7 @@ func (c *Client) PagedListConnectionsWithParameters(params url.Values) (rec Page
 // GET /api/connections/username/{username}
 //
 
-// ListConnections returns a list of client connections to target node.
+// ListConnectionsOfUser returns connections for a specific user.
 func (c *Client) ListConnectionsOfUser(username string) (rec []UserConnectionInfo, err error) {
 	req, err := newGETRequest(c, "connections/username/"+url.PathEscape(username))
 	if err != nil {
@@ -195,7 +194,7 @@ func (c *Client) CloseConnection(name string) (res *http.Response, err error) {
 // DELETE /api/connections/username/{username}
 //
 
-// CloseConnection closes a connection.
+// CloseAllConnectionsOfUser closes all connections for a user.
 func (c *Client) CloseAllConnectionsOfUser(username string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "connections/username/"+url.PathEscape(username), nil)
 	if err != nil {

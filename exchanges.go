@@ -19,7 +19,7 @@ type IngressEgressStats struct {
 	PublishOutDetails *RateDetails `json:"publish_out_details,omitempty"`
 }
 
-// ExchangeInfo represents and exchange and its properties.
+// ExchangeInfo represents an exchange and its properties.
 type ExchangeInfo struct {
 	Name       string                 `json:"name"`
 	Vhost      string                 `json:"vhost,omitempty"`
@@ -147,7 +147,7 @@ type PublishingChannel struct {
 	PeerHost       string `json:"peer_host"`
 }
 
-// NameAndVhost repesents a named entity in a virtual host.
+// NameAndVhost identifies a named entity in a virtual host.
 type NameAndVhost struct {
 	Name  string `json:"name"`
 	Vhost string `json:"vhost"`
@@ -230,4 +230,47 @@ func (c *Client) DeleteExchange(vhost, exchange string) (res *http.Response, err
 	}
 
 	return res, nil
+}
+
+//
+// POST /api/exchanges/{vhost}/{exchange}/publish
+//
+
+// PublishOptions represents options for publishing a message to an exchange.
+type PublishOptions struct {
+	// Routing key for the message.
+	RoutingKey string `json:"routing_key"`
+	// Message payload.
+	Payload string `json:"payload"`
+	// Payload encoding: "string" or "base64".
+	PayloadEncoding string `json:"payload_encoding"`
+	// AMQP message properties.
+	Properties map[string]interface{} `json:"properties,omitempty"`
+}
+
+// PublishResult represents the result of a message publish operation.
+type PublishResult struct {
+	// Whether the message was routed to at least one queue.
+	Routed bool `json:"routed"`
+}
+
+// PublishToExchange publishes a message to an exchange via the HTTP API.
+// Note: This is for testing/debugging purposes and should not be used
+// for production message publishing.
+func (c *Client) PublishToExchange(vhost, exchange string, options PublishOptions) (rec *PublishResult, err error) {
+	body, err := json.Marshal(options)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestWithBody(c, "POST", "exchanges/"+url.PathEscape(vhost)+"/"+url.PathEscape(exchange)+"/publish", body)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
+	}
+
+	return rec, nil
 }

@@ -1,6 +1,98 @@
-## Changes Between 3.2.0 and 3.3.0 (in development)
+## Changes Between 3.2.0 and 3.5.0 (in development)
 
-No changes yet.
+### Stream Protocol Management
+
+New functions for managing stream protocol connections, publishers, and consumers.
+Requires the `rabbitmq_stream_management` plugin.
+
+```go
+// List all stream connections
+conns, _ := rmqc.ListStreamConnections()
+
+// List stream publishers in a vhost
+pubs, _ := rmqc.ListStreamPublishersIn("/")
+
+// List stream consumers
+consumers, _ := rmqc.ListStreamConsumers()
+```
+
+### Policy Filtering and Helpers
+
+New helpers for working with policies, including CMQ (classic mirrored queue) key detection
+and quorum queue compatibility checks.
+
+```go
+// Check if a policy uses deprecated CMQ keys
+if policy.HasCMQKeys() {
+    // migrate to quorum queues
+}
+
+// Filter out CMQ keys from a definition
+cleanDef := def.WithoutCMQKeys()
+
+// Filter out all quorum-incompatible keys
+quorumDef := def.WithoutQuorumQueueIncompatibleKeys()
+
+// Find policies matching a queue name
+matches, _ := rmqc.ListMatchingPolicies("/", "orders.pending", PolicyTargetQueues)
+```
+
+### Virtual Host Deletion Protection
+
+New functions to enable and disable deletion protection for virtual hosts.
+
+```go
+rmqc.EnableVhostDeletionProtection("production")
+rmqc.DisableVhostDeletionProtection("staging")
+```
+
+### User Management
+
+List users without permissions and bulk delete users.
+
+```go
+// Find orphan users
+orphans, _ := rmqc.ListUsersWithoutPermissions()
+
+// Bulk delete users
+rmqc.BulkDeleteUsers([]string{"user1", "user2", "user3"})
+```
+
+### Queue Leader Rebalancing
+
+Trigger an asynchronous queue leader rebalance across the cluster.
+
+```go
+rmqc.RebalanceQueues()
+```
+
+### Channels in Virtual Host
+
+List channels in a specific virtual host.
+
+```go
+channels, _ := rmqc.ListVhostChannels("/")
+```
+
+### Publish to Exchange
+
+Publish a message to an exchange via the HTTP API. For testing and debugging only.
+
+```go
+result, _ := rmqc.PublishToExchange("/", "my.exchange", PublishOptions{
+    RoutingKey:      "my.key",
+    Payload:         "Hello, World!",
+    PayloadEncoding: "string",
+})
+```
+
+### Removed Deprecated Functions
+
+The following functions were removed as they rely on deprecated or removed RabbitMQ features:
+
+* `GetMessagesFromQueue` - relied on `basic.get` which is deprecated
+* `SyncQueue` - classic queue mirroring was removed in RabbitMQ 4.x
+* `CancelQueueSync` - classic queue mirroring was removed in RabbitMQ 4.x
 
 
 ## Changes Between 3.1.0 and 3.2.0 (Apr 2, 2025)

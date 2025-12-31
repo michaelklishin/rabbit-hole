@@ -59,7 +59,7 @@ func (c *Client) ListTopicPermissionsOf(username string) (rec []TopicPermissionI
 // GET /api/topic-permissions/{vhost}/{user}
 //
 
-// GetTopicPermissionsIn returns topic-permissions of user in virtual host.
+// GetTopicPermissionsIn returns topic permissions of a user in a virtual host.
 func (c *Client) GetTopicPermissionsIn(vhost, username string) (rec []TopicPermissionInfo, err error) {
 	req, err := newGETRequest(c, "topic-permissions/"+url.PathEscape(vhost)+"/"+url.PathEscape(username))
 	if err != nil {
@@ -121,7 +121,7 @@ func (c *Client) ClearTopicPermissionsIn(vhost, username string) (res *http.Resp
 	return res, nil
 }
 
-// DeleteTopicPermissionsIn delete topic-permissions of exchange for user in virtual host.
+// DeleteTopicPermissionsIn deletes topic permissions for an exchange.
 func (c *Client) DeleteTopicPermissionsIn(vhost, username string, exchange string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "topic-permissions/"+url.PathEscape(vhost)+"/"+url.PathEscape(username)+"/"+url.PathEscape(exchange), nil)
 	if err != nil {

@@ -1,5 +1,7 @@
 package rabbithole
 
+import "net/http"
+
 //
 // GET /api/overview
 //
@@ -63,4 +65,22 @@ func (c *Client) Overview() (rec *Overview, err error) {
 	}
 
 	return rec, nil
+}
+
+//
+// POST /api/rebalance/queues
+//
+
+// RebalanceQueues triggers an asynchronous queue leader rebalance across the cluster.
+func (c *Client) RebalanceQueues() (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "POST", "rebalance/queues", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if res, err = executeRequest(c, req); err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

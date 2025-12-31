@@ -14,8 +14,7 @@ type NameDescriptionEnabled struct {
 	Enabled     bool   `json:"enabled"`
 }
 
-// AuthMechanism is a RabbbitMQ authentication and/or authorization mechanism
-// available on the node.
+// AuthMechanism is a RabbitMQ authentication mechanism available on a node.
 type AuthMechanism NameDescriptionEnabled
 
 // ExchangeType is an exchange type available on the node.
@@ -51,7 +50,7 @@ type ClusterLinkStats struct {
 	RecvBytesDetails RateDetails `json:"recv_bytes_details"`
 }
 
-// MetricsGCQueueLength is metrics of gc queuue length
+// MetricsGCQueueLength contains metrics GC queue length counters.
 type MetricsGCQueueLength struct {
 	ConnectionClosed       int `json:"connection_closed"`
 	ChannelClosed          int `json:"channel_closed"`
@@ -397,7 +396,7 @@ func (c *Client) ListNodes() (rec []NodeInfo, err error) {
 //   "running": true
 // }
 
-// GetNode return information about a node.
+// GetNode returns information about a node.
 func (c *Client) GetNode(name string) (rec *NodeInfo, err error) {
 	req, err := newGETRequest(c, "nodes/"+url.PathEscape(name))
 	if err != nil {

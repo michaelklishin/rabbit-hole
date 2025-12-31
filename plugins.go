@@ -1,6 +1,6 @@
 package rabbithole
 
-// EnabledProtocols returns a list of names of the plugins enabled on target node.
+// EnabledProtocols returns the names of protocols enabled on the target node.
 func (c *Client) EnabledProtocols() (xs []string, err error) {
 	overview, err := c.Overview()
 	if err != nil {
