@@ -1,9 +1,69 @@
-## Changes Between 3.2.0 and 3.5.0 (in development)
+## Changes Between 3.5.0 and 3.6.0 (in development)
 
-### Stream Protocol Management
+No changes yet.
+
+
+## Changes Between 3.2.0 and 3.5.0 (Dec 30, 2025)
+
+### Overview: Why Jump Multiple Minors?
+
+This release borrows heavily from the many new features and lessons
+learned in the [RabbitMQ HTTP API client for Rust](https://github.com/michaelklishin/rabbitmq-http-api-rs).
+
+It also brings the client fully into the RabbitMQ 4.x age. For migration guidance
+from classic mirrored queues in RabbitMQ 3.x to quorum queues in RabbitMQ 4.x,
+see [Migrating from Classic Mirrored Queues to Quorum Queues in 2025](https://www.rabbitmq.com/blog/2025/07/29/latest-benefits-of-rmq-and-migrating-to-qq-along-the-way) on the Team RabbitMQ blog.
+
+### Removed Deprecated Functions
+
+The following functions were removed as they rely on deprecated or removed RabbitMQ features:
+
+ * `GetMessagesFromQueue`: relied on `basic.get` (polling consumers are über slow, contribute to [connection churn](https://www.rabbitmq.com/docs/connections#high-connection-churn) and their use is **greatly discouraged**)
+ * `SyncQueue`: related to classic queue mirroring that was removed in RabbitMQ 4.x
+ * `CancelQueueSync`: related to classic queue mirroring
+
+
+### [Virtual Host Deletion Protection](https://www.rabbitmq.com/docs/vhosts#deletion-protection)
+
+New functions to enable and disable deletion protection for virtual hosts.
+
+```go
+rmqc.EnableVhostDeletionProtection("production")
+rmqc.DisableVhostDeletionProtection("staging")
+```
+
+### User Management Improvements
+
+List users without permissions and bulk delete users.
+
+```go
+// Find orphan users
+orphans, _ := rmqc.ListUsersWithoutPermissions()
+
+// Bulk delete users
+rmqc.BulkDeleteUsers([]string{"user1", "user2", "user3"})
+```
+
+### Queue Leader Rebalancing
+
+This client now can trigger an asynchronous queue leader rebalance across the cluster.
+
+```go
+rmqc.RebalanceQueues()
+```
+
+### Channels in Virtual Host
+
+List channels in a specific virtual host.
+
+```go
+channels, _ := rmqc.ListVhostChannels("/")
+```
+
+### [Stream](https://www.rabbitmq.com/docs/streams) Connections, Publishers, Consumers
 
 New functions for managing stream protocol connections, publishers, and consumers.
-Requires the `rabbitmq_stream_management` plugin.
+Requires the `rabbitmq_stream_management` plugin to be enabled on the target nodes.
 
 ```go
 // List all stream connections
@@ -36,63 +96,6 @@ quorumDef := def.WithoutQuorumQueueIncompatibleKeys()
 // Find policies matching a queue name
 matches, _ := rmqc.ListMatchingPolicies("/", "orders.pending", PolicyTargetQueues)
 ```
-
-### Virtual Host Deletion Protection
-
-New functions to enable and disable deletion protection for virtual hosts.
-
-```go
-rmqc.EnableVhostDeletionProtection("production")
-rmqc.DisableVhostDeletionProtection("staging")
-```
-
-### User Management
-
-List users without permissions and bulk delete users.
-
-```go
-// Find orphan users
-orphans, _ := rmqc.ListUsersWithoutPermissions()
-
-// Bulk delete users
-rmqc.BulkDeleteUsers([]string{"user1", "user2", "user3"})
-```
-
-### Queue Leader Rebalancing
-
-Trigger an asynchronous queue leader rebalance across the cluster.
-
-```go
-rmqc.RebalanceQueues()
-```
-
-### Channels in Virtual Host
-
-List channels in a specific virtual host.
-
-```go
-channels, _ := rmqc.ListVhostChannels("/")
-```
-
-### Publish to Exchange
-
-Publish a message to an exchange via the HTTP API. For testing and debugging only.
-
-```go
-result, _ := rmqc.PublishToExchange("/", "my.exchange", PublishOptions{
-    RoutingKey:      "my.key",
-    Payload:         "Hello, World!",
-    PayloadEncoding: "string",
-})
-```
-
-### Removed Deprecated Functions
-
-The following functions were removed as they rely on deprecated or removed RabbitMQ features:
-
-* `GetMessagesFromQueue` - relied on `basic.get` which is deprecated
-* `SyncQueue` - classic queue mirroring was removed in RabbitMQ 4.x
-* `CancelQueueSync` - classic queue mirroring was removed in RabbitMQ 4.x
 
 
 ## Changes Between 3.1.0 and 3.2.0 (Apr 2, 2025)
