@@ -21,20 +21,20 @@ jobs:
 
     strategy:
       matrix:
-        go: ["1.26", "1.25", "1.24", "1.23"]
+        go: ["1.25", "1.24", "1.23"]
 
     steps:
-    - name: CHECKOUT
-      uses: actions/checkout@v4
-    - name: Setup Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ matrix.go }}
-    - name: Print Go version
-      run: go version
-    - name: Wait for node to start booting
-      run: sleep 15
-    - name: Configure broker
-      run: RABBITHOLE_RABBITMQCTL=DOCKER:${{job.services.rabbitmq.id}} bin/ci/before_build.sh
-    - name: Run tests
-      run: make
+      - name: CHECKOUT
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Print Go version
+        run: go version
+      - name: Wait for node to start booting
+        run: sleep 15
+      - name: Configure broker
+        run: RABBITHOLE_RABBITMQCTL=DOCKER:${{job.services.rabbitmq.id}} bin/ci/before_build.sh
+      - name: Run tests
+        run: make
