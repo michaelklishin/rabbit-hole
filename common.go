@@ -30,7 +30,7 @@ func (p *Port) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-// RateDetailSample single touple
+// RateDetailSample is a single data point with a timestamp.
 type RateDetailSample struct {
 	Sample    int64 `json:"sample"`
 	Timestamp int64 `json:"timestamp"`
@@ -42,8 +42,7 @@ type RateDetails struct {
 	Samples []RateDetailSample `json:"samples"`
 }
 
-// BrokerContext represents a context (Erlang application) running on a node
-// a node
+// BrokerContext represents a context (Erlang application) running on a node.
 type BrokerContext struct {
 	Node        string `json:"node"`
 	Description string `json:"description"`
@@ -52,7 +51,7 @@ type BrokerContext struct {
 	Ignore      bool   `json:"ignore_in_use"`
 }
 
-// MessageStats fields repsent a number of metrics related to published messages
+// MessageStats contains message-related metrics.
 type MessageStats struct {
 	Publish                 int64       `json:"publish"`
 	PublishDetails          RateDetails `json:"publish_details"`

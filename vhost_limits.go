@@ -32,7 +32,7 @@ func (c *Client) GetAllVhostLimits() (rec []VhostLimitsInfo, err error) {
 	return rec, nil
 }
 
-// GetVhostLimits gets a virtual host limits.
+// GetVhostLimits returns limits for a virtual host.
 func (c *Client) GetVhostLimits(vhostname string) (rec []VhostLimitsInfo, err error) {
 	req, err := newGETRequest(c, "vhost-limits/"+url.PathEscape(vhostname))
 	if err != nil {

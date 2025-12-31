@@ -59,7 +59,7 @@ type AlarmInEffect struct {
 	Resource string `json:"resource"`
 }
 
-// ResourceAlarmCheckStatus represents the response from HealthCheckALarms
+// ResourceAlarmCheckStatus represents the response from HealthCheckAlarms.
 type ResourceAlarmCheckStatus struct {
 	HealthCheck
 	Status string          `json:"status"`
@@ -109,7 +109,7 @@ func (h *PortListenerCheckStatus) Ok() bool {
 	return h.Status == "ok"
 }
 
-// HealthCheckPortListener checks if there is an active listener on the give port.
+// HealthCheckPortListener checks if there is an active listener on the given port.
 // Relevant RabbitMQ doc guide: https://www.rabbitmq.com/monitoring.html
 func (c *Client) HealthCheckPortListener(port uint) (rec PortListenerCheckStatus, err error) {
 	err = c.executeCheck("health/checks/port-listener/"+strconv.Itoa(int(port)), &rec)

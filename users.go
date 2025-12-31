@@ -115,7 +115,7 @@ func (c *Client) ListUsers() (rec []UserInfo, err error) {
 // GET /api/users/{name}
 //
 
-// GetUser returns information about individual user.
+// GetUser returns information about a user.
 func (c *Client) GetUser(username string) (rec *UserInfo, err error) {
 	req, err := newGETRequest(c, "users/"+url.PathEscape(username))
 	if err != nil {
@@ -271,4 +271,45 @@ func (c *Client) Whoami() (rec *WhoamiInfo, err error) {
 	}
 
 	return rec, nil
+}
+
+//
+// GET /api/users/without-permissions
+//
+
+// ListUsersWithoutPermissions returns users without permissions in any virtual host.
+func (c *Client) ListUsersWithoutPermissions() (rec []UserInfo, err error) {
+	req, err := newGETRequest(c, "users/without-permissions")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = executeAndParseRequest(c, req, &rec); err != nil {
+		return nil, err
+	}
+
+	return rec, nil
+}
+
+//
+// POST /api/users/bulk-delete
+//
+
+// BulkDeleteUsers deletes multiple users at once.
+func (c *Client) BulkDeleteUsers(users []string) (res *http.Response, err error) {
+	body, err := json.Marshal(map[string][]string{"users": users})
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestWithBody(c, "POST", "users/bulk-delete", body)
+	if err != nil {
+		return nil, err
+	}
+
+	if res, err = executeRequest(c, req); err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

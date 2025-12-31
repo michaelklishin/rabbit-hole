@@ -85,7 +85,7 @@ func (c *Client) UploadDefinitions(p *ExportedDefinitions) (res *http.Response, 
 // POST /api/definitions/vhost
 //
 
-// UploadDefinitions uploads a set of definitions and returns an error indicating if the operation was a failure
+// UploadVhostDefinitions uploads definitions to a specific vhost.
 func (c *Client) UploadVhostDefinitions(p *ExportedDefinitions, vhost string) (res *http.Response, err error) {
 	body, err := json.Marshal(p)
 	if err != nil {

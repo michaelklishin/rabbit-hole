@@ -30,9 +30,9 @@ type ChannelInfo struct {
 	UnacknowledgedMessageCount int `json:"messages_unacknowledged"`
 	// Number of messages on this channel unconfirmed to publishers
 	UnconfirmedMessageCount int `json:"messages_unconfirmed"`
-	// Number of messages on this channel uncommited to message store
+	// Number of messages on this channel uncommitted to message store
 	UncommittedMessageCount int `json:"messages_uncommitted"`
-	// Number of acks on this channel uncommited to message store
+	// Number of acks on this channel uncommitted to message store
 	UncommittedAckCount int `json:"acks_uncommitted"`
 
 	// TODO(mk): custom deserializer to date/time?

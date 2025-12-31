@@ -205,3 +205,39 @@ func (c *Client) DeleteVhost(vhostname string) (res *http.Response, err error) {
 
 	return res, nil
 }
+
+//
+// POST /api/vhosts/{name}/deletion/protection
+//
+
+// EnableVhostDeletionProtection enables deletion protection for a virtual host.
+func (c *Client) EnableVhostDeletionProtection(vhostname string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "POST", "vhosts/"+url.PathEscape(vhostname)+"/deletion/protection", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if res, err = executeRequest(c, req); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+//
+// DELETE /api/vhosts/{name}/deletion/protection
+//
+
+// DisableVhostDeletionProtection disables deletion protection for a virtual host.
+func (c *Client) DisableVhostDeletionProtection(vhostname string) (res *http.Response, err error) {
+	req, err := newRequestWithBody(c, "DELETE", "vhosts/"+url.PathEscape(vhostname)+"/deletion/protection", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if res, err = executeRequest(c, req); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}

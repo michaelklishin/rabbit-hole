@@ -33,7 +33,7 @@ type ShovelStatus struct {
 	Timestamp string `json:"timestamp"`
 }
 
-// DeleteAfter after can hold a delete-after value which may be a string (eg. "never") or an integer
+// DeleteAfter holds a delete-after value which may be a string (e.g. "never") or an integer.
 type DeleteAfter string
 
 // MarshalJSON can marshal a string or an integer
@@ -188,7 +188,7 @@ func (c *Client) DeclareShovel(vhost, shovel string, info ShovelDefinition) (res
 // DELETE /api/parameters/shovel/{vhost}/{name}
 //
 
-// DeleteShovel a shovel
+// DeleteShovel deletes a shovel.
 func (c *Client) DeleteShovel(vhost, shovel string) (res *http.Response, err error) {
 	req, err := newRequestWithBody(c, "DELETE", "parameters/shovel/"+url.PathEscape(vhost)+"/"+url.PathEscape(shovel), nil)
 	if err != nil {

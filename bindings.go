@@ -14,7 +14,7 @@ type BindingVertex string
 const (
 	// BindingSource indicates the source vertex of a binding
 	BindingSource BindingVertex = "source"
-	// BindingDestination indicates the source vertex of a binding
+	// BindingDestination indicates the destination vertex of a binding
 	BindingDestination BindingVertex = "destination"
 )
 
@@ -114,7 +114,7 @@ func (c *Client) ListBindingsIn(vhost string) (rec []BindingInfo, err error) {
 //    "properties_key":"~"}
 // ]
 
-// ListQueueBindings returns all bindings of individual queue.
+// ListQueueBindings returns all bindings for a queue.
 func (c *Client) ListQueueBindings(vhost, queue string) (rec []BindingInfo, err error) {
 	return c.listBindingsVia("queues/" + url.PathEscape(vhost) + "/" + url.PathEscape(queue) + "/bindings")
 }

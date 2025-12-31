@@ -59,7 +59,7 @@ func (c *Client) ListPermissionsOf(username string) (rec []PermissionInfo, err e
 // GET /api/permissions/{vhost}/{user}
 //
 
-// GetPermissionsIn returns permissions of user in virtual host.
+// GetPermissionsIn returns permissions of a user in a virtual host.
 func (c *Client) GetPermissionsIn(vhost, username string) (rec PermissionInfo, err error) {
 	req, err := newGETRequest(c, "permissions/"+url.PathEscape(vhost)+"/"+url.PathEscape(username))
 	if err != nil {
