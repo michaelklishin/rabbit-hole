@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     services:
       rabbitmq:
@@ -21,13 +21,13 @@ jobs:
 
     strategy:
       matrix:
-        go: ["1.25", "1.24", "1.23", "1.22", "1.21"]
+        go: ["1.26", "1.25", "1.24", "1.23"]
 
     steps:
     - name: CHECKOUT
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go }}
     - name: Print Go version
