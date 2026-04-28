@@ -17,11 +17,6 @@ cover:
 	go tool cover -html=$(COVER_FILE).prof -o $(COVER_FILE).html
 	rm $(COVER_FILE).prof*
 
-.PHONY: ginkgo
-ginkgo:
-	command -v ginkgo || go get -u github.com/onsi/ginkgo/ginkgo
-	ginkgo -v
-
 .PHONY: docker
 docker:
 	docker run --rm \
