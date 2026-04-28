@@ -76,7 +76,7 @@ Operations on Queues
 	// => QueueInfo, err
 
 	// declares a queue
-	resp, err := rmqc.DeclareQueue("/", "a.queue", QueueSettings{Durable: false})
+	resp, err := rmqc.DeclareQueue("/", "a.queue", QueueSettings{Durable: true})
 	// => *http.Response, err
 
 	// deletes individual queue
