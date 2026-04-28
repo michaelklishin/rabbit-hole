@@ -856,7 +856,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			rmqc.DeleteQueue(vh, qn)
 			_, err = ch.QueueDeclare(
 				qn,    // name
-				false, // durable
+				true,  // durable
 				false, // auto delete
 				false, // exclusive
 				false,
@@ -904,7 +904,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			qn := "rabbit-hole.queues/paged.with.arguments"
 			_, err = ch.QueueDeclare(
 				qn,    // name
-				false, // durable
+				true,  // durable
 				false, // auto delete
 				false, // exclusive
 				false,
@@ -955,7 +955,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			qn := "rabbit-hole.queues./.paged"
 			_, err = ch.QueueDeclare(
 				qn,    // name
-				false, // durable
+				true,  // durable
 				false, // auto delete
 				false, // exclusive
 				false,
@@ -1007,7 +1007,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			qn := "rabbit-hole.queues.in.a.vhost"
 			_, err = ch.QueueDeclare(
 				qn,    // name
-				false, // durable
+				true,  // durable
 				false, // auto delete
 				false, // exclusive
 				false,
@@ -1028,7 +1028,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			q := FindQueueByName(qs, qn)
 			Ω(q.Name).Should(Equal(qn))
 			Ω(q.Vhost).Should(Equal(vh))
-			Ω(q.Durable).Should(Equal(false))
+			Ω(q.Durable).Should(Equal(true))
 
 			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
 			Ω(err).Should(BeNil())
@@ -1048,7 +1048,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			qn := "rabbit-hole.queues.in.a.vhost/named"
 			_, err = ch.QueueDeclare(
 				qn,    // name
-				false, // durable
+				true,  // durable
 				false, // auto delete
 				false, // exclusive
 				false,
@@ -1067,7 +1067,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(q.Vhost).Should(Equal(vh))
-			Ω(q.Durable).Should(Equal(false))
+			Ω(q.Durable).Should(Equal(true))
 
 			_, err = rmqc.DeleteQueue(vh, qn, QueueDeleteOptions{IfEmpty: true})
 			Ω(err).Should(BeNil())
@@ -1087,7 +1087,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			qn := "rabbit-hole.queues.in.a.vhost/to.be.deleted"
 			q, err := ch.QueueDeclare(
 				qn,    // name
-				false, // durable
+				true,  // durable
 				false, // auto delete
 				false, // exclusive
 				false,
@@ -1745,7 +1745,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			qn := "rabbit-hole.test.bindings.post.queue"
 			rmqc.DeleteQueue(vh, qn)
 
-			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{})
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: true})
 			Ω(err).Should(BeNil())
 
 			info := BindingInfo{
@@ -1804,7 +1804,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			err = ch.ExchangeDeclare(x, "topic", false, false, false, false, nil)
 			Ω(err).Should(BeNil())
-			_, err = ch.QueueDeclare(q, false, false, false, false, nil)
+			_, err = ch.QueueDeclare(q, true, false, false, false, nil)
 			Ω(err).Should(BeNil())
 
 			err = ch.QueueBind(q, "#", x, false, nil)
@@ -2420,7 +2420,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			qn := "rabbit-hole.temporary/to.be.deleted"
 
-			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: true})
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
@@ -2444,7 +2444,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			qn := "rabbit-hole.temporary/if.empty"
 
-			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: true})
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
@@ -2468,7 +2468,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			qn := "rabbit-hole.temporary/if.unused"
 
-			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: true})
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
@@ -2494,7 +2494,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			qn := "rabbit-hole.temporary/contents"
 
-			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: false})
+			_, err := rmqc.DeclareQueue(vh, qn, QueueSettings{Durable: true})
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) string {
