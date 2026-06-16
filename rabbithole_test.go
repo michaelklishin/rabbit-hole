@@ -188,7 +188,9 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			xs, err := rmqc.ListConnections()
 
-			closeEvents := make(chan *amqp.Error)
+			// Buffered: amqp091-go v1.12.0 `Connection.shutdown` can race the close
+			// error against closing the listener, so an unbuffered chan may yield nil.
+			closeEvents := make(chan *amqp.Error, 1)
 			conn.NotifyClose(closeEvents)
 
 			n := xs[0].Name
@@ -231,7 +233,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				return xs
 			}).ShouldNot(BeEmpty())
 
-			closeEvents := make(chan *amqp.Error)
+			// Buffered, see the note above.
+			closeEvents := make(chan *amqp.Error, 1)
 			conn.NotifyClose(closeEvents)
 
 			_, err := rmqc.CloseAllConnectionsOfUser(u)
@@ -279,7 +282,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				return xs
 			}).ShouldNot(BeEmpty())
 
-			closeEvents := make(chan *amqp.Error)
+			// Buffered, see the note above.
+			closeEvents := make(chan *amqp.Error, 1)
 			conn.NotifyClose(closeEvents)
 
 			// the user can close their own connections
@@ -2316,11 +2320,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
-			permissions = TopicPermissions{Exchange: "foobar", Write: "log.*", Read: "log.*"}
+			// Must be an existing exchange: RabbitMQ 4.x rejects topic permissions
+			// for a non-existent exchange with "no_such_exchange".
+			permissions = TopicPermissions{Exchange: "amq.direct", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
 
-			_, err = rmqc.DeleteTopicPermissionsIn("/", u, "foobar")
+			_, err = rmqc.DeleteTopicPermissionsIn("/", u, "amq.direct")
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) []TopicPermissionInfo {
