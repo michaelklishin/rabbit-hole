@@ -2320,13 +2320,12 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			permissions := TopicPermissions{Exchange: "amq.topic", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
-			// Must be an existing exchange: RabbitMQ 4.x rejects topic permissions
-			// for a non-existent exchange with "no_such_exchange".
-			permissions = TopicPermissions{Exchange: "amq.direct", Write: "log.*", Read: "log.*"}
+			// RabbitMQ 4.x rejects topic permissions for a non-existent exchange.
+			permissions = TopicPermissions{Exchange: "amq.rabbitmq.trace", Write: "log.*", Read: "log.*"}
 			_, err = rmqc.UpdateTopicPermissionsIn("/", u, permissions)
 			Ω(err).Should(BeNil())
 
-			_, err = rmqc.DeleteTopicPermissionsIn("/", u, "amq.direct")
+			_, err = rmqc.DeleteTopicPermissionsIn("/", u, "amq.rabbitmq.trace")
 			Ω(err).Should(BeNil())
 
 			Eventually(func(g Gomega) []TopicPermissionInfo {
