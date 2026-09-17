@@ -328,8 +328,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	// rabbitmq/rabbitmq-server#8482, rabbitmq/rabbitmq-server#5319
 	Context("DELETE /api/connections/username/{username} invoked by a non-privileged user, case 1", func() {
 		It("closes the connection", func() {
-			Skip("unskip when rabbitmq/rabbitmq-server#8483 ships in a GA release")
-
 			// first close all connections as an administrative user
 			xs, _ := rmqc.ListConnections()
 			for _, c := range xs {
@@ -378,8 +376,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	// rabbitmq/rabbitmq-server#8482, rabbitmq/rabbitmq-server#5319
 	Context("DELETE /api/connections/username/{username} invoked by a non-privileged user, case 2", func() {
 		It("fails with insufficient permissions", func() {
-			Skip("unskip when rabbitmq/rabbitmq-server#8483 ships in a GA release")
-
 			u := "policymaker"
 
 			// an HTTP API client that uses policymaker-level permissions
@@ -4176,11 +4172,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 		It("lists deprecated feature flags in use", func() {
 			// TODO: Enable this test after https://github.com/rabbitmq/rabbitmq-server/issues/12619 is fixed
-			Skip("not possible to setup RabbitMQ 4.0 to report expected output")
+			ov, err := rmqc.Overview()
+			Ω(err).ShouldNot(HaveOccurred())
+			if !isRabbitVersion41OrLater(ov.RabbitMQVersion) {
+				Skip("not possible to setup RabbitMQ 4.0 to report expected output")
+			}
 
 			// Setup
 			const queue = "transient.nonexcl.qu"
-			_, err := rmqc.DeclareQueue("rabbit/hole", queue, QueueSettings{
+			_, err = rmqc.DeclareQueue("rabbit/hole", queue, QueueSettings{
 				Type:       "classic",
 				Durable:    false,
 				AutoDelete: false,
