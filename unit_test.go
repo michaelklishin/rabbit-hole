@@ -92,4 +92,27 @@ var _ = Describe("Unit tests", func() {
 			Ω(d.ChannelDetails).Should(Equal(ChannelDetails{Name: "foo"}))
 		})
 	})
+
+	Context("compareVersions", func() {
+		DescribeTable("compare version strings", func(version1, version2 string, expected int) {
+			Ω(compareVersions(version1, version2)).Should(HaveValue(Equal(expected)))
+		},
+			Entry("3.13 < 4.0", "3.13.0", "4.0.0", -1),
+			Entry("4.0 > 3.13", "4.0", "3.13", 1),
+			Entry("4.0.0 < 4.0.1", "4.0.0", "4.0.1", -1),
+			Entry("4.0 < 4.0.0", "4.0", "4.0.0", -1),
+			// not semver correct, but for our interests (feature flagging), only the MAJOR.MINOR.PATCH is relevant
+			Entry("4.0.0-beta.1 < 4.0.0", "4.0.0-beta.1", "4.0.0", 0),
+			Entry("4.0.0-beta.1 < 4.0.0-beta.2", "4.0.0-beta.1", "4.0.0-beta.2", -1), // edge case to the above 😮‍💨
+		)
+		DescribeTable("is version higher than 4.4", func(v string, ex bool) {
+			Ω(isRabbitVersion44OrLater(v)).To(Equal(ex))
+		},
+			Entry("4.0", "4.0", false),
+			Entry("4.4", "4.4", false), // special case
+			Entry("4.4.0", "4.4.0", true),
+			Entry("4.4.1", "4.4.1", true),
+			Entry("5.0.0", "5.0.0", true),
+		)
+	})
 })
