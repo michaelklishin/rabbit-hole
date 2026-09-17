@@ -26,7 +26,7 @@ docker:
 
 .PHONY: docker.rabbitmq
 docker.rabbitmq:
-	docker run --rm -p 15672:15672 -p 5672:5672 -p 4639:4639 --name rabbithole_rabbitmq -d -t rabbitmq:4.0-management
+	docker run --rm -p 15672:15672 -p 5672:5672 -p 4639:4639 --name rabbithole_rabbitmq -d -t rabbitmq:4-management
 	sleep 2
 	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl await_startup"
 	docker exec -ti rabbithole_rabbitmq /bin/bash -c "rabbitmqctl set_cluster_name rabbitmq@localhost"
