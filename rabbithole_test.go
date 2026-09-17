@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -114,6 +115,81 @@ func mediumSleep() {
 
 type portTestStruct struct {
 	Port Port `json:"port"`
+}
+
+const (
+	rabbit41 = "4.1.0"
+	rabbit44 = "4.4.0"
+)
+
+func signum(num int) int {
+	if num == 0 {
+		return 0
+	}
+	if num < 0 {
+		return -1
+	}
+	// case num > 0
+	return 1
+}
+
+func compareVersions(ver1, ver2 string) *int {
+	ver1Components := strings.Split(ver1, ".")
+	ver2Components := strings.Split(ver2, ".")
+	i := 0
+	// set index to first non-equal ordinal or length of shortest version string
+	for i < len(ver1Components) && i < len(ver2Components) && ver1Components[i] == ver2Components[i] {
+		i += 1
+	}
+
+	if i < len(ver1Components) && i < len(ver2Components) {
+		if ind := strings.Index(ver1Components[i], "-"); ind != -1 {
+			ver1Components[i] = ver1Components[i][0:ind]
+		}
+		if ind := strings.Index(ver2Components[i], "-"); ind != -1 {
+			ver2Components[i] = ver2Components[i][0:ind]
+		}
+
+		x, err := strconv.Atoi(ver1Components[i])
+		if err != nil {
+			return nil
+		}
+		y, err := strconv.Atoi(ver2Components[i])
+		if err != nil {
+			return nil
+		}
+		return new(signum(x - y))
+	} else {
+		// the strings are equal or one string is a substring of the other
+		// e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
+		return new(signum(len(ver1Components) - len(ver2Components)))
+	}
+}
+
+func isRabbitVersion44OrLater(ver string) bool {
+	// special case. Any version is higher than 0.0.0
+	if b := strings.HasPrefix(ver, "0.0.0"); b {
+		return b
+	}
+
+	res := compareVersions(ver, rabbit44)
+	if res == nil || *res == -1 {
+		return false
+	}
+	return true
+}
+
+func isRabbitVersion41OrLater(ver string) bool {
+	// special case. Any version is higher than 0.0.0
+	if b := strings.HasPrefix(ver, "0.0.0"); b {
+		return b
+	}
+
+	res := compareVersions(ver, rabbit41)
+	if res == nil || *res == -1 {
+		return false
+	}
+	return true
 }
 
 var _ = BeforeSuite(func() {
@@ -252,8 +328,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	// rabbitmq/rabbitmq-server#8482, rabbitmq/rabbitmq-server#5319
 	Context("DELETE /api/connections/username/{username} invoked by a non-privileged user, case 1", func() {
 		It("closes the connection", func() {
-			Skip("unskip when rabbitmq/rabbitmq-server#8483 ships in a GA release")
-
 			// first close all connections as an administrative user
 			xs, _ := rmqc.ListConnections()
 			for _, c := range xs {
@@ -302,8 +376,6 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 	// rabbitmq/rabbitmq-server#8482, rabbitmq/rabbitmq-server#5319
 	Context("DELETE /api/connections/username/{username} invoked by a non-privileged user, case 2", func() {
 		It("fails with insufficient permissions", func() {
-			Skip("unskip when rabbitmq/rabbitmq-server#8483 ships in a GA release")
-
 			u := "policymaker"
 
 			// an HTTP API client that uses policymaker-level permissions
@@ -1221,7 +1293,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			u := FindUserByName(xs, "guest")
 			Ω(u.Name).Should(BeEquivalentTo("guest"))
-			Ω(u.PasswordHash).ShouldNot(BeNil())
+
+			ov, err := rmqc.Overview()
+			Ω(err).ShouldNot(HaveOccurred())
+			if isRabbitVersion44OrLater(ov.RabbitMQVersion) {
+				Ω(u.HasPassword).ShouldNot(BeNil())
+				Ω(*u.HasPassword).Should(BeTrue(), "expected user to have a password")
+			} else {
+				Ω(u.PasswordHash).ShouldNot(HaveValue(BeEmpty()))
+			}
 
 			tags := UserTags([]string{"administrator"})
 			Ω(u.Tags).Should(Equal(tags))
@@ -1234,7 +1314,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			Ω(u.Name).Should(BeEquivalentTo("guest"))
-			Ω(u.PasswordHash).ShouldNot(BeNil())
+
+			ov, err := rmqc.Overview()
+			Ω(err).ShouldNot(HaveOccurred())
+			if isRabbitVersion44OrLater(ov.RabbitMQVersion) {
+				Ω(u.HasPassword).ShouldNot(BeNil())
+				Ω(*u.HasPassword).Should(BeTrue(), "expected user to have a password")
+			} else {
+				Ω(u.PasswordHash).ShouldNot(HaveValue(BeEmpty()))
+			}
 
 			tags := UserTags([]string{"administrator"})
 			Ω(u.Tags).Should(Equal(tags))
@@ -1301,10 +1389,17 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			u, err := rmqc.GetUser(username)
 			Ω(err).Should(BeNil())
 
-			Ω(u.PasswordHash).ShouldNot(BeNil())
-			Ω(u.PasswordHash).ShouldNot(BeEquivalentTo(""))
+			ov, err := rmqc.Overview()
+			Ω(err).ShouldNot(HaveOccurred())
+			if isRabbitVersion44OrLater(ov.RabbitMQVersion) {
+				Ω(u.HasPassword).Should(HaveValue(Equal(true)), "expected user to have a password")
+			} else {
+				Ω(u.PasswordHash).ShouldNot(BeNil())
+				Ω(u.PasswordHash).ShouldNot(BeEquivalentTo(""))
+			}
 
 			Ω(u.Tags).Should(Equal(tags))
+			Ω(u.HashingAlgorithm).Should(BeEquivalentTo("rabbit_password_hashing_sha256"))
 
 			// make sure the user can successfully connect
 			conn, err := amqp.Dial("amqp://" + username + ":" + password + "@localhost:5672/%2f")
@@ -1355,7 +1450,13 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			u, err := rmqc.GetUser(username)
 			Ω(err).Should(BeNil())
 
-			Ω(u.PasswordHash).Should(BeEquivalentTo(""))
+			ov, err := rmqc.Overview()
+			Ω(err).ShouldNot(HaveOccurred())
+			if isRabbitVersion44OrLater(ov.RabbitMQVersion) {
+				Ω(u.HasPassword).Should(BeFalse(), "expected user to not have a password after update")
+			} else {
+				Ω(u.PasswordHash).ShouldNot(HaveValue(BeEmpty()))
+			}
 			Ω(u.Tags).Should(Equal(tags))
 
 			// cleanup
@@ -4071,11 +4172,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 		It("lists deprecated feature flags in use", func() {
 			// TODO: Enable this test after https://github.com/rabbitmq/rabbitmq-server/issues/12619 is fixed
-			Skip("not possible to setup RabbitMQ 4.0 to report expected output")
+			ov, err := rmqc.Overview()
+			Ω(err).ShouldNot(HaveOccurred())
+			if !isRabbitVersion41OrLater(ov.RabbitMQVersion) {
+				Skip("not possible to setup RabbitMQ 4.0 to report expected output")
+			}
 
 			// Setup
 			const queue = "transient.nonexcl.qu"
-			_, err := rmqc.DeclareQueue("rabbit/hole", queue, QueueSettings{
+			_, err = rmqc.DeclareQueue("rabbit/hole", queue, QueueSettings{
 				Type:       "classic",
 				Durable:    false,
 				AutoDelete: false,

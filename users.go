@@ -67,11 +67,13 @@ func (d *UserTags) UnmarshalJSON(b []byte) error {
 // UserInfo represents a user record. Only relevant when internal authentication
 // backend is used.
 type UserInfo struct {
-	Name             string           `json:"name"`
-	PasswordHash     string           `json:"password_hash"`
+	Name string `json:"name"`
+	// Deprecated: removed in 4.4+. Use HasPassword instead
+	PasswordHash     *string          `json:"password_hash,omitempty"`
 	HashingAlgorithm HashingAlgorithm `json:"hashing_algorithm,omitempty"`
 	// Tags control permissions. Built-in tags: administrator, management, policymaker.
-	Tags UserTags `json:"tags"`
+	Tags        UserTags `json:"tags"`
+	HasPassword *bool    `json:"has_password,omitempty"`
 }
 
 // UserSettings represents properties of a user. Used to create users.
