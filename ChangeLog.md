@@ -1,6 +1,8 @@
 ## Changes Between 3.5.0 and 3.6.0 (in development)
 
-No changes yet.
+### Health check request errors
+
+Health checks return request creation errors for malformed URLs instead of panicking.
 
 
 ## Changes Between 3.2.0 and 3.5.0 (Dec 30, 2025)

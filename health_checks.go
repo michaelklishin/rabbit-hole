@@ -161,6 +161,10 @@ func (c *Client) HealthCheckNodeIsQuorumCritical() (rec HealthCheckStatus, err e
 
 func (c *Client) executeCheck(path string, rec interface{}) error {
 	req, err := newGETRequest(c, path)
+	if err != nil {
+		return err
+	}
+
 	httpc := &http.Client{
 		Timeout: c.timeout,
 	}
