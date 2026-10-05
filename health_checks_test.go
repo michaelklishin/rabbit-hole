@@ -14,6 +14,33 @@ var _ = Describe("Health checks", func() {
 		rmqc, _ = NewClient("http://127.0.0.1:15672", "guest", "guest")
 	})
 
+	Context("request creation errors", func() {
+		DescribeTable("returns malformed protocol errors", func(protocol Protocol, message string) {
+			res, err := rmqc.HealthCheckProtocolListener(protocol)
+			Ω(err).Should(MatchError(ContainSubstring(message)))
+			Ω(res.Status).Should(BeEmpty())
+		},
+			Entry("invalid URL escape", Protocol("%"), "invalid URL escape"),
+			Entry("control character", Protocol("amqp091\n"), "invalid control character in URL"),
+		)
+
+		DescribeTable("returns malformed time unit errors", func(unit TimeUnit, message string) {
+			res, err := rmqc.HealthCheckCertificateExpiration(1, unit)
+			Ω(err).Should(MatchError(ContainSubstring(message)))
+			Ω(res.Status).Should(BeEmpty())
+		},
+			Entry("invalid URL escape", TimeUnit("%"), "invalid URL escape"),
+			Entry("control character", TimeUnit("days\n"), "invalid control character in URL"),
+		)
+
+		It("returns malformed endpoint errors", func() {
+			rmqc.Endpoint = "http://[::1"
+			res, err := rmqc.HealthCheckAlarms()
+			Ω(err).Should(MatchError(ContainSubstring("missing ']' in host")))
+			Ω(res.Status).Should(BeEmpty())
+		})
+	})
+
 	Context("GET /health/checks/alarms", func() {
 		It("returns decoded response", func() {
 			conn := openConnection("/")
