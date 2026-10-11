@@ -4,6 +4,16 @@
 
 Health checks return request creation errors for malformed URLs instead of panicking.
 
+### `UserInfo.HasPassword`
+
+This release contains a **minor breaking public API change** that
+is necessary due to the RabbitMQ `4.4.0` HTTP API changes.
+
+`UserInfo` has a new field, `HasPassword`, which reports whether a user has a password set.
+
+`UserInfo.PasswordHash` is now deprecated and has changed its type from `string` to `*string`.
+It is `nil` when the node does not return a hash.
+
 
 ## Changes Between 3.2.0 and 3.5.0 (Dec 30, 2025)
 
