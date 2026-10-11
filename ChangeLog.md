@@ -14,6 +14,8 @@ is necessary due to the RabbitMQ `4.4.0` HTTP API changes.
 `UserInfo.PasswordHash` is now deprecated and has changed its type from `string` to `*string`.
 It is `nil` when the node does not return a hash.
 
+GitHub issue: [#466](https://github.com/michaelklishin/rabbit-hole/pull/466)
+
 
 ## Changes Between 3.2.0 and 3.5.0 (Dec 30, 2025)
 
