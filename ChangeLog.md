@@ -1,3 +1,8 @@
+## Changes Between 3.6.0 and 3.7.0 (in development)
+
+No changes yet.
+
+
 ## Changes Between 3.5.0 and 3.6.0 (Oct 11, 2026)
 
 ### Health check request errors
