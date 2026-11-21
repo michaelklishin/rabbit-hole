@@ -322,10 +322,10 @@ q, err := rmqc.GetShovel("/", "a.shovel")
 
 // declares a shovel
 shovelDetails := rabbithole.ShovelDefinition{
-	SourceURI: URISet{"amqp://sourceURI"},
+	SourceURI: URISet{"amqp://username:password@source-host"},
 	SourceProtocol: "amqp091",
 	SourceQueue: "mySourceQueue",
-	DestinationURI: "amqp://destinationURI",
+	DestinationURI: "amqp://username:password@destination-host",
 	DestinationProtocol: "amqp10",
 	DestinationAddress: "myDestQueue",
 	DestinationAddForwardHeaders: true,
@@ -362,7 +362,7 @@ p, err := rmqc.GetRuntimeParameter("federation-upstream", "/", "name")
 
 // declare or update a runtime parameter
 resp, err := rmqc.PutRuntimeParameter("federation-upstream", "/", "name", FederationDefinition{
-    Uri: URISet{"amqp://server-name"},
+    Uri: URISet{"amqp://username:password@server-name"},
 })
 // => *http.Response, error
 
@@ -389,7 +389,7 @@ up, err := rmqc.GetFederationUpstream("/", "name")
 
 // declare or update a federation upstream
 resp, err := rmqc.PutFederationUpstream("/", "name", FederationDefinition{
-  Uri: URISet{"amqp://server-name"},
+  Uri: URISet{"amqp://username:password@server-name"},
 })
 // => *http.Response, error
 

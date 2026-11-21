@@ -219,7 +219,7 @@ Managing Runtime Parameters
 
 	// declare or update a runtime parameter
 	resp, err := rmqc.PutRuntimeParameter("federation-upstream", "/", "name", FederationDefinition{
-	    Uri: "amqp://server-name",
+	    Uri: "amqp://username:password@server-name",
 	})
 	// => *http.Response, error
 
@@ -243,7 +243,7 @@ Managing Federation Upstreams
 
 	// declare or update a federation upstream
 	resp, err := rmqc.PutFederationUpstream("/", "upstream-name", FederationDefinition{
-	  Uri: "amqp://server-name",
+	  Uri: "amqp://username:password@server-name",
 	})
 	// => *http.Response, error
 

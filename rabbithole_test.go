@@ -13,6 +13,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/types"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -190,6 +191,14 @@ func isRabbitVersion41OrLater(ver string) bool {
 		return false
 	}
 	return true
+}
+
+// beNotFound matches a 404 Not Found HTTP API response
+func beNotFound() types.GomegaMatcher {
+	return SatisfyAll(
+		BeAssignableToTypeOf(ErrorResponse{}),
+		HaveField("StatusCode", http.StatusNotFound),
+	)
 }
 
 var _ = BeforeSuite(func() {
@@ -1185,7 +1194,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			Ω(err).Should(BeNil())
 
 			qi2, err := rmqc.GetQueue(vh, q.Name)
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Ω(err).Should(beNotFound())
 			Ω(qi2).Should(BeNil())
 		})
 	})
@@ -1351,7 +1360,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			u, err := rmqc.GetUser(username)
 			Ω(err).Should(BeNil())
 
-			Ω(u.PasswordHash).ShouldNot(BeNil())
+			ov, err := rmqc.Overview()
+			Ω(err).ShouldNot(HaveOccurred())
+			if isRabbitVersion44OrLater(ov.RabbitMQVersion) {
+				Ω(u.HasPassword).Should(HaveValue(BeTrue()), "expected user to have a password")
+				Ω(u.PasswordHash).Should(BeNil())
+			} else {
+				Ω(u.PasswordHash).Should(HaveValue(Not(BeEmpty())))
+			}
 			tags := UserTags([]string{"policymaker", "management"})
 			Ω(u.Tags).Should(Equal(tags))
 
@@ -1453,7 +1469,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			ov, err := rmqc.Overview()
 			Ω(err).ShouldNot(HaveOccurred())
 			if isRabbitVersion44OrLater(ov.RabbitMQVersion) {
-				Ω(u.HasPassword).Should(BeFalse(), "expected user to not have a password after update")
+				Ω(u.HasPassword).Should(HaveValue(BeFalse()), "expected user to not have a password after update")
 			} else {
 				Ω(u.PasswordHash).Should(HaveValue(BeEmpty()))
 			}
@@ -1488,7 +1504,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			}).Should(BeNil())
 
 			u2, err := rmqc.GetUser(username)
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Ω(err).Should(beNotFound())
 			Ω(u2).Should(BeNil())
 		})
 	})
@@ -1602,7 +1618,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 			x2, err := rmqc.GetVhost(vh)
 			Ω(x2).Should(BeNil())
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Ω(err).Should(beNotFound())
 		})
 	})
 
@@ -2271,7 +2287,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetPermissionsIn("/", u)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 
 			_, err = rmqc.DeleteUser(u)
 			Ω(err).Should(BeNil())
@@ -2404,7 +2420,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			}).ShouldNot(BeNil())
 
 			_, err = rmqc.GetTopicPermissionsIn("/", u)
-			Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			Ω(err).Should(beNotFound())
 
 			_, err = rmqc.DeleteUser(u)
 			Ω(err).Should(BeNil())
@@ -2489,7 +2505,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetExchange(vh, xn)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 	})
 
@@ -2543,7 +2559,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetQueue(vh, qn)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 
 		It("accepts IfEmpty option", func() {
@@ -2567,7 +2583,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetQueue(vh, qn)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 
 		It("accepts IfUnused option", func() {
@@ -2591,7 +2607,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetQueue(vh, qn)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 	})
 
@@ -2620,7 +2636,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetQueue(vh, qn)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 	})
 
@@ -2801,7 +2817,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					_, err := rmqc.GetPolicy(vh, name)
 
 					return err
-				}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				}).Should(beNotFound())
 			})
 		})
 	})
@@ -2838,7 +2854,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetPolicy(vh, name)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 	})
 
@@ -2874,7 +2890,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetPolicy(vh, name)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 
 		It("updates the policy", func() {
@@ -2949,7 +2965,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetPolicy(vh, name)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 	})
 
@@ -3133,7 +3149,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					_, err := rmqc.GetOperatorPolicy(vh, name)
 
 					return err
-				}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				}).Should(beNotFound())
 			})
 		})
 	})
@@ -3168,7 +3184,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetOperatorPolicy(vh, name)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 	})
 
@@ -3280,7 +3296,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetOperatorPolicy(vh, name)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 	})
 
@@ -3299,7 +3315,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 		Context("when there are upstreams", func() {
 			It("returns the list of upstreams", func() {
 				def1 := FederationDefinition{
-					Uri: URISet{"amqp://server-name/%2f"},
+					Uri: URISet{"amqp://guest:guest@server-name/%2f"},
 				}
 
 				vh := "rabbit/hole"
@@ -3317,7 +3333,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(err).Should(BeNil())
 
 				def2 := FederationDefinition{
-					Uri: URISet{"amqp://example.com/%2f"},
+					Uri: URISet{"amqp://guest:guest@example.com/%2f"},
 				}
 				_, err = rmqc.PutFederationUpstream("/", name2, def2)
 				Ω(err).Should(BeNil())
@@ -3369,14 +3385,14 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				vh := "rabbit/hole"
 
 				def1 := FederationDefinition{
-					Uri: URISet{"amqp://server-name/%2f"},
+					Uri: URISet{"amqp://guest:guest@server-name/%2f"},
 				}
 
 				_, err := rmqc.PutFederationUpstream(vh, "vhost-upstream1", def1)
 				Ω(err).Should(BeNil())
 
 				def2 := FederationDefinition{
-					Uri: URISet{"amqp://example.com/%2f"},
+					Uri: URISet{"amqp://guest:guest@example.com/%2f"},
 				}
 
 				_, err = rmqc.PutFederationUpstream(vh, "vhost-upstream2", def2)
@@ -3430,7 +3446,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(up).Should(BeNil())
-				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				Ω(err).Should(beNotFound())
 			})
 		})
 
@@ -3440,7 +3456,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				name := "valid-upstream"
 
 				def := FederationDefinition{
-					Uri:            []string{"amqp://127.0.0.1/%2f"},
+					Uri:            []string{"amqp://guest:guest@127.0.0.1/%2f"},
 					PrefetchCount:  1000,
 					ReconnectDelay: 1,
 					AckMode:        "on-confirm",
@@ -3489,10 +3505,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				up, err := rmqc.GetFederationUpstream(vh, name)
 				Ω(up).Should(BeNil())
-				Ω(err).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+				Ω(err).Should(beNotFound())
 
 				def := FederationDefinition{
-					Uri:                 []string{"amqp://127.0.0.1/%2f"},
+					Uri:                 []string{"amqp://guest:guest@127.0.0.1/%2f"},
 					Expires:             1800000,
 					MessageTTL:          360000,
 					MaxHops:             1,
@@ -3553,7 +3569,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				// create the upstream
 				def := FederationDefinition{
-					Uri:                 []string{"amqp://127.0.0.1/%2f"},
+					Uri:                 []string{"amqp://guest:guest@127.0.0.1/%2f"},
 					PrefetchCount:       1000,
 					ReconnectDelay:      1,
 					AckMode:             "on-confirm",
@@ -3587,7 +3603,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 
 				// update the upstream
 				def2 := FederationDefinition{
-					Uri:                 []string{"amqp://128.0.0.1/%2f", "amqp://128.0.0.7/%2f"},
+					Uri:                 []string{"amqp://guest:guest@128.0.0.1/%2f", "amqp://guest:guest@128.0.0.7/%2f"},
 					PrefetchCount:       500,
 					ReconnectDelay:      10,
 					AckMode:             "no-ack",
@@ -3665,7 +3681,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				name := "delete-upstream"
 
 				def := FederationDefinition{
-					Uri: []string{"amqp://127.0.0.1/%2f"},
+					Uri: []string{"amqp://guest:guest@127.0.0.1/%2f"},
 				}
 
 				_, err := rmqc.PutFederationUpstream(vh, name, def)
@@ -3726,7 +3742,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				// create upstream
 				upstreamName := "myUpsteam"
 				def := FederationDefinition{
-					Uri:     []string{"amqp://localhost/%2f"},
+					Uri:     []string{"amqp://guest:guest@localhost/%2f"},
 					Expires: 1800000,
 				}
 
@@ -3763,7 +3779,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(link["upstream"]).Should(Equal(upstreamName))
 				Ω(link["type"]).Should(Equal("exchange"))
 				Ω(link["exchange"]).Should(Equal("amq.topic"))
-				Ω(link["uri"]).Should(Equal(def.Uri[0]))
+				// link status reports the URI with credentials stripped
+				Ω(link["uri"]).Should(Equal("amqp://localhost/%2f"))
 				Ω([]string{"running", "starting"}).Should(ContainElement(link["status"]))
 
 				// cleanup
@@ -3788,8 +3805,10 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := URISet([]string{"amqp://127.0.0.1/%2f"})
-			sdu := URISet([]string{"amqp://127.0.0.1/%2f", "amqp://localhost/%2f"})
+			// AMQP 1.0 URIs cannot carry a virtual host path segment (rejected by 4.4+),
+			// the target virtual host is passed via the hostname query parameter
+			ssu := URISet([]string{"amqp://guest:guest@127.0.0.1:5672?hostname='vhost:/'"})
+			sdu := URISet([]string{"amqp://guest:guest@127.0.0.1:5672?hostname='vhost:/'", "amqp://guest:guest@localhost:5672?hostname='vhost:/'"})
 
 			shovelDefinition := ShovelDefinition{
 				AckMode:                          "on-confirm",
@@ -3852,7 +3871,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetShovel(vh, sn)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 	})
 
@@ -3861,8 +3880,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := URISet([]string{"amqp://127.0.0.1/%2f"})
-			sdu := URISet([]string{"amqp://127.0.0.1/%2f"})
+			ssu := URISet([]string{"amqp://guest:guest@127.0.0.1/%2f"})
+			sdu := URISet([]string{"amqp://guest:guest@127.0.0.1/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				AckMode:                       "on-confirm",
@@ -3922,15 +3941,15 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetShovel(vh, sn)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 
 		It("declares a shovel with a numeric delete-after value", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := URISet([]string{"amqp://127.0.0.1/%2f"})
-			sdu := URISet([]string{"amqp://127.0.0.1/%2f"})
+			ssu := URISet([]string{"amqp://guest:guest@127.0.0.1/%2f"})
+			sdu := URISet([]string{"amqp://guest:guest@127.0.0.1/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:         ssu,
@@ -3976,7 +3995,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				_, err := rmqc.GetShovel(vh, sn)
 
 				return err
-			}).Should(Equal(ErrorResponse{404, "Object Not Found", "Not Found"}))
+			}).Should(beNotFound())
 		})
 	})
 
@@ -3985,8 +4004,8 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 			vh := "rabbit/hole"
 			sn := "temporary"
 
-			ssu := URISet([]string{"amqp://localhost/%2f"})
-			sdu := URISet([]string{"amqp://localhost/%2f"})
+			ssu := URISet([]string{"amqp://guest:guest@localhost/%2f"})
+			sdu := URISet([]string{"amqp://guest:guest@localhost/%2f"})
 
 			shovelDefinition := ShovelDefinition{
 				SourceURI:         ssu,
@@ -4024,7 +4043,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				name := "temporary"
 
 				pv := RuntimeParameterValue{
-					"uri":             "amqp://server-name",
+					"uri":             "amqp://guest:guest@server-name",
 					"prefetch-count":  500,
 					"reconnect-delay": 5,
 					"ack-mode":        "on-confirm",
@@ -4086,7 +4105,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(err).Should(BeNil())
 
 				fDef := FederationDefinition{
-					Uri: []string{"amqp://server-name/%2f"},
+					Uri: []string{"amqp://guest:guest@server-name/%2f"},
 				}
 
 				vh := "rabbit/hole"
@@ -4096,9 +4115,9 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 				Ω(err).Should(BeNil())
 
 				sDef := ShovelDefinition{
-					SourceURI:         URISet([]string{"amqp://127.0.0.1/%2f"}),
+					SourceURI:         URISet([]string{"amqp://guest:guest@127.0.0.1/%2f"}),
 					SourceQueue:       "mySourceQueue",
-					DestinationURI:    URISet([]string{"amqp://127.0.0.1/%2f"}),
+					DestinationURI:    URISet([]string{"amqp://guest:guest@127.0.0.1/%2f"}),
 					DestinationQueue:  "myDestQueue",
 					AddForwardHeaders: true,
 					AckMode:           "on-confirm",
@@ -4234,7 +4253,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					By("creating the parameter")
 					name := "parameter-name"
 					value := map[string]interface{}{
-						"endpoints": []string{"amqp://server-name"},
+						"endpoints": []string{"amqp://guest:guest@server-name"},
 					}
 
 					_, err := rmqc.PutGlobalParameter(name, value)
@@ -4257,7 +4276,7 @@ var _ = Describe("RabbitMQ HTTP API client", func() {
 					Ω(ok).Should(BeTrue())
 					endpoints := v["endpoints"].([]interface{})
 					Ω(endpoints).To(HaveLen(1))
-					Ω(endpoints[0].(string)).Should(Equal("amqp://server-name"))
+					Ω(endpoints[0].(string)).Should(Equal("amqp://guest:guest@server-name"))
 
 					By("deleting the parameter")
 					_, err = rmqc.DeleteGlobalParameter(name)
